@@ -1,60 +1,30 @@
-# Config file for an example Dinosaur Planet: Recompiled mod.
-
-# Fields that end up in the mod's manifest.
 [manifest]
-
-# Unique ID of this mod. Pick something long enough that it'll never be the same as any other mod.
-# The name displayed in the mod management menu is separate from this so this doesn't need to be human readable.
-id = "dino_recomp_mod_template"
-
-# The name that will show up for this mod in the mod menu. This should be human readable.
-display_name = "Dino Test Mod"
-
-# The description that will show up when this mod is displayed in the mod menu. This should be human readable.
+id = "shinx121_example_mod"
+display_name = "Example Mod"
 description =  """
-This is an example mod for Dinosaur Planet: Recompiled
+This is an example mod for Dinosaur Planet: Recompiled.
 """
+short_description = "An example mod."
 
-# A short description that will show up in this mod's entry in the mod list. This should be human readable and kept short
-# to prevent it from being cut off due to the limited space.
-short_description = "Test Mod"
-
-# Version of this mod.
 version = "1.0.0"
+authors = [ "Shinx121" ]
 
-# Authors of this mod.
-authors = [ "Your name here" ]
-
-# ID of the target recomp game.
 game_id = "dino-planet"
+minimum_recomp_version = "0.1.0"
 
-# Minimum version of the target recomp that this mod can run on.
-minimum_recomp_version = "1.0.0"
-
-# Dependency mods. Each entry is the mod's ID and then an optional minimum version of the dependency mod.
 dependencies = [
 # Example dependency:
 #    "modname:1.0.0"
 ]
 
-# Native libraries (e.g. DLLs) and the functions they export.
 native_libraries = [
 # Example native library:
 #    { name = "my_native_library", funcs = ["my_native_library_function"] }
 ]
 
-# Inputs to the mod tool.
 [inputs]
-
-# Input elf file to generate a mod from.
 elf_path = "build/mod.elf"
-
-# Output mod filename.
-mod_filename = "dino_recomp_mod_template"
-
-# Reference symbol files.
-func_reference_syms_file = "dino-recomp-syms/dino.syms.toml"
-data_reference_syms_files = [ "dino-recomp-syms/dino.datasyms.toml" ]
-
-# Additional files to include in the mod.
+mod_filename = "shinx121_example_mod"
+func_reference_syms_file = "lib/dino-recomp-mod-api/dino.syms.toml"
+data_reference_syms_files = [ "lib/dino-recomp-mod-api/dino.datasyms.toml" ]
 additional_files = [ ]
