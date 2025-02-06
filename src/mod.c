@@ -82,7 +82,7 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void my_game_tick_callback() {
 
         // Noclip fly
         u16 buttons = get_masked_buttons(0);
-        if ((buttons & L_TRIG) && flyEnabled) {
+        if ((buttons & L_TRIG) && flyEnabled && mod_dbgui_is_enabled()) {
             if (flyingCooldown != FLY_COOLDOWN) {
                 flyPosition = player->srt.transl;
             }
