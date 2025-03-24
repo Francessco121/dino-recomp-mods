@@ -1,6 +1,7 @@
 #include "modding.h"
 #include "imports.h"
 #include "common.h"
+#include "sys/math.h"
 
 extern SRT gCameraSRT;
 extern MtxF gViewMtx;
@@ -9,10 +10,6 @@ extern f32 gWorldZ;
 extern f32 gAspect;
 
 extern u32 func_800038DC(f32 x, f32 y, f32 z, f32 *ox, f32 *oy, u8 param_6);
-extern void vec3_transform_no_translate(MtxF *mf, Vec3f *v, Vec3f *ov);
-extern f32 vec3_length(Vec3f *v);
-extern void vec3_sub(Vec3f *v1, Vec3f *v2, Vec3f *result);
-extern void matrix_from_srt_reversed(MtxF *mf, SRT *srt);
 
 static f32 vec2_length(f32 x, f32 y) {
     return sqrtf(x * x + y * y);
@@ -142,56 +139,63 @@ void draw_3d_cube(f32 x, f32 y, f32 z, f32 size, u32 color) {
     draw_line(cube_points[3].x, cube_points[3].y, cube_points[7].x, cube_points[7].y, color);
 }
 
-void draw_3d_box(f32 x, f32 y, f32 z, f32 width, f32 height, f32 depth, u32 color) {
+void draw_3d_box(MtxF *mtx, f32 width, f32 height, f32 depth, u32 color) {
     width /= 2.0f;
     height /= 2.0f;
     depth /= 2.0f;
 
     Vec3f cube_points[8] = {
         {
-            .x = x - width,
-            .y = y - height,
-            .z = z - depth,
+            .x = -width,
+            .y = -height,
+            .z = -depth,
         },
         {
-            .x = x + width,
-            .y = y - height,
-            .z = z - depth,
+            .x = width,
+            .y = -height,
+            .z = -depth,
         },
         {
-            .x = x - width,
-            .y = y + height,
-            .z = z - depth,
+            .x = -width,
+            .y = height,
+            .z = -depth,
         },
         {
-            .x = x + width,
-            .y = y + height,
-            .z = z - depth,
+            .x = width,
+            .y = height,
+            .z = -depth,
         },
 
         {
-            .x = x - width,
-            .y = y - height,
-            .z = z + depth,
+            .x = -width,
+            .y = -height,
+            .z = depth,
         },
         {
-            .x = x + width,
-            .y = y - height,
-            .z = z + depth,
+            .x = width,
+            .y = -height,
+            .z = depth,
         },
         {
-            .x = x - width,
-            .y = y + height,
-            .z = z + depth,
+            .x = -width,
+            .y = height,
+            .z = depth,
         },
         {
-            .x = x + width,
-            .y = y + height,
-            .z = z + depth,
+            .x = width,
+            .y = height,
+            .z = depth,
         }
     };
 
     for (u32 i = 0; i < 8; i++) {
+        f32 tx, ty, tz;
+        vec3_transform(mtx, cube_points[i].x, cube_points[i].y, cube_points[i].z, &tx, &ty, &tz);
+        
+        cube_points[i].x = tx;
+        cube_points[i].y = ty + height;
+        cube_points[i].z = tz;
+
         if (!world_to_dbgui_coords(cube_points[i].x, cube_points[i].y, cube_points[i].z, 
             &cube_points[i].x, &cube_points[i].y)) {
             return;

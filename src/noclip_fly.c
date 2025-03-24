@@ -1,12 +1,11 @@
 #include "modding.h"
 #include "imports.h"
 #include "common.h"
+#include "sys/objects.h"
+#include "sys/math.h"
 
 extern SRT gCameraSRT;
 extern MtxF gViewMtx;
-extern void vec3_transform_no_translate(MtxF *mf, Vec3f *v, Vec3f *ov);
-extern void matrix_from_srt_reversed(MtxF *mf, SRT *srt);
-extern f32 vec3_normalize(Vec3f *v);
 
 const s32 FLY_COOLDOWN = 10;
 
@@ -19,7 +18,7 @@ RECOMP_CALLBACK(".", my_cheats_menu_event) void noclip_fly_cheats_menu_callback(
 }
 
 RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick() {
-    TActor *player = get_player();
+    Object *player = get_player();
 
     if (player != NULL) {
         // Noclip fly

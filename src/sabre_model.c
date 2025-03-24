@@ -1,6 +1,7 @@
 #include "modding.h"
 #include "imports.h"
 #include "common.h"
+#include "sys/objects.h"
 
 static s32 use_sabre_model = TRUE;
 static s32 was_sabre_model = TRUE;
@@ -10,7 +11,7 @@ RECOMP_CALLBACK(".", my_enhancements_menu_event) void sabre_model_enhancements_m
 }
 
 RECOMP_CALLBACK("*", recomp_on_game_tick) void sabre_model_game_tick() {
-    TActor *player = get_player();
+    Object *player = get_player();
 
     if (player != NULL) {
         // Force sabre over fox if enabled
