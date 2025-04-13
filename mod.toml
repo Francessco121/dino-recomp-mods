@@ -26,5 +26,5 @@ native_libraries = [
 elf_path = "build/mod.elf"
 mod_filename = "shinx121_example_mod"
 func_reference_syms_file = "lib/dino-recomp-mod-api/dino.syms.toml"
-data_reference_syms_files = [ "lib/dino-recomp-mod-api/dino.datasyms.toml" ]
+data_reference_syms_files = [ "lib/dino-recomp-mod-api/dino.datasyms.toml", "lib/dino-recomp-mod-api/dino.datasyms_manual.toml" ]
 additional_files = [ ]

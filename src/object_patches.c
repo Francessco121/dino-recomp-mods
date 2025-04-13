@@ -117,7 +117,7 @@ RECOMP_PATCH ObjDef *obj_load_objdef(s32 tabIdx) {
     return def;
 }
 
-RECOMP_PATCH Object *obj_setup_object(ObjCreateInfo *createInfo, u32 param2, s32 mapID, s32 param4, Object *parent) {
+RECOMP_PATCH Object *obj_setup_object(ObjCreateInfo *createInfo, u32 param2, s32 mapID, s32 param4, Object *parent, s32 param6) {
     ObjDef *def;
     s32 modelCount;
     s32 var;
@@ -331,7 +331,7 @@ RECOMP_PATCH Object *obj_create(ObjCreateInfo *createInfo, u32 createFlags, s32 
     Object *obj;
 
     obj = NULL;
-    queue_load_map_object((void**)&obj, (s32)createInfo, createFlags, mapID, param4, (s32)parent, 0);
+    queue_load_map_object(&obj, createInfo, createFlags, mapID, param4, parent, 0);
     if (obj == NULL) {
         recomp_eprintf("Failed to load object: %d\n", createInfo->objId);
         return NULL;
