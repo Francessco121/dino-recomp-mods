@@ -10,7 +10,7 @@ RECOMP_CALLBACK(".", my_enhancements_menu_event) void sabre_model_enhancements_m
     recomp_dbgui_menu_item("Use Sabre Model", &use_sabre_model);
 }
 
-RECOMP_CALLBACK("*", recomp_on_game_tick) void sabre_model_game_tick() {
+RECOMP_CALLBACK("*", recomp_on_game_tick_start) void sabre_model_game_tick() {
     Object *player = get_player();
 
     if (player != NULL) {

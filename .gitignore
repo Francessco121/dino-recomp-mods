@@ -1,7 +1,8 @@
 *.d
 *.o
 *.elf
-*.bin
+*_binary.bin
+*_syms.bin
 *.exe
 *.dll
 *.lib

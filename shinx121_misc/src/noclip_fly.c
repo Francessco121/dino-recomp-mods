@@ -1,6 +1,7 @@
 #include "modding.h"
 #include "imports.h"
 #include "common.h"
+#include "sys/controller.h"
 #include "sys/objects.h"
 #include "sys/math.h"
 
@@ -22,7 +23,7 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick() {
 
     if (player != NULL) {
         // Noclip fly
-        u16 buttons = get_masked_buttons(0);
+        u16 buttons = gContPads[gVirtualContPortMap[0]].button;
         if ((buttons & L_TRIG) && fly_enabled && recomp_dbgui_is_enabled()) {
             if (flying_cooldown != FLY_COOLDOWN) {
                 fly_position = player->srt.transl;

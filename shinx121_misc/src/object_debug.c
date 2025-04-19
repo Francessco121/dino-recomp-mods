@@ -217,6 +217,23 @@ static void object_edit_contents(Object *obj) {
             recomp_dbgui_textf("dll: %d", resolve_dll_number(def->dllID));
             recomp_dbgui_textf("numModels: %d", def->numModels);
             recomp_dbgui_textf("name: %s", def->name);
+
+            if (def->pAttachPoints != NULL) {
+                if (recomp_dbgui_tree_node("pAttachPoints")) {
+                    for (int i = 0; i < def->numAttachPoints; i++) {
+                        if (recomp_dbgui_tree_node(recomp_sprintf_helper("[%d]", i))) {
+                            recomp_dbgui_input_float("x", &def->pAttachPoints[i].pos.x);
+                            recomp_dbgui_input_float("y", &def->pAttachPoints[i].pos.y);
+                            recomp_dbgui_input_float("z", &def->pAttachPoints[i].pos.z);
+
+                            recomp_dbgui_tree_pop();
+                        }
+                    }
+
+                    recomp_dbgui_tree_pop();
+                }
+            }
+
             recomp_dbgui_tree_pop();
         }
     } else {

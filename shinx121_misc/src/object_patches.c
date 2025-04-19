@@ -108,7 +108,6 @@ RECOMP_PATCH ObjDef *obj_load_objdef(s32 tabIdx) {
 
         gLoadedObjDefs[tabIdx] = def;
         gObjDefRefCount[tabIdx] = 1;
-
     } else {
         recomp_eprintf("Failed to load objdef idx %d. Malloc failed.\n", tabIdx);
         return NULL;
