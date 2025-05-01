@@ -70,7 +70,7 @@ s32 *tab_init(TabModList *list, s32 *originalTab, s32 originalTabLength) {
     list->tabLength = tabLength;
 
     // Collect replacements into an easy temp lookup table
-    s32 *replacementsTab = malloc(tabLength * 4, ALLOC_TAG_FS_COL, NULL);
+    s32 *replacementsTab = recomp_alloc(tabLength * 4);
     bzero(replacementsTab, tabLength * 4);
 
     for (s32 i = 0; i < list->replacementsLength; i++) {
@@ -78,7 +78,7 @@ s32 *tab_init(TabModList *list, s32 *originalTab, s32 originalTabLength) {
     }
 
     // Rebuild tab with replacements in mind
-    s32 *relocs = malloc(tabLength * 4, ALLOC_TAG_FS_COL, NULL);
+    s32 *relocs = recomp_alloc(tabLength * 4);
     list->relocs = relocs;
 
     s32 *newTab = malloc((tabLength * 4) + 2, ALLOC_TAG_FS_COL, NULL);
@@ -104,7 +104,7 @@ s32 *tab_init(TabModList *list, s32 *originalTab, s32 originalTabLength) {
     newTab[tabLength] = newOffset;
     newTab[tabLength + 1] = 0xFFFFFFFF;
 
-    free(replacementsTab);
+    recomp_free(replacementsTab);
     free(originalTab);
 
     return newTab;
