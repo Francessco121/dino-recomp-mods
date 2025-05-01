@@ -1,11 +1,5 @@
-#include "dll.h"
-#include "functions.h"
-#include "game/objects/object.h"
 #include "modding.h"
 #include "imports.h"
-#include "common.h"
-#include "sys/controller.h"
-#include "sys/objects.h"
 
 RECOMP_DECLARE_EVENT(my_debug_menu_event())
 RECOMP_DECLARE_EVENT(my_cheats_menu_event())
