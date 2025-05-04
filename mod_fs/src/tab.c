@@ -1,6 +1,6 @@
 #include "tab.h"
 
-#include "imports.h"
+#include "recomputils.h"
 
 #include "PR/ultratypes.h"
 #include "sys/memory.h"

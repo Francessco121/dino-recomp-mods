@@ -1,7 +1,7 @@
 #define _MOD_FS_SRC
 #include "mod_fs.h"
 
-#include "imports.h"
+#include "recomputils.h"
 #include "modding.h"
 
 #include "tab.h"

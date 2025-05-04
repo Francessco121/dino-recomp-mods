@@ -1,5 +1,5 @@
 #include "modding.h"
-#include "imports.h"
+#include "dbgui.h"
 #include "common.h"
 #include "sys/math.h"
 
@@ -28,7 +28,7 @@ static void draw_line(f32 x1, f32 y1, f32 x2, f32 y2, u32 color) {
         .color = color,
         .thickness = 1.0f
     };
-    recomp_dbgui_foreground_line(&line);
+    dbgui_foreground_line(&line);
 }
 
 static s32 world_to_dbgui_coords(f32 x, f32 y, f32 z, f32 *o_sx, f32 *o_sy) {
@@ -41,7 +41,7 @@ static s32 world_to_dbgui_coords(f32 x, f32 y, f32 z, f32 *o_sx, f32 *o_sy) {
 
     // Correct for recomp screen aspect ratio difference
     f32 screen_width, screen_height;
-    recomp_dbgui_get_display_size(&screen_width, &screen_height);
+    dbgui_get_display_size(&screen_width, &screen_height);
 
     u32 wh = get_some_resolution_encoded();
     u32 fb_width = (f32)(wh & 0xffff);
@@ -69,7 +69,7 @@ void draw_3d_text(f32 x, f32 y, f32 z, const char *text, u32 color) {
             .x = sx,
             .y = sy
         };
-        recomp_dbgui_foreground_text(&text_pos, color, text);
+        dbgui_foreground_text(&text_pos, color, text);
     }
 }
 
@@ -259,5 +259,5 @@ void draw_3d_sphere(f32 x, f32 y, f32 z, f32 radius, u32 color) {
         .numSegments = 0,
         .thickness = 1.0f
     };
-    recomp_dbgui_foreground_circle(&circle);
+    dbgui_foreground_circle(&circle);
 }

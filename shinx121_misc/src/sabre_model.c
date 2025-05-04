@@ -1,14 +1,14 @@
 #include "modding.h"
-#include "imports.h"
+#include "recompconfig.h"
 #include "common.h"
 #include "sys/objects.h"
 
-static s32 use_sabre_model = TRUE;
-static s32 was_sabre_model = TRUE;
+static s32 wasSabreModel = FALSE;
 
-RECOMP_CALLBACK(".", my_enhancements_menu_event) void sabre_model_enhancements_menu_callback() {
-    recomp_dbgui_menu_item("Use Sabre Model", &use_sabre_model);
-}
+typedef enum {
+    USE_SABRE_MODEL_ON,
+    USE_SABRE_MODEL_OFF,
+} UseSabreModel;
 
 RECOMP_CALLBACK("*", recomp_on_game_tick_start) void sabre_model_game_tick() {
     Object *player = get_player();
@@ -17,14 +17,16 @@ RECOMP_CALLBACK("*", recomp_on_game_tick_start) void sabre_model_game_tick() {
         // Force sabre over fox if enabled
         s32 character = gDLL_29_gplay->exports->func_E90();
         if (character == CHARACTER_SABRE) {
-            if (!use_sabre_model) {
-                if (was_sabre_model) {
+            s32 useSabreModel = recomp_get_config_u32("sabre_model") == USE_SABRE_MODEL_ON;
+
+            if (!useSabreModel) {
+                if (wasSabreModel) {
                     player->modelInstIdx = 0;
-                    was_sabre_model = FALSE;
+                    wasSabreModel = FALSE;
                 }
-            } else if (use_sabre_model) {
+            } else if (useSabreModel) {
                 player->modelInstIdx = 2;
-                was_sabre_model = TRUE;
+                wasSabreModel = TRUE;
             }
         }
     }

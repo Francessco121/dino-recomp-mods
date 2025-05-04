@@ -31,3 +31,11 @@ data_reference_syms_files = [
     "../dino.datasyms_extra.toml"
 ]
 additional_files = [ ]
+
+[[manifest.config_options]]
+id = "sabre_model"
+name = "Use Sabre Model"
+description = "Use Sabre's model instead of Fox."
+type = "Enum"
+options = [ "On", "Off" ]
+default = "Off"
