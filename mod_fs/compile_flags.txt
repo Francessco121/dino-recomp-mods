@@ -10,7 +10,7 @@ mips
 -fomit-frame-pointer
 -ffast-math
 -fno-unsafe-math-optimizations
--fno-builtin-memset
+-fno-builtin
 -Wall
 -Wextra
 -Wno-incompatible-library-redeclaration

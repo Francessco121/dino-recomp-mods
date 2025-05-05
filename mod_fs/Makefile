@@ -6,7 +6,7 @@ TARGET  := $(BUILD_DIR)/mod.elf
 
 LDSCRIPT := ../mod.ld
 CFLAGS   := -target mips -mips2 -mabi=32 -O2 -G0 -mno-abicalls -mno-odd-spreg -mno-check-zero-division \
-			-fomit-frame-pointer -ffast-math -fno-unsafe-math-optimizations -fno-builtin-memset \
+			-fomit-frame-pointer -ffast-math -fno-unsafe-math-optimizations -fno-builtin \
 			-Wall -Wextra -Wno-incompatible-library-redeclaration -Wno-unused-parameter -Wno-unknown-pragmas -Wno-unused-variable \
 			-Wno-missing-braces -Wno-unsupported-floating-point-opt -Werror=section
 CPPFLAGS := -nostdinc -D_LANGUAGE_C -DMIPS -D_MIPS_SZLONG=32 -DF3DEX_GBI_2 -I ../lib/dino-recomp-mod-api/include -I ../lib/dino-recomp-mod-api/dinosaur-planet/include -I include
