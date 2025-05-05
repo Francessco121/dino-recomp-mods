@@ -1,5 +1,7 @@
 #include "modding.h"
 #include "dbgui.h"
+#include "recompconfig.h"
+
 #include "common.h"
 #include "sys/controller.h"
 #include "sys/objects.h"
@@ -12,11 +14,11 @@ const s32 FLY_COOLDOWN = 10;
 
 s32 flying_cooldown = 0;
 Vec3f fly_position;
-s32 fly_enabled = TRUE;
 
-RECOMP_CALLBACK(".", my_cheats_menu_event) void noclip_fly_cheats_menu_callback() {
-    dbgui_menu_item("Allow Noclip", &fly_enabled);
-}
+typedef enum {
+    ALLOW_NOCLIP_ON,
+    ALLOW_NOCLIP_OFF,
+} AllowNoclip;
 
 RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick() {
     Object *player = get_player();
@@ -24,7 +26,7 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick() {
     if (player != NULL) {
         // Noclip fly
         u16 buttons = gContPads[gVirtualContPortMap[0]].button;
-        if ((buttons & L_TRIG) && fly_enabled && dbgui_is_enabled()) {
+        if ((buttons & L_TRIG) && recomp_get_config_u32("noclip") == ALLOW_NOCLIP_ON && dbgui_is_enabled()) {
             if (flying_cooldown != FLY_COOLDOWN) {
                 fly_position = player->srt.transl;
             }

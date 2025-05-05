@@ -1,19 +1,23 @@
 [manifest]
-id = "shinx121_misc"
-display_name = "Shinx121's Miscellaneous Mod"
+id = "shinx121_noclip"
+display_name = "Noclip"
 description =  """
-Various mods of mine that are either experiments or haven't been made into their own dedicated mods yet.
-"""
-short_description = "My misc mods."
+Allows the player to noclip!
 
-version = "0.1.0"
+While holding the L Button you can:
+- Use the left joystick to move horizontally.
+- Use DPad Up/Down to move vertically.
+"""
+short_description = "Allows the player to noclip!"
+
+version = "1.0.0"
 authors = [ "Shinx121" ]
 
 game_id = "dino-planet"
 minimum_recomp_version = "0.1.0"
 
 dependencies = [
-    "mod_fs:0.1.0"
+
 ]
 
 native_libraries = [
@@ -23,7 +27,7 @@ native_libraries = [
 
 [inputs]
 elf_path = "build/mod.elf"
-mod_filename = "shinx121_misc"
+mod_filename = "shinx121_noclip"
 func_reference_syms_file = "../lib/dino-recomp-mod-api/dino.syms.toml"
 data_reference_syms_files = [
     "../lib/dino-recomp-mod-api/dino.datasyms.toml", 
@@ -35,9 +39,9 @@ additional_files = [
 ]
 
 [[manifest.config_options]]
-id = "sabre_model"
-name = "Use Sabre Model"
-description = "Use Sabre's model instead of Fox."
+id = "noclip"
+name = "Allow Noclip"
+description = "Allow the use of noclip while holding the L Button. Turn off if you need the L Button for something else."
 type = "Enum"
 options = [ "On", "Off" ]
-default = "Off"
+default = "On"

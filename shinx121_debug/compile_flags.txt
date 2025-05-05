@@ -29,6 +29,4 @@ mips
 ../lib/dino-recomp-mod-api/include
 -I
 ../lib/dino-recomp-mod-api/dinosaur-planet/include
--I
-../mod_fs/include
 -c
