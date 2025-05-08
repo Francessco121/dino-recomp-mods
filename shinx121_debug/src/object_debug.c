@@ -5,6 +5,7 @@
 #include "sys/linked_list.h"
 
 #include "3d.h"
+#include "sys/objects.h"
 
 extern Object** get_world_objects(s32*, s32 *count);
 extern LinkedList gObjUpdateList;
@@ -343,10 +344,19 @@ static void object_edit_contents(Object *obj) {
 
 static void object_editor(Object *obj, s32 index) {
     s32 open = TRUE;
+    s32 destroy = FALSE;
     if (dbgui_begin(recomp_sprintf_helper("%s###object_edit_%p", obj->def->name, obj), &open)) {
+        if (dbgui_button("Destroy")) {
+            destroy = TRUE;
+        }
         object_edit_contents(obj);
     }
     dbgui_end();
+
+    if (destroy) {
+        obj_destroy_object(obj);
+        open = FALSE;
+    }
 
     if (!open) {
         edit_objects[index] = NULL;
