@@ -2,12 +2,14 @@
 id = "shinx121_debug"
 display_name = "Debug Tools"
 description =  """
-Adds more windows the Debug menu in the Debug UI for:
-- Viewing a list of all loaded objects in the scene.
-- Drawing 3D boxes around all objects to visualize rough hitboxes and see through walls.
-- Viewing a list of the currently loaded maps.
+Expands the debug menu with:
+- Object debug: View objects in the scene, their details, modify certain properties, and optionally destroy them.
+- Object 3D visualizer: View positions and rough hitboxes of objects and see them through walls.
+- Map debug: View a list of the currently loaded maps.
+
+Open the Debug UI and select the 'Debug' dropdown to access these tools.
 """
-short_description = "Adds more windows the Debug menu in the Debug UI."
+short_description = "Expands the debug menu."
 
 version = "0.1.0"
 authors = [ "Shinx121" ]
