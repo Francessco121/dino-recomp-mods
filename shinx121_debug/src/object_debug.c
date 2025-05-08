@@ -199,15 +199,16 @@ static void object_edit_contents(Object *obj) {
         if (dbgui_tree_node("createInfo")) {
             ObjCreateInfo *createInfo = obj->createInfo;
             dbgui_textf("objId: %d", createInfo->objId);
-            dbgui_textf("unk2: %d", createInfo->unk2);
-            dbgui_textf("unk3: %d", createInfo->unk3);
-            dbgui_textf("unk4: %d", createInfo->unk4);
-            dbgui_textf("unk5: %d", createInfo->unk5);
-            dbgui_textf("unk6: %d", createInfo->unk6);
-            dbgui_textf("unk7: %d", createInfo->unk7);
+            dbgui_textf("quarterSize: %d", createInfo->quarterSize);
+            dbgui_textf("setup: %d", createInfo->setup);
+            dbgui_textf("loadParamA: %d", createInfo->loadParamA);
+            dbgui_textf("loadParamB: %d", createInfo->loadParamB);
+            dbgui_textf("loadDistance: %d", createInfo->loadDistance);
+            dbgui_textf("fadeDistance: %d", createInfo->fadeDistance);
             dbgui_textf("x: %f", createInfo->x);
             dbgui_textf("y: %f", createInfo->y);
             dbgui_textf("z: %f", createInfo->z);
+            dbgui_textf("uID: %d", createInfo->uID);
             dbgui_tree_pop();
         }
     } else {

@@ -183,8 +183,8 @@ RECOMP_PATCH Object *obj_setup_object(ObjCreateInfo *createInfo, u32 param2, s32
     objHeader.srt.scale = def->scale;
     objHeader.unk_0x36 = 0xFF;
     objHeader.ptr0xcc = NULL;
-    objHeader.unk0x3c = createInfo->unk6 << 3;
-    objHeader.unk0x40 = createInfo->unk7 << 3;
+    objHeader.unk0x3c = createInfo->loadDistance << 3;
+    objHeader.unk0x40 = createInfo->fadeDistance << 3;
     objHeader.dll = NULL;
 
     if (def->dllID != 0) {
