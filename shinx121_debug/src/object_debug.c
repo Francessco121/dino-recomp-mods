@@ -1,11 +1,13 @@
 #include "modding.h"
 #include "dbgui.h"
 #include "recomputils.h"
-#include "common.h"
-#include "sys/linked_list.h"
 
 #include "3d.h"
+
+#include "game/objects/object.h"
 #include "sys/objects.h"
+#include "sys/linked_list.h"
+#include "common.h"
 
 extern Object** get_world_objects(s32*, s32 *count);
 extern LinkedList gObjUpdateList;
@@ -209,6 +211,60 @@ static void object_edit_contents(Object *obj) {
             dbgui_textf("y: %f", createInfo->y);
             dbgui_textf("z: %f", createInfo->z);
             dbgui_textf("uID: %d", createInfo->uID);
+
+            u32 size = createInfo->quarterSize << 2;
+            u32 address = (u32)createInfo;
+            address += sizeof(ObjCreateInfo);
+            size -= sizeof(ObjCreateInfo);
+
+            if (size > 0) {
+                dbgui_text("Additional data:");
+
+                while (size > 8) {
+                    u8 *addr = (u8*)address;
+
+                    dbgui_textf("%08X:  %02X %02X %02X %02X  %02X %02X %02X %02X", (u32)addr - (u32)createInfo, 
+                        addr[0], addr[1], addr[2], addr[3],
+                        addr[4], addr[5], addr[6], addr[7]);
+
+                    address += 8;
+                    size -= 8;
+                }
+                if (size > 0) {
+                    u8 *addr = (u8*)address;
+                    const u32 extraByteStrMaxLen = 8 + 3 + (4 * 3) + 1 + (4 * 3) + 1;
+                    char extraByteStr[extraByteStrMaxLen];
+                    char *extraByteStrPtr = extraByteStr;
+
+                    recomp_sprintf(extraByteStrPtr, "%08X:  ", (u32)addr - (u32)createInfo);
+                    extraByteStrPtr += 8 + 3;
+
+                    for (u32 i = 0; i < size && i < 4; i++) {
+                        recomp_sprintf(extraByteStrPtr, "%02X ", *addr);
+                        extraByteStrPtr += 3;
+
+                        addr++;
+                        size--;
+                    }
+
+                    if (size > 0) {
+                        *extraByteStrPtr = ' ';
+                        extraByteStrPtr += 1;
+
+                        for (u32 i = 0; i < size; i++) {
+                            recomp_sprintf(extraByteStrPtr, "%02X ", *addr);
+                            extraByteStrPtr += 3;
+
+                            addr++;
+                            size--;
+                        }
+                    }
+
+                    extraByteStr[extraByteStrMaxLen - 1] = '\0';
+                    dbgui_text(extraByteStr);
+                }
+            }
+
             dbgui_tree_pop();
         }
     } else {
