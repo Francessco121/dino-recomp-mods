@@ -534,8 +534,22 @@ RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback() {
     }
 
     for (s32 i = 0; i < (s32)(sizeof(edit_objects) / sizeof(Object*)); i++) {
-        if (edit_objects[i] != NULL) {
-            object_editor(edit_objects[i], i);
+        Object *obj = edit_objects[i];
+        
+        if (obj != NULL) {
+            s32 stillExists = FALSE;
+            for (s32 k = 0; k < count; k++) {
+                if (objects[k] == obj) {
+                    stillExists = TRUE;
+                    break;
+                }
+            }
+
+            if (stillExists) {
+                object_editor(obj, i);
+            } else {
+                edit_objects[i] = NULL;
+            }
         }
     }
 
