@@ -172,7 +172,11 @@ static void object_edit_contents(Object *obj) {
         obj->srt.transl.x, obj->srt.transl.y, obj->srt.transl.z);
     dbgui_textf("Rotation (y,p,r): %d,%d,%d", 
         obj->srt.yaw, obj->srt.pitch, obj->srt.roll);
-    dbgui_input_float("Scale", &obj->srt.scale);
+    const static DbgUiInputFloatOptions scaleInputOptions = {
+        .step = 0.01f,
+        .stepFast = 0.1f
+    };
+    dbgui_input_float_ext("Scale", &obj->srt.scale, &scaleInputOptions);
     dbgui_input_short("Flags", &obj->srt.flags);
 
     dbgui_textf("Speed: %f,%f,%f", 

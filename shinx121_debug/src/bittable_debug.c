@@ -17,7 +17,12 @@ RECOMP_CALLBACK(".", my_debug_menu_event) void bittable_debug_menu_callback() {
 RECOMP_CALLBACK(".", my_dbgui_event) void bittable_debug_dbgui_callback() {
     if (bittableDebugWindowOpen) {
         if (dbgui_begin("Bit Table Debug", &bittableDebugWindowOpen)) {
-            dbgui_input_int("Entry", &entry);
+            const static DbgUiInputIntOptions inputOptions = {
+                .step = 1,
+                .stepFast = 100,
+                .flags = DBGUI_INPUT_TEXT_FLAGS_CharsHexadecimal
+            };
+            dbgui_input_int_ext("Entry", &entry, &inputOptions);
             
             s32 value = (s32)get_gplay_bitstring(entry);
             if (dbgui_input_int("Value", &value)) {
@@ -31,7 +36,7 @@ RECOMP_CALLBACK(".", my_dbgui_event) void bittable_debug_dbgui_callback() {
                 increment_gplay_bitstring(entry);
             }
 
-            dbgui_text("");
+            dbgui_new_line();
             if (entry >= 0 && entry < gSizeBittable) {
                 BitTableEntry *entryInfo = &gFile_BITTABLE[entry];
                 dbgui_textf("Start: %d", entryInfo->start);

@@ -88,13 +88,12 @@ static void buffer_text(const char *name, s32 count, s32 capacity) {
 RECOMP_CALLBACK(".", my_dbgui_event) void shadow_debug_dbgui_callback() {
     if (shadows_debug_window_open) {
         if (dbgui_begin("Shadow Debug", &shadows_debug_window_open)) {
-            dbgui_text("");
             dbgui_text("Buffers 1:");
             buffer_text("D_800B98A0", D_80092C24, RECOMP_D_800B98A0_SIZE / sizeof(Gfx));
             buffer_text("D_800B98A8", D_80092C2C, RECOMP_D_800B98A8_SIZE / sizeof(Vec3));
             buffer_text("D_800B98B0", D_80092C34, RECOMP_D_800B98B0_SIZE / sizeof(Vtx));
             
-            dbgui_text("");
+            dbgui_new_line();
             dbgui_text("Buffers 2:");
             buffer_text("D_800BB158", D_80092C28, RECOMP_D_800BB158_SIZE / sizeof(Gfx));
             buffer_text("D_800BB168", D_80092C30, RECOMP_D_800BB168_SIZE / sizeof(Vec3));
