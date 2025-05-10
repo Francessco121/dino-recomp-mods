@@ -10,7 +10,7 @@ version = "0.1.0"
 authors = [ "Shinx121" ]
 
 game_id = "dino-planet"
-minimum_recomp_version = "0.1.0"
+minimum_recomp_version = "0.1.1"
 
 dependencies = [
     "mod_fs:0.1.0"
