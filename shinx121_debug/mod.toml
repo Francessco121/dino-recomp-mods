@@ -8,7 +8,7 @@ Expands the debug menu with:
 - Map debug: View a list of the currently loaded maps.
 - Bit Table debug: View and edit game flags and global state.
 
-Open the Debug UI and select the 'Debug' dropdown to access these tools.
+Open the Debug UI (F9) and select the 'Debug' dropdown to access these tools.
 """
 short_description = "Expands the debug menu."
 
