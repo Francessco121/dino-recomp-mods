@@ -1,5 +1,4 @@
 #include "modding.h"
-#include "dbgui.h"
 #include "recompconfig.h"
 
 #include "common.h"
@@ -26,7 +25,7 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick() {
     if (player != NULL) {
         // Noclip fly
         u16 buttons = gContPads[gVirtualContPortMap[0]].button;
-        if ((buttons & L_TRIG) && recomp_get_config_u32("noclip") == ALLOW_NOCLIP_ON && dbgui_is_enabled()) {
+        if ((buttons & L_TRIG) && recomp_get_config_u32("noclip") == ALLOW_NOCLIP_ON && player->parent == NULL) {
             if (flying_cooldown != FLY_COOLDOWN) {
                 fly_position = player->srt.transl;
             }
