@@ -1,10 +1,10 @@
 [manifest]
-id = "mod_fs"
-display_name = "Mod Filesystem"
+id = "extfs"
+display_name = "Extended Filesystem"
 description =  """
-A library providing APIs for replacing and adding assets via the game's filesystem.
+A library providing APIs for replacing and modifying content in the game's filesystem.
 """
-short_description = "Lets mods replace and add game filesystem assets."
+short_description = "Lets mods modify game filesystem content."
 
 version = "0.1.0"
 authors = [ "Shinx121" ]
@@ -24,7 +24,7 @@ native_libraries = [
 
 [inputs]
 elf_path = "build/mod.elf"
-mod_filename = "mod_fs"
+mod_filename = "extfs"
 func_reference_syms_file = "../lib/dino-recomp-mod-api/dino.syms.toml"
 data_reference_syms_files = [
     "../lib/dino-recomp-mod-api/dino.datasyms.toml", 

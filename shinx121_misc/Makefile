@@ -10,7 +10,7 @@ CFLAGS   := -target mips -mips2 -mabi=32 -O2 -G0 -mno-abicalls -mno-odd-spreg -m
 			-Wall -Wextra -Wno-incompatible-library-redeclaration -Wno-unused-parameter -Wno-unknown-pragmas -Wno-unused-variable \
 			-Wno-missing-braces -Wno-unsupported-floating-point-opt -Werror=section
 CPPFLAGS := -nostdinc -D_LANGUAGE_C -DMIPS -D_MIPS_SZLONG=32 -DF3DEX_GBI_2 -I ../lib/dino-recomp-mod-api/include -I ../lib/dino-recomp-mod-api/dinosaur-planet/include \
-		    -I ../mod_fs/include
+		    -I ../extfs/include
 LDFLAGS  := -nostdlib -T $(LDSCRIPT) -Map $(BUILD_DIR)/mod.map --unresolved-symbols=ignore-all --emit-relocs -e 0 --no-nmagic
 
 C_SRCS := $(wildcard src/*.c)

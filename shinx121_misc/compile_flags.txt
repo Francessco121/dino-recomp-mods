@@ -30,5 +30,5 @@ mips
 -I
 ../lib/dino-recomp-mod-api/dinosaur-planet/include
 -I
-../mod_fs/include
+../extfs/include
 -c
