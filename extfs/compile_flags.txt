@@ -31,4 +31,6 @@ mips
 ../lib/dino-recomp-mod-api/dinosaur-planet/include
 -I
 include
+-I
+src
 -c

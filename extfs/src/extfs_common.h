@@ -19,6 +19,9 @@ extern void bzero_recomp(void *, int);
 extern void free_recomp(void* p);
 #define free free_recomp
 
+#define EXTFS_ON_INIT_CALLBACK RECOMP_CALLBACK(".", _extfs_on_init)
+#define EXTFS_ON_COMMIT_CALLBACK RECOMP_CALLBACK(".", _extfs_on_commit)
+
 typedef enum {
     EXTFS_STAGE_UNINITIALIZED,
     EXTFS_STAGE_REPLACEMENTS,

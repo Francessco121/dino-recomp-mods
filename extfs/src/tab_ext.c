@@ -1,79 +1,27 @@
+#include "tab_ext.h"
+
 #include "recomputils.h"
+#include "extfs_common.h"
 
 #include "PR/ultratypes.h"
 #include "sys/fs.h"
 #include "sys/memory.h"
-
-#include "extfs_common.h"
 
 /**
  * @file tab_ext.c
  * @brief Extendable filesystem tab(le)-based files.
  *
  * Allows mods to modify and extend filesystem files that use .TAB/.BIN pairs.
+ * Doesn't support all .TAB files as a fair amount are pretty unique.
  */
 
-// 
-typedef struct {
-    void *data;
-    void *fullReplacementData;
-    // The size of this individual entry.
-    u32 sizeBytes;
-    // The maximum number of bytes that can be read starting from the beginning of this entry.
-    // For tabs with a stride, this will include all of the entries after this one up to the end of the stride.
-    // For tabs without a stride, this will equal [sizeBytes].
-    u32 maxReadSizeBytes;
-} TabExtEntry;
+// TODO: need support for zero-size entries for HITS
 
-// 
-typedef struct {
-    _Bool isSupported;
-
-    const char *name;
-    s32 id;
-    s32 binId;
-    // The number of files that the game reads at a time for this tab. Usually 1.
-    // When >1, files within a stride will be merged together when the tab is rebuilt
-    // so that the game can read across file boundaries within the stride.
-    s32 stride;
-
-    // Length: [entryCount]
-    u32 *originalEntries;
-    u32 entryCount;
-    u32 sizeBytes;
-    _Bool hasEndMarker;
-    
-    // Length: [entryCount]
-    TabExtEntry *replacements;
-    // Length: [entryCount]
-    u32 *rebuiltEntries;
-    // For each entry, an offset from the rebuilt entry offset to the original entry offset.
-    // Necessary for entries that weren't replaced so the original ROM read can be performed.
-    // Length: [entryCount]
-    s32 *relocations;
-} TabExt;
-
-// A map of file IDs to extended tabs.
-// Only supported tab files will be initialized.
-static TabExt tabExts[NUM_FILES];
-// A map of bin file IDs to their respective tab file ID.
-// Unsupported file IDs will return -1.
-static s32 binsToTabs[NUM_FILES];
-
-static TabExt *load_tab_ext(s32 fileId);
-static TabExtEntry *load_tab_ext_entry(s32 tabFileId, s32 tabIdx, const void *existingData, u32 existingDataSize);
+static TabExtEntry *load_tab_ext_entry(TabExt *tab, s32 tabIdx, const void *existingData, u32 existingDataSize);
 static s32 _read_file_region_base(u32 id, void *dst, u32 offset, s32 size);
 
-static void assert_supported_tab(s32 tabFileId) {
-    extfs_assert(tabFileId >= 0 && tabFileId < NUM_FILES, "[extfs] File ID out of bounds: %d", tabFileId);
-    extfs_assert(tabExts[tabFileId].isSupported, "[extfs] Unsupported/invalid tab file ID: %d", tabFileId);
-}
-
-RECOMP_EXPORT void extfs_tab_set_entry_replacement(s32 tabFileId, s32 tabIdx, const void *data, u32 sizeBytes) {
+void tab_ext_set_entry_replacement(TabExt *tab, s32 tabIdx, const void *data, u32 sizeBytes) {
     extfs_assert(extfsLoadStage == EXTFS_STAGE_REPLACEMENTS, "[extfs] Cannot set replacements outside of replacements load stage/event.");
-    assert_supported_tab(tabFileId);
-
-    TabExt *tab = load_tab_ext(tabFileId);
 
     TabExtEntry *entry = &tab->replacements[tabIdx];
     if (entry->data != NULL) {
@@ -81,16 +29,15 @@ RECOMP_EXPORT void extfs_tab_set_entry_replacement(s32 tabFileId, s32 tabIdx, co
         return;
     }
 
-    load_tab_ext_entry(tabFileId, tabIdx, data, sizeBytes);
+    load_tab_ext_entry(tab, tabIdx, data, sizeBytes);
 
     extfs_log("[extfs] Set replacement file data for %s/%d.\n", tab->name, tabIdx);
 }
 
-RECOMP_EXPORT void *extfs_tab_get_entry(s32 tabFileId, s32 tabIdx, u32 *outSize) {
+void *tab_ext_get_entry(TabExt *tab, s32 tabIdx, u32 *outSize) {
     extfs_assert(extfsLoadStage == EXTFS_STAGE_MODIFICATIONS, "[extfs] Cannot get tab entries outside of modifications load stage/event.");
-    assert_supported_tab(tabFileId);
 
-    TabExtEntry *entry = load_tab_ext_entry(tabFileId, tabIdx, NULL, 0);
+    TabExtEntry *entry = load_tab_ext_entry(tab, tabIdx, NULL, 0);
     if (outSize != NULL) {
         *outSize = entry->sizeBytes;
     }
@@ -98,18 +45,16 @@ RECOMP_EXPORT void *extfs_tab_get_entry(s32 tabFileId, s32 tabIdx, u32 *outSize)
     return entry->data;
 }
 
-RECOMP_EXPORT void *extfs_tab_resize_entry(s32 tabFileId, s32 tabIdx, u32 newSize) {
+void *tab_ext_resize_entry(TabExt *tab, s32 tabIdx, u32 newSize) {
     extfs_assert(extfsLoadStage == EXTFS_STAGE_MODIFICATIONS, "[extfs] Cannot resize tab entries outside of modifications load stage/event.");
-    assert_supported_tab(tabFileId);
 
-    TabExt *tab = load_tab_ext(tabFileId);
-    TabExtEntry *entry = load_tab_ext_entry(tabFileId, tabIdx, NULL, 0);
+    TabExtEntry *entry = load_tab_ext_entry(tab, tabIdx, NULL, 0);
 
     void *oldData = entry->data;
     u32 oldSize = entry->sizeBytes;
 
     entry->data = recomp_alloc(newSize);
-    extfs_assert(entry->data, "[extfs] extfs_tab_resize_entry(%d) resize recomp_alloc failed: %d", tabFileId, newSize);
+    extfs_assert(entry->data, "[extfs] extfs_tab_resize_entry(%d) resize recomp_alloc failed: %d", tab->id, newSize);
 
     u32 toCopy = oldSize;
     if (toCopy > newSize) {
@@ -129,67 +74,14 @@ RECOMP_EXPORT void *extfs_tab_resize_entry(s32 tabFileId, s32 tabIdx, u32 newSiz
     return entry->data;
 }
 
-static void setup_ext_tab(
-    const char *name,
-    s32 id,
-    s32 binId,
-    s32 stride
-) {
-    TabExt *tab = &tabExts[id];
-    tab->name = name;
-    tab->id = id;
-    tab->binId = binId;
-    tab->stride = stride;
-    tab->isSupported = TRUE;
-
-    binsToTabs[binId] = id;
-}
-
-void tab_ext_init() {
-    bzero(tabExts, sizeof(tabExts));
-
-    for (s32 i = 0; i < NUM_FILES; i++) {
-        binsToTabs[i] = -1;
-    }
-
-    setup_ext_tab("AUDIO", AUDIO_TAB, AUDIO_BIN, /*stride=*/1);
-    setup_ext_tab("SFX", SFX_TAB, SFX_BIN, /*stride=*/1);
-    setup_ext_tab("AMBIENT", AMBIENT_TAB, AMBIENT_BIN, /*stride=*/1);
-    setup_ext_tab("MUSIC", MUSIC_TAB, MUSIC_BIN, /*stride=*/1);
-    setup_ext_tab("MPEG", MPEG_TAB, MPEG_BIN, /*stride=*/1);
-    setup_ext_tab("ANIMCURVES", ANIMCURVES_TAB, ANIMCURVES_BIN, /*stride=*/1);
-    setup_ext_tab("GAMETEXT", GAMETEXT_TAB, GAMETEXT_BIN, /*stride=*/1);
-    setup_ext_tab("TABLES", TABLES_TAB, TABLES_BIN, /*stride=*/1);
-    setup_ext_tab("SCREENS", SCREENS_TAB, SCREENS_BIN, /*stride=*/1);
-    setup_ext_tab("VOXMAP", VOXMAP_TAB, VOXMAP_BIN, /*stride=*/1);
-    setup_ext_tab("TEXPRE", TEXPRE_TAB, TEXPRE_BIN, /*stride=*/1);
-    setup_ext_tab("MAPS", MAPS_TAB, MAPS_BIN, /*stride=*/7);
-    setup_ext_tab("TEX1", TEX1_TAB, TEX1_BIN, /*stride=*/1);
-    setup_ext_tab("TEX0", TEX0_TAB, TEX0_BIN, /*stride=*/1);
-    setup_ext_tab("BLOCKS", BLOCKS_TAB, BLOCKS_BIN, /*stride=*/1);
-    setup_ext_tab("HITS", HITS_TAB, HITS_BIN, /*stride=*/1);
-    setup_ext_tab("MODELS", MODELS_TAB, MODELS_BIN, /*stride=*/1);
-    setup_ext_tab("MODANIM", MODANIM_TAB, MODANIM_BIN, /*stride=*/1);
-    setup_ext_tab("ANIM", ANIM_TAB, ANIM_BIN, /*stride=*/1);
-    setup_ext_tab("AMAP", AMAP_TAB, AMAP_BIN, /*stride=*/1);
-    setup_ext_tab("VOXOBJ", VOXOBJ_TAB, VOXOBJ_BIN, /*stride=*/1);
-    setup_ext_tab("MODLINES", MODLINES_TAB, MODLINES_BIN, /*stride=*/1);
-    setup_ext_tab("OBJSEQ", OBJSEQ_TAB, OBJSEQ_BIN, /*stride=*/1);
-    setup_ext_tab("OBJECTS", OBJECTS_TAB, OBJECTS_BIN, /*stride=*/1);
-}
-
-// Get the extended tab for a tab file ID, loading it for the first time if necessary.
-static TabExt *load_tab_ext(s32 fileId) {
-    TabExt *tab = &tabExts[fileId];
-    extfs_assert(tab->isSupported, "[extfs] load_tab_ext called with unsupported file ID: %d", fileId);
-
+void tab_ext_init(TabExt *tab) {
     if (tab->originalEntries == NULL) {
-        u32 *fstEntry = fileId + gFST->offsets;
+        u32 *fstEntry = tab->id + gFST->offsets;
         u32 offset = fstEntry[0];
         u32 size = fstEntry[1] - offset;
 
         void *originalEntries = recomp_alloc(size);
-        extfs_assert(originalEntries != NULL, "[extfs] load_tab_ext(%d) originalEntries recomp_alloc failed: %d", fileId, size);
+        extfs_assert(originalEntries != NULL, "[extfs] load_tab_ext(%d) originalEntries recomp_alloc failed: %d", tab->id, size);
 
         read_from_rom((u32)&__file1Address + offset, (u8*)originalEntries, size);
         tab->originalEntries = originalEntries;
@@ -212,17 +104,13 @@ static TabExt *load_tab_ext(s32 fileId) {
         u32 replacementsSize = sizeof(TabExtEntry) * tab->entryCount;
 
         tab->replacements = recomp_alloc(replacementsSize);
-        extfs_assert(tab->replacements != NULL, "[extfs] load_tab_ext(%d) replacements recomp_alloc failed: %d", fileId, replacementsSize);
+        extfs_assert(tab->replacements != NULL, "[extfs] load_tab_ext(%d) replacements recomp_alloc failed: %d", tab->id, replacementsSize);
 
         bzero(tab->replacements, replacementsSize);
     }
-
-    return tab;
 }
 
-static TabExtEntry *load_tab_ext_entry(s32 tabFileId, s32 tabIdx, const void *existingData, u32 existingDataSize) {
-    TabExt *tab = load_tab_ext(tabFileId);
-
+static TabExtEntry *load_tab_ext_entry(TabExt *tab, s32 tabIdx, const void *existingData, u32 existingDataSize) {
     TabExtEntry *entry = &tab->replacements[tabIdx];
     if (entry->data == NULL) {
         u32 binAddr = gFST->offsets[tab->binId];
@@ -236,7 +124,7 @@ static TabExtEntry *load_tab_ext_entry(s32 tabFileId, s32 tabIdx, const void *ex
                 entry->sizeBytes = size;
                 entry->data = recomp_alloc(size);
                 extfs_assert(entry->data != NULL, "[extfs] load_tab_ext_entry(%d, %d) entry data recomp_alloc failed: %d", 
-                    tabFileId, tabIdx, size);
+                    tab->id, tabIdx, size);
 
                 read_from_rom((u32)&__file1Address + binAddr + offset, entry->data, size);
                 
@@ -246,7 +134,7 @@ static TabExtEntry *load_tab_ext_entry(s32 tabFileId, s32 tabIdx, const void *ex
                 entry->sizeBytes = existingDataSize;
                 entry->data = recomp_alloc(existingDataSize);
                 extfs_assert(entry->data != NULL, "[extfs] load_tab_ext_entry(%d, %d) entry data recomp_alloc failed: %d", 
-                    tabFileId, tabIdx, existingDataSize);
+                    tab->id, tabIdx, existingDataSize);
                 
                 bcopy(existingData, entry->data, existingDataSize);
 
@@ -260,7 +148,7 @@ static TabExtEntry *load_tab_ext_entry(s32 tabFileId, s32 tabIdx, const void *ex
 
             void *fullStrideData = recomp_alloc(fullStrideSize);
             extfs_assert(fullStrideData != NULL, "[extfs] load_tab_ext_entry(%d, %d) fullStrideData recomp_alloc failed: %d", 
-                tabFileId, tabIdx, fullStrideSize);
+                tab->id, tabIdx, fullStrideSize);
 
             read_from_rom((u32)&__file1Address + binAddr + baseoffset, fullStrideData, fullStrideSize);
 
@@ -277,7 +165,7 @@ static TabExtEntry *load_tab_ext_entry(s32 tabFileId, s32 tabIdx, const void *ex
                     _entry->sizeBytes = originalEntrySize;
                     _entry->data = recomp_alloc(originalEntrySize);
                     extfs_assert(_entry->data != NULL, "[extfs] load_tab_ext_entry(%d, %d) entry data recomp_alloc failed: %d", 
-                        tabFileId, tabIdx, originalEntrySize);
+                        tab->id, tabIdx, originalEntrySize);
 
                     bcopy((void*)((u32)fullStrideData + fullStrideOffset), _entry->data, originalEntrySize);
                 } else {
@@ -285,7 +173,7 @@ static TabExtEntry *load_tab_ext_entry(s32 tabFileId, s32 tabIdx, const void *ex
                     _entry->sizeBytes = existingDataSize;
                     _entry->data = recomp_alloc(existingDataSize);
                     extfs_assert(_entry->data != NULL, "[extfs] load_tab_ext_entry(%d, %d) entry data recomp_alloc failed: %d", 
-                        tabFileId, tabIdx, existingDataSize);
+                        tab->id, tabIdx, existingDataSize);
                     
                     bcopy(existingData, _entry->data, existingDataSize);
                 }
@@ -295,7 +183,7 @@ static TabExtEntry *load_tab_ext_entry(s32 tabFileId, s32 tabIdx, const void *ex
 
             if (fullStrideOffset != fullStrideSize) {
                 extfs_log_error("[extfs] load_tab_ext_entry(%d, %d) Leftovers from breaking up stride! fullStrideOffset: %x, fullStrideSize: %x\n", 
-                    tabFileId, tabIdx, fullStrideOffset, fullStrideSize);
+                    tab->id, tabIdx, fullStrideOffset, fullStrideSize);
             }
 
             // Clean up
@@ -312,7 +200,7 @@ static TabExtEntry *load_tab_ext_entry(s32 tabFileId, s32 tabIdx, const void *ex
     return entry;
 }
 
-static void rebuild_tab(TabExt *tab) {
+void tab_ext_rebuild(TabExt *tab) {
     // Rebuild tab with replacements in mind
     s32 *relocs = recomp_alloc(tab->entryCount * sizeof(s32));
     extfs_assert(relocs != NULL, "[extfs] rebuild_tab %d relocs recomp_alloc failed: %d", 
@@ -386,22 +274,10 @@ static void rebuild_tab(TabExt *tab) {
     extfs_log("[extfs] Rebuilt tab %s.\n", tab->name);
 }
 
-void tab_ext_rebuild_tabs() {
-    for (s32 i = 0; i < NUM_FILES; i++) {
-        TabExt *tab = &tabExts[i];
-        if (tab->originalEntries != NULL) {
-            rebuild_tab(tab);
-        }
-    }
-}
-
-_Bool tab_ext_get_rebuilt_entries(u32 tabFileId, void **outRebuiltEntries) {
-    if (tabFileId >= 0 && tabFileId < NUM_FILES) {
-        TabExt *tab = &tabExts[tabFileId];
-        if (tab->rebuiltEntries != NULL) {
-            *outRebuiltEntries = tab->rebuiltEntries;
-            return TRUE;
-        }
+_Bool tab_ext_get_rebuilt_entries(TabExt *tab, void **outRebuiltEntries) {
+    if (tab->rebuiltEntries != NULL) {
+        *outRebuiltEntries = tab->rebuiltEntries;
+        return TRUE;
     }
 
     return FALSE;
@@ -420,13 +296,7 @@ static s32 tab_find_idx(const TabExt *tab, u32 offset) {
     return -1;
 }
 
-_Bool tab_ext_try_read_bin(s32 binFileId, void *dst, u32 offset, u32 size) {
-    s32 tabFileId = binsToTabs[binFileId];
-    if (tabFileId == -1) {
-        return FALSE;
-    }
-
-    TabExt *tab = &tabExts[tabFileId];
+_Bool tab_ext_try_read_bin(TabExt *tab, void *dst, u32 offset, u32 size) {
     if (tab->rebuiltEntries == NULL) {
         return FALSE;
     }
@@ -446,7 +316,7 @@ _Bool tab_ext_try_read_bin(s32 binFileId, void *dst, u32 offset, u32 size) {
     if (replacement->data == NULL) {
         // Adjust ROM address back to original
         s32 reloc = tab->relocations[tabIdx];
-        _read_file_region_base(binFileId, dst, offset + reloc, size);
+        _read_file_region_base(tab->binId, dst, offset + reloc, size);
     } else {
         // Read from replacement file
         u32 relativeOffset = offset - tab->rebuiltEntries[tabIdx];
