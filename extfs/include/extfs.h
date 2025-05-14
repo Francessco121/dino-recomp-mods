@@ -8,9 +8,9 @@
 #define EXTFS_ON_LOAD_MODIFICATIONS_CALLBACK RECOMP_CALLBACK("extfs", extfs_on_load_modifications)
 
 /* ----- BLOCKS ---------------------*/
-RECOMP_IMPORT("extfs", void extfs_blocks_set_replacement(s32 blockID, const void *data, u32 sizeBytes))
-RECOMP_IMPORT("extfs", void *extfs_blocks_get(s32 blockID, u32 *outSize))
-RECOMP_IMPORT("extfs", void *extfs_blocks_resize(s32 blockID, u32 newSize))
+RECOMP_IMPORT("extfs", void extfs_blocks_set_replacement(s32 blockTabIdx, const void *data, u32 sizeBytes))
+RECOMP_IMPORT("extfs", void *extfs_blocks_get(s32 blockTabIdx, u32 *outSize))
+RECOMP_IMPORT("extfs", void *extfs_blocks_resize(s32 blockTabIdx, u32 newSize))
 
 /* ----- MAPS ---------------------*/
 RECOMP_IMPORT("extfs", void extfs_maps_set_replacement(s32 mapID, s32 segment, const void *data, u32 sizeBytes))
@@ -18,16 +18,16 @@ RECOMP_IMPORT("extfs", void *extfs_maps_get(s32 mapID, s32 segment, u32 *outSize
 RECOMP_IMPORT("extfs", void *extfs_maps_resize(s32 mapID, s32 segment, u32 newSize))
 
 /* ----- MODELS ---------------------*/
-RECOMP_IMPORT("extfs", void extfs_models_set_replacement(s32 modelIdx, const void *data, u32 sizeBytes))
-RECOMP_IMPORT("extfs", void *extfs_models_get(s32 modelIdx, u32 *outSize))
-RECOMP_IMPORT("extfs", void *extfs_models_resize(s32 modelIdx, u32 newSize))
+RECOMP_IMPORT("extfs", void extfs_models_set_replacement(s32 modelTabIdx, const void *data, u32 sizeBytes))
+RECOMP_IMPORT("extfs", void *extfs_models_get(s32 modelTabIdx, u32 *outSize))
+RECOMP_IMPORT("extfs", void *extfs_models_resize(s32 modelTabIdx, u32 newSize))
 
 /* ----- OBJECTS ---------------------*/
-RECOMP_IMPORT("extfs", void extfs_objects_set_replacement(s32 objectIdx, const void *data, u32 sizeBytes))
-RECOMP_IMPORT("extfs", void *extfs_objects_get(s32 objectIdx, u32 *outSize))
-RECOMP_IMPORT("extfs", void *extfs_objects_resize(s32 objectIdx, u32 newSize))
+RECOMP_IMPORT("extfs", void extfs_objects_set_replacement(s32 objectTabIdx, const void *data, u32 sizeBytes))
+RECOMP_IMPORT("extfs", void *extfs_objects_get(s32 objectTabIdx, u32 *outSize))
+RECOMP_IMPORT("extfs", void *extfs_objects_resize(s32 objectTabIdx, u32 newSize))
 
 /* ----- SCREENS ---------------------*/
-RECOMP_IMPORT("extfs", void extfs_screens_set_replacement(s32 screenID, const void *data, u32 sizeBytes))
-RECOMP_IMPORT("extfs", void *extfs_screens_get(s32 screenID, u32 *outSize))
-RECOMP_IMPORT("extfs", void *extfs_screens_resize(s32 screenID, u32 newSize))
+RECOMP_IMPORT("extfs", void extfs_screens_set_replacement(s32 screenTabIdx, const void *data, u32 sizeBytes))
+RECOMP_IMPORT("extfs", void *extfs_screens_get(s32 screenTabIdx, u32 *outSize))
+RECOMP_IMPORT("extfs", void *extfs_screens_resize(s32 screenTabIdx, u32 newSize))

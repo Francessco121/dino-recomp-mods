@@ -30,14 +30,14 @@ EXTFS_ON_COMMIT_CALLBACK void objects_ext_commit() {
     tab_ext_rebuild(&tab);
 }
 
-RECOMP_EXPORT void extfs_objects_set_replacement(s32 objectIdx, const void *data, u32 sizeBytes) {
-    tab_ext_set_entry_replacement(&tab, objectIdx, data, sizeBytes);
+RECOMP_EXPORT void extfs_objects_set_replacement(s32 objectTabIdx, const void *data, u32 sizeBytes) {
+    tab_ext_set_entry_replacement(&tab, objectTabIdx, data, sizeBytes);
 }
 
-RECOMP_EXPORT void *extfs_objects_get(s32 objectIdx, u32 *outSize) {
-    return tab_ext_get_entry(&tab, objectIdx, outSize);
+RECOMP_EXPORT void *extfs_objects_get(s32 objectTabIdx, u32 *outSize) {
+    return tab_ext_get_entry(&tab, objectTabIdx, outSize);
 }
 
-RECOMP_EXPORT void *extfs_objects_resize(s32 objectIdx, u32 newSize) {
-    return tab_ext_resize_entry(&tab, objectIdx, newSize);
+RECOMP_EXPORT void *extfs_objects_resize(s32 objectTabIdx, u32 newSize) {
+    return tab_ext_resize_entry(&tab, objectTabIdx, newSize);
 }

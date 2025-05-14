@@ -30,14 +30,14 @@ EXTFS_ON_COMMIT_CALLBACK void screens_ext_commit() {
     tab_ext_rebuild(&tab);
 }
 
-RECOMP_EXPORT void extfs_screens_set_replacement(s32 screenID, const void *data, u32 sizeBytes) {
-    tab_ext_set_entry_replacement(&tab, screenID, data, sizeBytes);
+RECOMP_EXPORT void extfs_screens_set_replacement(s32 screenTabIdx, const void *data, u32 sizeBytes) {
+    tab_ext_set_entry_replacement(&tab, screenTabIdx, data, sizeBytes);
 }
 
-RECOMP_EXPORT void *extfs_screens_get(s32 screenID, u32 *outSize) {
-    return tab_ext_get_entry(&tab, screenID, outSize);
+RECOMP_EXPORT void *extfs_screens_get(s32 screenTabIdx, u32 *outSize) {
+    return tab_ext_get_entry(&tab, screenTabIdx, outSize);
 }
 
-RECOMP_EXPORT void *extfs_screens_resize(s32 screenID, u32 newSize) {
-    return tab_ext_resize_entry(&tab, screenID, newSize);
+RECOMP_EXPORT void *extfs_screens_resize(s32 screenTabIdx, u32 newSize) {
+    return tab_ext_resize_entry(&tab, screenTabIdx, newSize);
 }
