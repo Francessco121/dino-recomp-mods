@@ -15,8 +15,6 @@
  * Doesn't support all .TAB files as a fair amount are pretty unique.
  */
 
-// TODO: need support for zero-size entries for HITS
-
 static TabExtEntry *load_tab_ext_entry(TabExt *tab, s32 tabIdx, const void *existingData, u32 existingDataSize);
 static s32 _read_file_region_base(u32 id, void *dst, u32 offset, s32 size);
 

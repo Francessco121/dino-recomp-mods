@@ -12,6 +12,11 @@ RECOMP_IMPORT("extfs", void extfs_blocks_set_replacement(s32 blockTabIdx, const 
 RECOMP_IMPORT("extfs", void *extfs_blocks_get(s32 blockTabIdx, u32 *outSize))
 RECOMP_IMPORT("extfs", void *extfs_blocks_resize(s32 blockTabIdx, u32 newSize))
 
+/* ----- HITS ---------------------*/
+RECOMP_IMPORT("extfs", void extfs_hits_set_replacement(s32 hitsTabIdx, const void *data, u32 sizeBytes))
+RECOMP_IMPORT("extfs", void *extfs_hits_get(s32 hitsTabIdx, u32 *outSize))
+RECOMP_IMPORT("extfs", void *extfs_hits_resize(s32 hitsTabIdx, u32 newSize))
+
 /* ----- MAPS ---------------------*/
 RECOMP_IMPORT("extfs", void extfs_maps_set_replacement(s32 mapID, s32 segment, const void *data, u32 sizeBytes))
 RECOMP_IMPORT("extfs", void *extfs_maps_get(s32 mapID, s32 segment, u32 *outSize))

@@ -5,6 +5,7 @@
 
 #include "extfs_common.h"
 #include "files/blocks_ext.h"
+#include "files/hits_ext.h"
 #include "files/maps_ext.h"
 #include "files/models_ext.h"
 #include "files/objects_ext.h"
@@ -43,6 +44,9 @@ RECOMP_PATCH void *read_alloc_file(u32 id, u32 a1)
     switch (id) {
         case BLOCKS_TAB:
             if (blocks_ext_try_read_tab(&data)) return data;
+            break;
+        case HITS_TAB:
+            if (hits_ext_try_read_tab(&data)) return data;
             break;
         case MAPS_TAB:
             if (maps_ext_try_read_tab(&data)) return data;
@@ -85,6 +89,9 @@ RECOMP_PATCH s32 read_file_region(u32 id, void *dst, u32 offset, s32 size)
     switch (id) {
         case BLOCKS_BIN:
             if (blocks_ext_try_read_bin(dst, offset, size)) return size;
+            break;
+        case HITS_BIN:
+            if (hits_ext_try_read_bin(dst, offset, size)) return size;
             break;
         case MAPS_BIN:
             if (maps_ext_try_read_bin(dst, offset, size)) return size;
