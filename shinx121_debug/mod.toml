@@ -7,12 +7,13 @@ Expands the debug menu with:
 - Object 3D visualizer: View positions and rough hitboxes of objects and see them through walls.
 - Map debug: View a list of the currently loaded maps.
 - Bit Table debug: View and edit game flags and global state.
+- Blocks debug: View and edit blocks (including hits) at runtime.
 
 Open the Debug UI (F9) and select the 'Debug' dropdown to access these tools.
 """
 short_description = "Expands the debug menu."
 
-version = "0.2.0"
+version = "0.3.0"
 authors = [ "Shinx121" ]
 
 game_id = "dino-planet"

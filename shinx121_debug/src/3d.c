@@ -62,6 +62,19 @@ static s32 world_to_dbgui_coords(f32 x, f32 y, f32 z, f32 *o_sx, f32 *o_sy) {
     return TRUE;
 }
 
+void draw_3d_line(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2, u32 color) {
+    f32 sx1 = 0, sy1 = 0;
+    f32 sx2 = 0, sy2 = 0;
+    if (!world_to_dbgui_coords(x1, y1, z1, &sx1, &sy1)) {
+        return;
+    }
+    if (!world_to_dbgui_coords(x2, y2, z2, &sx2, &sy2)) {
+        return;
+    }
+
+    draw_line(sx1, sy1, sx2, sy2, color);
+}
+
 void draw_3d_text(f32 x, f32 y, f32 z, const char *text, u32 color) {
     f32 sx, sy;
     if (world_to_dbgui_coords(x, y, z, &sx, &sy)) {

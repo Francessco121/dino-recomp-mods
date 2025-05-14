@@ -3,6 +3,7 @@
 #include "recomputils.h"
 
 #include "3d.h"
+#include "debug_common.h"
 
 #include "game/objects/object.h"
 #include "sys/objects.h"
@@ -16,6 +17,7 @@ static s32 object_debug_window_open = FALSE;
 static s32 hovered_object_idx = -1;
 static s32 show_in_world = FALSE;
 static s32 show_hitboxes = TRUE;
+static s32 show_modlines = FALSE;
 static char search_buffer[256] = {0};
 static Object *edit_objects[256] = {NULL};
 
@@ -71,37 +73,6 @@ static void remove_freed_edit_objects() {
                 edit_objects[i] = NULL;
             }
         }
-    }
-}
-
-static void dbgui_input_byte(const char *label, u8 *value) {
-    s32 value_ = *value;
-    if (dbgui_input_int(label, &value_)) {
-        *value = (u8)value_;
-    }
-}
-
-static s32 dbgui_input_sbyte(const char *label, s8 *value) {
-    s32 value_ = *value;
-    if (dbgui_input_int(label, &value_)) {
-        *value = (s8)value_;
-        return TRUE;
-    }
-
-    return FALSE;
-}
-
-static void dbgui_input_short(const char *label, s16 *value) {
-    s32 value_ = *value;
-    if (dbgui_input_int(label, &value_)) {
-        *value = (s16)value_;
-    }
-}
-
-static void dbgui_input_uint(const char *label, u32 *value) {
-    s32 value_ = *value;
-    if (dbgui_input_int(label, &value_)) {
-        *value = (u32)value_;
     }
 }
 
@@ -281,13 +252,39 @@ static void object_edit_contents(Object *obj) {
             dbgui_textf("numModels: %d", def->numModels);
             dbgui_textf("name: %s", def->name);
 
-            if (def->pAttachPoints != NULL) {
+            if (def->pAttachPoints != NULL && def->numAttachPoints > 0) {
                 if (dbgui_tree_node("pAttachPoints")) {
                     for (int i = 0; i < def->numAttachPoints; i++) {
                         if (dbgui_tree_node(recomp_sprintf_helper("[%d]", i))) {
                             dbgui_input_float("x", &def->pAttachPoints[i].pos.x);
                             dbgui_input_float("y", &def->pAttachPoints[i].pos.y);
                             dbgui_input_float("z", &def->pAttachPoints[i].pos.z);
+
+                            dbgui_tree_pop();
+                        }
+                    }
+
+                    dbgui_tree_pop();
+                }
+            }
+
+            if (def->pModLines != NULL && def->modLineCount > 0) {
+                if (dbgui_tree_node("pModLines")) {
+                    for (int i = 0; i < def->modLineCount; i++) {
+                        if (dbgui_tree_node(recomp_sprintf_helper("[%d]", i))) {
+                            HitsLineCustom *line = (HitsLineCustom*)&def->pModLines[i];
+
+                            dbgui_textf("A: %d, %d, %d", line->Ax, line->Ay, line->Az);
+                            dbgui_textf("B: %d, %d, %d", line->Bx, line->By, line->Bz);
+                            if (line->settingsA & 0x80) {
+                                dbgui_textf("height: %d", line->height);
+                            } else {
+                                dbgui_textf("heightA: %d", line->heightA);
+                                dbgui_textf("heightB: %d", line->heightB);
+                            }
+                            dbgui_textf("settingsA: %02X", line->settingsA);
+                            dbgui_textf("settingsB: %02X", line->settingsB);
+                            dbgui_textf("animatorID: %d", line->animatorID);
 
                             dbgui_tree_pop();
                         }
@@ -429,6 +426,7 @@ static void objects_list_tab(Object** objects, s32 count, s32 *hovered_object_id
 
     if (show_in_world) {
         dbgui_checkbox("Show 3D boxes", &show_hitboxes);
+        dbgui_checkbox("Show 3D mod lines", &show_modlines);
     }
 
     dbgui_input_text("Search", search_buffer, sizeof(search_buffer) / sizeof(char));
@@ -608,6 +606,51 @@ RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback() {
                         2 * obj->srt.scale,
                         hovered ? 0xFFFFFFFF : 0xFFFF00FF
                     );
+                }
+            }
+
+            if (show_modlines) {
+                if (obj->def->pModLines != NULL) {
+                    for (s32 k = 0; k < obj->def->modLineCount; k++) {
+                        HitsLineCustom *hitLine = (HitsLineCustom*)&obj->def->pModLines[k];
+
+                        f32 centerX = (f32)(hitLine->Ax + hitLine->Bx) / 2;
+                        f32 centerY = (f32)(hitLine->Ay + hitLine->By) / 2;
+                        f32 centerZ = (f32)(hitLine->Az + hitLine->Bz) / 2;
+
+                        s32 heightA, heightB;
+                        if (hitLine->settingsA & 0x80) {
+                            heightA = hitLine->height;
+                            heightB = hitLine->height;
+                        } else {
+                            heightA = hitLine->heightA;
+                            heightB = hitLine->heightB;
+                        }
+
+                        draw_3d_text(position.x + centerX, position.y + centerY, position.z + centerZ, 
+                            recomp_sprintf_helper("ObjModLine %d/%d", i, k), 
+                            0xFF00FFFF);
+                        
+                        draw_3d_line(
+                            position.x + hitLine->Ax, position.y + hitLine->Ay, position.z + hitLine->Az, 
+                            position.x + hitLine->Bx, position.y + hitLine->By, position.z + hitLine->Bz, 
+                            0xFFFF00FF);
+
+                        draw_3d_line(
+                            position.x + hitLine->Ax, position.y + hitLine->Ay, position.z + hitLine->Az, 
+                            position.x + hitLine->Ax, position.y + hitLine->Ay + heightA, position.z + hitLine->Az, 
+                            0x888800CC);
+
+                        draw_3d_line(
+                            position.x + hitLine->Bx, position.y + hitLine->By, position.z + hitLine->Bz, 
+                            position.x + hitLine->Bx, position.y + hitLine->By + heightB, position.z + hitLine->Bz, 
+                            0x888800CC);
+
+                        draw_3d_line(
+                            position.x + hitLine->Ax, position.y + hitLine->Ay + heightA, position.z + hitLine->Az, 
+                            position.x + hitLine->Bx, position.y + hitLine->By + heightB, position.z + hitLine->Bz, 
+                            0x888800CC);
+                    }
                 }
             }
         }
