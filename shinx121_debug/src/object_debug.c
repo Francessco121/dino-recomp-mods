@@ -627,28 +627,42 @@ RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback() {
                             heightB = hitLine->heightB;
                         }
 
-                        draw_3d_text(position.x + centerX, position.y + centerY, position.z + centerZ, 
+                        f32 tx, ty, tz;
+
+                        vec3_transform(&mtx, centerX, centerY, centerZ, &tx, &ty, &tz);
+                        draw_3d_text(tx, ty, tz, 
                             recomp_sprintf_helper("ObjModLine %d/%d", i, k), 
                             0xFF00FFFF);
+
+                        f32 tx1, ty1, tz1;
+                        f32 tx2, ty2, tz2;
                         
+                        vec3_transform(&mtx, hitLine->Ax, hitLine->Ay, hitLine->Az, &tx1, &ty1, &tz1);
+                        vec3_transform(&mtx, hitLine->Bx, hitLine->By, hitLine->Bz, &tx2, &ty2, &tz2);
                         draw_3d_line(
-                            position.x + hitLine->Ax, position.y + hitLine->Ay, position.z + hitLine->Az, 
-                            position.x + hitLine->Bx, position.y + hitLine->By, position.z + hitLine->Bz, 
+                            tx1, ty1, tz1, 
+                            tx2, ty2, tz2, 
                             0xFFFF00FF);
 
+                        vec3_transform(&mtx, hitLine->Ax, hitLine->Ay, hitLine->Az, &tx1, &ty1, &tz1);
+                        vec3_transform(&mtx, hitLine->Ax, hitLine->Ay + heightA, hitLine->Az, &tx2, &ty2, &tz2);
                         draw_3d_line(
-                            position.x + hitLine->Ax, position.y + hitLine->Ay, position.z + hitLine->Az, 
-                            position.x + hitLine->Ax, position.y + hitLine->Ay + heightA, position.z + hitLine->Az, 
+                            tx1, ty1, tz1, 
+                            tx2, ty2, tz2, 
                             0x888800CC);
 
+                        vec3_transform(&mtx, hitLine->Bx, hitLine->By, hitLine->Bz, &tx1, &ty1, &tz1);
+                        vec3_transform(&mtx, hitLine->Bx, hitLine->By + heightB, hitLine->Bz, &tx2, &ty2, &tz2);
                         draw_3d_line(
-                            position.x + hitLine->Bx, position.y + hitLine->By, position.z + hitLine->Bz, 
-                            position.x + hitLine->Bx, position.y + hitLine->By + heightB, position.z + hitLine->Bz, 
+                            tx1, ty1, tz1, 
+                            tx2, ty2, tz2, 
                             0x888800CC);
 
+                        vec3_transform(&mtx, hitLine->Ax, hitLine->Ay + heightA, hitLine->Az, &tx1, &ty1, &tz1);
+                        vec3_transform(&mtx, hitLine->Bx, hitLine->By + heightB, hitLine->Bz, &tx2, &ty2, &tz2);
                         draw_3d_line(
-                            position.x + hitLine->Ax, position.y + hitLine->Ay + heightA, position.z + hitLine->Az, 
-                            position.x + hitLine->Bx, position.y + hitLine->By + heightB, position.z + hitLine->Bz, 
+                            tx1, ty1, tz1, 
+                            tx2, ty2, tz2, 
                             0x888800CC);
                     }
                 }
