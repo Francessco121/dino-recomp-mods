@@ -3,7 +3,7 @@
 #include "PR/ultratypes.h"
 #include "sys/fs.h"
 
-extern Fs * gFST;
+extern Fs *gFST;
 extern u32 gLastFSTIndex;
 extern s32 __fstAddress;
 extern s32 __file1Address;
@@ -24,7 +24,8 @@ extern void free_recomp(void* p);
 
 typedef enum {
     EXTFS_STAGE_UNINITIALIZED,
-    EXTFS_STAGE_REPLACEMENTS,
+    EXTFS_STAGE_FST_REPLACEMENTS,
+    EXTFS_STAGE_SUBFILE_REPLACEMENTS,
     EXTFS_STAGE_MODIFICATIONS,
     EXTFS_STAGE_COMMITTED
 } ExtFsLoadStage;

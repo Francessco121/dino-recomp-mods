@@ -4,8 +4,12 @@
 
 #include "PR/ultratypes.h"
 
+#define EXTFS_ON_LOAD_FST_REPLACEMENTS_CALLBACK RECOMP_CALLBACK("extfs", extfs_on_load_fst_replacements)
 #define EXTFS_ON_LOAD_REPLACEMENTS_CALLBACK RECOMP_CALLBACK("extfs", extfs_on_load_replacements)
 #define EXTFS_ON_LOAD_MODIFICATIONS_CALLBACK RECOMP_CALLBACK("extfs", extfs_on_load_modifications)
+
+/* ----- FST ---------------------*/
+RECOMP_IMPORT("extfs", void extfs_set_fst_file_replacement(s32 fileID, const void *data, u32 sizeBytes))
 
 /* ----- BLOCKS ---------------------*/
 RECOMP_IMPORT("extfs", void extfs_blocks_set_replacement(s32 blockTabIdx, const void *data, u32 sizeBytes))

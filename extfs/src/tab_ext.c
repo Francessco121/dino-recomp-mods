@@ -2,6 +2,7 @@
 
 #include "recomputils.h"
 #include "extfs_common.h"
+#include "fst_ext.h"
 
 #include "PR/ultratypes.h"
 #include "sys/fs.h"
@@ -16,10 +17,46 @@
  */
 
 static TabExtEntry *load_tab_ext_entry(TabExt *tab, s32 tabIdx, const void *existingData, u32 existingDataSize);
-static s32 _read_file_region_base(u32 id, void *dst, u32 offset, s32 size);
+
+static void resize_tab(TabExt *tab, u32 newCount) {
+    extfs_assert(tab->rebuiltEntries == NULL, "[extfs] Cannot resize rebuilt tab: %s!", tab->name);
+
+    u32 numToCopy = newCount < tab->entryCount ? newCount : tab->entryCount;
+
+    u32 *newOriginalEntries = recomp_alloc(newCount * sizeof(u32));
+    bcopy(tab->originalEntries, newOriginalEntries, numToCopy * sizeof(u32));
+    for (u32 i = numToCopy; i < newCount; i++) {
+        // New entries are all zero-length to start
+        newOriginalEntries[i] = newOriginalEntries[numToCopy - 1];
+    }
+    recomp_free(tab->originalEntries);
+    tab->originalEntries = newOriginalEntries;
+
+    TabExtEntry *newReplacements = recomp_alloc(newCount * sizeof(TabExtEntry));
+    bcopy(tab->replacements, newReplacements, numToCopy * sizeof(TabExtEntry));
+    bzero(newReplacements + numToCopy, (newCount - numToCopy) * sizeof(TabExtEntry));
+    for (u32 i = numToCopy; i < tab->entryCount; i++) {
+        recomp_free(tab->replacements[i].data);
+    }
+    recomp_free(tab->replacements);
+    tab->replacements = newReplacements;
+
+    extfs_log("[extfs] Resized tab %s: %d -> %d\n", tab->name, tab->entryCount, newCount);
+
+    tab->entryCount = newCount;
+    tab->sizeBytes = newCount * sizeof(u32);
+    if (tab->hasEndMarker) {
+        tab->sizeBytes += sizeof(u32);
+    }
+}
 
 void tab_ext_set_entry_replacement(TabExt *tab, s32 tabIdx, const void *data, u32 sizeBytes) {
-    extfs_assert(extfsLoadStage == EXTFS_STAGE_REPLACEMENTS, "[extfs] Cannot set replacements outside of replacements load stage/event.");
+    extfs_assert(extfsLoadStage == EXTFS_STAGE_SUBFILE_REPLACEMENTS, "[extfs] Cannot set replacements outside of replacements load stage/event.");
+    extfs_assert(tabIdx >= 0, "[extfs] Negative tab index given for tab %s: %d", tab->name, tabIdx);
+
+    if ((u32)tabIdx >= tab->entryCount) {
+        resize_tab(tab, tabIdx + 1);
+    }
 
     TabExtEntry *entry = &tab->replacements[tabIdx];
     if (entry->data != NULL) {
@@ -34,6 +71,11 @@ void tab_ext_set_entry_replacement(TabExt *tab, s32 tabIdx, const void *data, u3
 
 void *tab_ext_get_entry(TabExt *tab, s32 tabIdx, u32 *outSize) {
     extfs_assert(extfsLoadStage == EXTFS_STAGE_MODIFICATIONS, "[extfs] Cannot get tab entries outside of modifications load stage/event.");
+    extfs_assert(tabIdx >= 0, "[extfs] Negative tab index given for tab %s: %d", tab->name, tabIdx);
+
+    if ((u32)tabIdx >= tab->entryCount) {
+        resize_tab(tab, tabIdx + 1);
+    }
 
     TabExtEntry *entry = load_tab_ext_entry(tab, tabIdx, NULL, 0);
     if (outSize != NULL) {
@@ -45,8 +87,18 @@ void *tab_ext_get_entry(TabExt *tab, s32 tabIdx, u32 *outSize) {
 
 void *tab_ext_resize_entry(TabExt *tab, s32 tabIdx, u32 newSize) {
     extfs_assert(extfsLoadStage == EXTFS_STAGE_MODIFICATIONS, "[extfs] Cannot resize tab entries outside of modifications load stage/event.");
+    extfs_assert(tabIdx >= 0, "[extfs] Negative tab index given for tab %s: %d", tab->name, tabIdx);
+
+    if ((u32)tabIdx >= tab->entryCount) {
+        resize_tab(tab, tabIdx + 1);
+    }
 
     TabExtEntry *entry = load_tab_ext_entry(tab, tabIdx, NULL, 0);
+
+    if (entry->sizeBytes == newSize) {
+        // No need to resize
+        return entry->data;
+    }
 
     void *oldData = entry->data;
     u32 oldSize = entry->sizeBytes;
@@ -74,14 +126,12 @@ void *tab_ext_resize_entry(TabExt *tab, s32 tabIdx, u32 newSize) {
 
 void tab_ext_init(TabExt *tab) {
     if (tab->originalEntries == NULL) {
-        u32 *fstEntry = tab->id + gFST->offsets;
-        u32 offset = fstEntry[0];
-        u32 size = fstEntry[1] - offset;
+        u32 size = fst_ext_get_file_size(tab->id);
 
         void *originalEntries = recomp_alloc(size);
         extfs_assert(originalEntries != NULL, "[extfs] load_tab_ext(%d) originalEntries recomp_alloc failed: %d", tab->id, size);
 
-        read_from_rom((u32)&__file1Address + offset, (u8*)originalEntries, size);
+        fst_ext_read_from_file(tab->id, originalEntries, 0, size);
         tab->originalEntries = originalEntries;
         tab->sizeBytes = size;
 
@@ -111,8 +161,6 @@ void tab_ext_init(TabExt *tab) {
 static TabExtEntry *load_tab_ext_entry(TabExt *tab, s32 tabIdx, const void *existingData, u32 existingDataSize) {
     TabExtEntry *entry = &tab->replacements[tabIdx];
     if (entry->data == NULL) {
-        u32 binAddr = gFST->offsets[tab->binId];
-
         if (tab->stride == 1) {
             if (existingData == NULL) {
                 // No stride, no existing data hint
@@ -124,7 +172,7 @@ static TabExtEntry *load_tab_ext_entry(TabExt *tab, s32 tabIdx, const void *exis
                 extfs_assert(entry->data != NULL, "[extfs] load_tab_ext_entry(%d, %d) entry data recomp_alloc failed: %d", 
                     tab->id, tabIdx, size);
 
-                read_from_rom((u32)&__file1Address + binAddr + offset, entry->data, size);
+                fst_ext_read_from_file(tab->binId, entry->data, offset, size);
                 
                 extfs_log("[extfs] Loaded original file data for %s/%d.\n", tab->name, tabIdx);
             } else {
@@ -142,13 +190,13 @@ static TabExtEntry *load_tab_ext_entry(TabExt *tab, s32 tabIdx, const void *exis
             // Read all entries in stride
             s32 baseTabIdx = (tabIdx / tab->stride) * tab->stride;
             u32 fullStrideSize = tab->originalEntries[baseTabIdx + tab->stride] - tab->originalEntries[baseTabIdx];
-            u32 baseoffset = tab->originalEntries[baseTabIdx];
+            u32 baseOffset = tab->originalEntries[baseTabIdx];
 
             void *fullStrideData = recomp_alloc(fullStrideSize);
             extfs_assert(fullStrideData != NULL, "[extfs] load_tab_ext_entry(%d, %d) fullStrideData recomp_alloc failed: %d", 
                 tab->id, tabIdx, fullStrideSize);
 
-            read_from_rom((u32)&__file1Address + binAddr + baseoffset, fullStrideData, fullStrideSize);
+            fst_ext_read_from_file(tab->binId, fullStrideData, baseOffset, fullStrideSize);
 
             // Break up into individual entry data
             u32 fullStrideOffset = 0;
@@ -228,6 +276,8 @@ void tab_ext_rebuild(TabExt *tab) {
         }
     }
 
+    // TODO: originalEntries can be freed
+
     newTab[tab->entryCount] = newOffset;
     if (tab->hasEndMarker) {
         newTab[tab->entryCount + 1] = 0xFFFFFFFF;
@@ -281,6 +331,15 @@ _Bool tab_ext_get_rebuilt_entries(TabExt *tab, void **outRebuiltEntries) {
     return FALSE;
 }
 
+_Bool tab_ext_get_rebuilt_size(TabExt *tab, u32 *outSize) {
+    if (tab->replacements != NULL) {
+        *outSize = tab->sizeBytes;
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 static s32 tab_find_idx(const TabExt *tab, u32 offset) {
     for (u32 i = 0; i < tab->entryCount; i++) {
         u32 start = tab->rebuiltEntries[i];
@@ -314,7 +373,7 @@ _Bool tab_ext_try_read_bin(TabExt *tab, void *dst, u32 offset, u32 size) {
     if (replacement->data == NULL) {
         // Adjust ROM address back to original
         s32 reloc = tab->relocations[tabIdx];
-        _read_file_region_base(tab->binId, dst, offset + reloc, size);
+        fst_ext_read_from_file(tab->binId, dst, offset + reloc, size);
     } else {
         // Read from replacement file
         u32 relativeOffset = offset - tab->rebuiltEntries[tabIdx];
@@ -330,23 +389,4 @@ _Bool tab_ext_try_read_bin(TabExt *tab, void *dst, u32 offset, u32 size) {
     }
 
     return TRUE;
-}
-
-// Copy of the original read_file_region
-static s32 _read_file_region_base(u32 id, void *dst, u32 offset, s32 size)
-{
-    s32 fileAddr;
-    u32 * tmp;
-
-    if (size == 0 || id > (u32)gFST->fileCount)
-        return 0;
-
-    tmp      = ++id + gFST->offsets - 1;
-    fileAddr = *tmp + offset;
-
-    gLastFSTIndex = id;
-
-    read_from_rom(fileAddr + (s32)&__file1Address, dst, size);
-
-    return size;
 }

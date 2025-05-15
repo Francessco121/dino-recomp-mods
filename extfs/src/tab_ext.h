@@ -4,7 +4,6 @@
 
 typedef struct {
     void *data;
-    void *fullReplacementData;
     // The size of this individual entry.
     u32 sizeBytes;
     // The maximum number of bytes that can be read starting from the beginning of this entry.
@@ -45,3 +44,4 @@ void *tab_ext_resize_entry(TabExt *tab, s32 tabIdx, u32 newSize);
 void tab_ext_rebuild(TabExt *tab);
 _Bool tab_ext_get_rebuilt_entries(TabExt *tab, void **outRebuiltEntries);
 _Bool tab_ext_try_read_bin(TabExt *tab, void *dst, u32 offset, u32 size);
+_Bool tab_ext_get_rebuilt_size(TabExt *tab, u32 *outSize);
