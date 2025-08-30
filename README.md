@@ -1,4 +1,4 @@
-# Dinosaur Planet: Recompiled Mods
+# Dinosaur Planet: Recompiled - Mods
 A collection of Dinosaur Planet: Recompiled mods.
 
 > [!TIP]
