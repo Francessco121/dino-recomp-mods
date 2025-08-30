@@ -2,7 +2,7 @@
 A collection of Dinosaur Planet: Recompiled mods.
 
 > [!TIP]
-> If you would like to create your own mods, consider starting with [the official mod template](https://github.com/Francessco121/dino-recomp-mod-template) instead.
+> If you would like to create your own mods, consider starting with [the official mod template](https://github.com/DinosaurPlanetRecomp/dino-recomp-mod-template) instead.
 
 ## Mods
 - [extfs](./extfs/) - A library providing APIs for replacing and modifying content in the game's filesystem.

@@ -28,7 +28,9 @@ mips
 -I
 ../lib/dino-recomp-mod-api/include
 -I
-../lib/dino-recomp-mod-api/dinosaur-planet/include
+../lib/dino-recomp-decomp-bridge/include
+-I
+../lib/dino-recomp-decomp-bridge/dinosaur-planet/include
 -I
 include
 -I

@@ -40,7 +40,7 @@ static const DbgUiInputIntOptions hexInput = {
 };
 
 // HACK: hijack block world positions from block_add_to_render_list since idk how to calculate these
-RECOMP_HOOK("block_add_to_render_list") void block_add_to_render_list(BlocksModel *block, f32 x, f32 y) {
+RECOMP_HOOK("block_add_to_render_list") void block_add_to_render_list(Block *block, f32 x, f32 y) {
     s32 idx = -1;
     for (s32 i = 0; i < gLoadedBlockCount; i++) {
         if (gLoadedBlocks[i] == block) {

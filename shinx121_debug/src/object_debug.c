@@ -391,7 +391,16 @@ static void object_edit_contents(Object *obj) {
     } else {
         dbgui_textf("linkedObject: null");
     }
-    dbgui_textf("ptr0xcc: %p", obj->ptr0xcc);
+    if (obj->mesgQueue != NULL) {
+        if (dbgui_tree_node("mesgQueue")) {
+            ObjectMesgQueue *mesgQueue = obj->mesgQueue;
+            dbgui_textf("count: %u", mesgQueue->count);
+            dbgui_textf("capacity: %u", mesgQueue->capacity);
+            dbgui_tree_pop();
+        }
+    } else {
+        dbgui_textf("mesgQueue: null");
+    }
     dbgui_textf("unk_0xd4: %u", obj->unk_0xd4);
     dbgui_textf("unk_0xd6: %u", obj->unk_0xd6);
     dbgui_textf("unk_0xd8: %u", obj->unk_0xd8);

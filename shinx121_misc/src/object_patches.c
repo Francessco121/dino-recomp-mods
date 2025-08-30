@@ -50,6 +50,7 @@ RECOMP_PATCH ObjDef *obj_load_objdef(s32 tabIdx) {
     s32 fileSize;
 
     if (tabIdx >= gNumObjectsTabEntries) {
+        // @recomp Error message
         recomp_eprintf("Failed to load objdef idx %d. Index out of bounds.\n", tabIdx);
         return NULL;
     }
@@ -81,7 +82,7 @@ RECOMP_PATCH ObjDef *obj_load_objdef(s32 tabIdx) {
 
         def->pModelList = (u32*)((u32)def + (u32)def->pModelList);
         def->pTextures = (UNK_PTR*)((u32)def + (u32)def->pTextures);
-        def->unk10 = (UNK_PTR*)((u32)def + (u32)def->unk10);
+        def->pSequenceBones = (UNK_PTR*)((u32)def + (u32)def->pSequenceBones);
 
         if (def->unk18 != 0) {
             def->unk18 = (u32*)((u32)def + (u32)def->unk18);
@@ -109,6 +110,7 @@ RECOMP_PATCH ObjDef *obj_load_objdef(s32 tabIdx) {
         gLoadedObjDefs[tabIdx] = def;
         gObjDefRefCount[tabIdx] = 1;
     } else {
+        // @recomp Error message
         recomp_eprintf("Failed to load objdef idx %d. Malloc failed.\n", tabIdx);
         return NULL;
     }
@@ -138,6 +140,7 @@ RECOMP_PATCH Object *obj_setup_object(ObjCreateInfo *createInfo, u32 param2, s32
         tabIdx = objId;
     } else {
         if (objId > gObjIndexCount) {
+            // @recomp Error message
             recomp_eprintf("Failed to setup object %d. Too many objects loaded.\n", objId);
             update_pi_manager_array(0, -1);
             return NULL;
@@ -152,6 +155,7 @@ RECOMP_PATCH Object *obj_setup_object(ObjCreateInfo *createInfo, u32 param2, s32
     def = objHeader.def;
 
     if (def == NULL || (u32)def == 0xFFFFFFFF) {
+        // @recomp Error message
         recomp_eprintf("Failed to setup object %d. Failed to load objdef.\n", objId);
         return NULL;
     } 
@@ -182,13 +186,13 @@ RECOMP_PATCH Object *obj_setup_object(ObjCreateInfo *createInfo, u32 param2, s32
     objHeader.unk0xb4 = -1;
     objHeader.srt.scale = def->scale;
     objHeader.unk_0x36 = 0xFF;
-    objHeader.ptr0xcc = NULL;
+    objHeader.mesgQueue = NULL;
     objHeader.unk0x3c = createInfo->loadDistance << 3;
     objHeader.unk0x40 = createInfo->fadeDistance << 3;
     objHeader.dll = NULL;
 
     if (def->dllID != 0) {
-        objHeader.dll = (DLLInst_Object*)dll_load(def->dllID, 6, 1);
+        objHeader.dll = (DLL_IObject*)dll_load(def->dllID, 6, 1);
     }
 
     flags = func_80022828(&objHeader);
@@ -214,6 +218,7 @@ RECOMP_PATCH Object *obj_setup_object(ObjCreateInfo *createInfo, u32 param2, s32
     obj = (Object*)malloc(var, ALLOC_TAG_OBJECTS_COL, NULL);
 
     if (obj == NULL) {
+        // @recomp Error message
         recomp_eprintf("Failed to setup object %d. Malloc failed.\n", objId);
         obj_free_objdef(tabIdx);
         return NULL;
@@ -259,6 +264,7 @@ RECOMP_PATCH Object *obj_setup_object(ObjCreateInfo *createInfo, u32 param2, s32
 
     modelLoadFailedLabel:
     if (modelLoadFailed) {
+        // @recomp Error message
         recomp_eprintf("Failed to setup object %d. Failed to load models.\n", objId);
         func_80022200(obj, modelCount, objId);
         obj_free_objdef(tabIdx);
@@ -289,14 +295,14 @@ RECOMP_PATCH Object *obj_setup_object(ObjCreateInfo *createInfo, u32 param2, s32
         }
     }
 
-    if (def->unk72 != 0) {
+    if (def->numSequenceBones != 0) {
         obj->ptr0x6c = (u16*)align_4(addr);
-        addr = (u32)obj->ptr0x6c + (def->unk72 * 0x12);
+        addr = (u32)obj->ptr0x6c + (def->numSequenceBones * 0x12);
     }
 
-    if (def->numTextures != 0) {
+    if (def->numAnimatedFrames != 0) {
         obj->ptr0x70 = (void*)align_4(addr);
-        addr = (u32)obj->ptr0x70 + (def->numTextures * 0x10);
+        addr = (u32)obj->ptr0x70 + (def->numAnimatedFrames * 0x10);
     }
 
     if (def->unk9b != 0) {
@@ -331,6 +337,7 @@ RECOMP_PATCH Object *obj_create(ObjCreateInfo *createInfo, u32 createFlags, s32 
 
     obj = NULL;
     queue_load_map_object(&obj, createInfo, createFlags, mapID, param4, parent, 0);
+    // @recomp Attempt to handle load failure
     if (obj == NULL) {
         recomp_eprintf("Failed to load object: %d\n", createInfo->objId);
         return NULL;
