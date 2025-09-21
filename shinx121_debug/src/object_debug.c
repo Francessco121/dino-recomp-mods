@@ -352,10 +352,10 @@ static void object_edit_contents(Object *obj) {
         obj->positionMirror2.x, obj->positionMirror2.y, obj->positionMirror2.z);
     dbgui_textf("positionMirror3: %f,%f,%f",
         obj->positionMirror3.x, obj->positionMirror3.y, obj->positionMirror3.z);
-    dbgui_textf("animTimer: %f", obj->animTimer);
-    dbgui_textf("unk0x9c: %f", obj->unk0x9c);
-    dbgui_textf("curAnimId: %d", obj->curAnimId);
-    dbgui_textf("unk_0xa2: %d", obj->unk_0xa2);
+    dbgui_textf("animProgress: %f", obj->animProgress);
+    dbgui_textf("animProgressLayered: %f", obj->animProgressLayered);
+    dbgui_textf("curModAnimId: %d", obj->curModAnimId);
+    dbgui_textf("curModAnimIdLayered: %d", obj->curModAnimIdLayered);
     dbgui_textf("unk_0xa4: %f", obj->unk_0xa4);
     dbgui_textf("unk_0xa8: %f", obj->unk_0xa8);
     dbgui_textf("mapID: %d", obj->mapID);

@@ -78,13 +78,13 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick() {
 
             *((u16*)((u32)player + 0x0360)) = 28; // anim
             player->unk_0x36 = 0x80;
-            player->animTimer = 0.0f;
+            player->animProgress = 0.0f;
 
             flying_cooldown = FLY_COOLDOWN;
         } else if (flying_cooldown > 0) {
             flying_cooldown--;
             *((u16*)((u32)player + 0x0360)) = 1;
-            player->animTimer = 0.0f;
+            player->animProgress = 0.0f;
             player->unk_0x36 = 0xFF;
         }
     }

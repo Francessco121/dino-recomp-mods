@@ -21,7 +21,7 @@ RECOMP_CALLBACK(".", my_dbgui_event) void map_debug_dbgui_callback() {
             for (s32 i = 0; i < 98; i++) {
                 bcopy((void*)((u32)mapInfo + (0x20 * i)), mapNames[i], 28);
             }
-            free(mapInfo);
+            mmFree(mapInfo);
 
             loadedMapNames = TRUE;
         }

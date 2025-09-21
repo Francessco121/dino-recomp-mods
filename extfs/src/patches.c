@@ -67,7 +67,7 @@ RECOMP_PATCH void *read_alloc_file(u32 id, u32 a1)
     // @recomp: Rewrite to use fst_ext
     u32 size = fst_ext_get_file_size(id);
 
-    data = malloc(size, ALLOC_TAG_FS_COL, NULL);
+    data = mmAlloc(size, COLOUR_TAG_GREY, NULL);
     if (data == NULL)
         return NULL;
 

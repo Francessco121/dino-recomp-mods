@@ -253,7 +253,7 @@ void tab_ext_rebuild(TabExt *tab) {
         tab->id, tab->entryCount * sizeof(s32));
     tab->relocations = relocs;
 
-    u32 *newTab = malloc(tab->sizeBytes, ALLOC_TAG_FS_COL, NULL);
+    u32 *newTab = mmAlloc(tab->sizeBytes, COLOUR_TAG_GREY, NULL);
     extfs_assert(newTab != NULL, "[extfs] rebuild_tab %d newTab malloc failed: %d", 
         tab->id, tab->sizeBytes);
     tab->rebuiltEntries = newTab;

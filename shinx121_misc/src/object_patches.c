@@ -64,7 +64,7 @@ RECOMP_PATCH ObjDef *obj_load_objdef(s32 tabIdx) {
     fileOffset = gFile_OBJECTS_TAB[tabIdx];
     fileSize = gFile_OBJECTS_TAB[tabIdx + 1] - fileOffset;
 
-    def = (ObjDef*)malloc(fileSize, ALLOC_TAG_OBJECTS_COL, NULL);
+    def = (ObjDef*)mmAlloc(fileSize, ALLOC_TAG_OBJECTS_COL, NULL);
     if (def != NULL) {
         read_file_region(OBJECTS_BIN, (void*)def, fileOffset, fileSize);
 
@@ -182,7 +182,7 @@ RECOMP_PATCH Object *obj_setup_object(ObjCreateInfo *createInfo, u32 param2, s32
     objHeader.id = objId;
     objHeader.unk0xb2 = param4;
     objHeader.mapID = mapID;
-    objHeader.unk_0xa2 = -1;
+    objHeader.curModAnimIdLayered = -1;
     objHeader.unk0xb4 = -1;
     objHeader.srt.scale = def->scale;
     objHeader.unk_0x36 = 0xFF;
@@ -215,7 +215,7 @@ RECOMP_PATCH Object *obj_setup_object(ObjCreateInfo *createInfo, u32 param2, s32
 
     var = obj_calc_mem_size(&objHeader, def, flags);
 
-    obj = (Object*)malloc(var, ALLOC_TAG_OBJECTS_COL, NULL);
+    obj = (Object*)mmAlloc(var, ALLOC_TAG_OBJECTS_COL, NULL);
 
     if (obj == NULL) {
         // @recomp Error message
@@ -296,27 +296,27 @@ RECOMP_PATCH Object *obj_setup_object(ObjCreateInfo *createInfo, u32 param2, s32
     }
 
     if (def->numSequenceBones != 0) {
-        obj->ptr0x6c = (u16*)align_4(addr);
+        obj->ptr0x6c = (u16*)mmAlign4(addr);
         addr = (u32)obj->ptr0x6c + (def->numSequenceBones * 0x12);
     }
 
     if (def->numAnimatedFrames != 0) {
-        obj->ptr0x70 = (void*)align_4(addr);
+        obj->ptr0x70 = (void*)mmAlign4(addr);
         addr = (u32)obj->ptr0x70 + (def->numAnimatedFrames * 0x10);
     }
 
     if (def->unk9b != 0) {
-        obj->unk0x74 = align_4(addr);
+        obj->unk0x74 = mmAlign4(addr);
         addr = (u32)obj->unk0x74 + (def->unk9b * 0x18);
     }
 
     if (def->unk8F != 0 && def->unk74 != 0) {
-        addr = align_4(addr);
+        addr = mmAlign4(addr);
         addr = func_80026A20(obj->id, obj->modelInsts[0], obj->objhitInfo, addr, obj);
     }
 
     if (def->unk9b != 0) {
-        obj->unk_0x78 = (ObjectStruct78*)align_4(addr);
+        obj->unk_0x78 = (ObjectStruct78*)mmAlign4(addr);
 
         for (j = 0; j < def->unk9b; j++) {
             obj->unk_0x78[j].unk4 = def->unk40[j].unk10;

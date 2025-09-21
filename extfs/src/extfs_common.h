@@ -16,9 +16,6 @@ extern void bcopy_recomp(const void *src, void *dst, int length);
 extern void bzero_recomp(void *, int);
 #define bzero bzero_recomp
 
-extern void free_recomp(void* p);
-#define free free_recomp
-
 #define EXTFS_ON_INIT_CALLBACK RECOMP_CALLBACK(".", _extfs_on_init)
 #define EXTFS_ON_COMMIT_CALLBACK RECOMP_CALLBACK(".", _extfs_on_commit)
 
