@@ -59,9 +59,9 @@ RECOMP_PATCH void *read_alloc_file(u32 id, u32 a1)
         case OBJECTS_TAB:
             if (objects_ext_try_read_tab(&data)) return data;
             break;
-        case SCREENS_TAB:
-            if (screens_ext_try_read_tab(&data)) return data;
-            break;
+        // case SCREENS_TAB:
+        //     if (screens_ext_try_read_tab(&data)) return data;
+        //     break;
     }
 
     // @recomp: Rewrite to use fst_ext
@@ -110,9 +110,10 @@ RECOMP_PATCH s32 read_file_region(u32 id, void *dst, u32 offset, s32 size)
         case OBJECTS_BIN:
             if (objects_ext_try_read_bin(dst, offset, size)) return size;
             break;
-        case SCREENS_BIN:
-            if (screens_ext_try_read_bin(dst, offset, size)) return size;
-            break;
+        // TODO: screen patch crashes on showing 'sabres adventure'!
+        // case SCREENS_BIN:
+        //     if (screens_ext_try_read_bin(dst, offset, size)) return size;
+        //     break;
     }
 
     // @recomp: Rewrite to use fst_ext
@@ -124,6 +125,7 @@ RECOMP_PATCH s32 read_file_region(u32 id, void *dst, u32 offset, s32 size)
 }
 
 // TODO: deal with file_get_romaddr
+// TODO: support for MPEG/AUDIO, they dont use fs functions (aside from file_get_romaddr)
 
 RECOMP_PATCH s32 get_file_size(u32 id)
 {
@@ -148,9 +150,9 @@ RECOMP_PATCH s32 get_file_size(u32 id)
         case OBJECTS_BIN:
             if (objects_ext_try_get_tab_size(&size)) return size;
             break;
-        case SCREENS_BIN:
-            if (screens_ext_try_get_tab_size(&size)) return size;
-            break;
+        // case SCREENS_BIN:
+        //     if (screens_ext_try_get_tab_size(&size)) return size;
+        //     break;
     }
 
     // @recomp: Rewrite to use fst_ext
