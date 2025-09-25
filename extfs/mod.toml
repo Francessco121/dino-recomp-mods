@@ -32,3 +32,11 @@ data_reference_syms_files = [
     "../dino.datasyms_extra.toml"
 ]
 additional_files = [ ]
+
+[[manifest.config_options]]
+id = "logging"
+name = "Debug Logging"
+description = "Whether to enable stdout debug logging for extfs."
+type = "Enum"
+options = [ "On", "Off" ]
+default = "Off"

@@ -1,6 +1,12 @@
 #include "extfs_common.h"
 
+#include "recompconfig.h"
 #include "recomputils.h"
+
+typedef enum {
+    DEBUG_LOGGING_ON,
+    DEBUG_LOGGING_OFF,
+} DebugLogging;
 
 ExtFsLoadStage extfsLoadStage = EXTFS_STAGE_UNINITIALIZED;
 
@@ -19,9 +25,10 @@ void extfs_log(const char *fmt, ...) {
     va_list args;
 	va_start(args, fmt);
 
-    // TODO: gate behind config setting
-
-    recomp_vprintf(fmt, args);
+    s32 enableDebugLogging = recomp_get_config_u32("logging") == DEBUG_LOGGING_ON;
+    if (enableDebugLogging) {
+        recomp_vprintf(fmt, args);
+    }
 
     va_end(args);
 }
