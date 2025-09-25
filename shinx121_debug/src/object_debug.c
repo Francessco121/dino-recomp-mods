@@ -4,13 +4,15 @@
 
 #include "3d.h"
 #include "debug_common.h"
+#include "objects/trigger_debug.h"
 
 #include "game/objects/object.h"
+#include "game/objects/object_id.h"
 #include "sys/objects.h"
+#include "sys/objtype.h"
 #include "sys/linked_list.h"
 #include "common.h"
 
-extern Object** get_world_objects(s32*, s32 *count);
 extern LinkedList gObjUpdateList;
 
 static s32 object_debug_window_open = FALSE;
@@ -19,6 +21,8 @@ static s32 show_in_world = FALSE;
 static s32 show_hitboxes = TRUE;
 static s32 show_modlines = FALSE;
 static char search_buffer[256] = {0};
+static s32 type_filter = 0;
+static s32 filter_types = FALSE;
 static Object *edit_objects[256] = {NULL};
 
 static u16 resolve_dll_number(u16 id) {
@@ -413,10 +417,33 @@ static void object_editor(Object *obj, s32 index) {
     s32 open = TRUE;
     s32 destroy = FALSE;
     if (dbgui_begin(recomp_sprintf_helper("%s###object_edit_%p", obj->def->name, obj), &open)) {
-        if (dbgui_button("Destroy")) {
-            destroy = TRUE;
+        if (dbgui_begin_tab_bar(recomp_sprintf_helper("%s###object_edit_%p_tabbar", obj->def->name, obj))) {
+            if (dbgui_begin_tab_item("Object", NULL)) {
+                if (dbgui_button("Destroy")) {
+                    destroy = TRUE;
+                }
+                object_edit_contents(obj);
+                dbgui_end_tab_item();
+            }
+            switch (obj->id) {
+            case OBJ_TriggerArea:
+            case OBJ_TriggerBits:
+            case OBJ_TriggerButton:
+            case OBJ_TriggerCurve:
+            case OBJ_TriggerCylinder:
+            case OBJ_TriggerPlane:
+            case OBJ_TriggerPoint:
+            case OBJ_TriggerSetup:
+            case OBJ_TriggerTime:
+                if (dbgui_begin_tab_item("Trigger", NULL)) {
+                    trigger_debug_tab(obj);
+                    dbgui_end_tab_item();
+                }
+                break;
+            }
+
+            dbgui_end_tab_bar();
         }
-        object_edit_contents(obj);
     }
     dbgui_end();
 
@@ -436,6 +463,13 @@ static void objects_list_tab(Object** objects, s32 count, s32 *hovered_object_id
     if (show_in_world) {
         dbgui_checkbox("Show 3D boxes", &show_hitboxes);
         dbgui_checkbox("Show 3D mod lines", &show_modlines);
+    }
+
+    dbgui_checkbox("Filter by Type", &filter_types);
+    if (filter_types) {
+        dbgui_same_line();
+        dbgui_set_next_item_width(100);
+        dbgui_input_int("Type", &type_filter);
     }
 
     dbgui_input_text("Search", search_buffer, sizeof(search_buffer) / sizeof(char));
@@ -482,7 +516,7 @@ static void objects_list_tab(Object** objects, s32 count, s32 *hovered_object_id
     }
 }
 
-static void priority_list_tab(Object** objects, s32 count) {
+static void priority_list_tab() {
     dbgui_text("Object Priority/Update List:");
     if (dbgui_begin_child("object_priority_list")) {
         s32 i = 0;
@@ -519,7 +553,12 @@ RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback() {
     s32 hovered_object_idx = -1;
 
     s32 _, count;
-    Object** objects = get_world_objects(&_, &count);
+    Object** objects;
+    if (filter_types) {
+        objects = obj_get_all_of_type(type_filter, &count);
+    } else {
+        objects = get_world_objects(&_, &count);
+    }
 
     if (object_debug_window_open) {
         if (dbgui_begin("Object Debug", &object_debug_window_open)) {
@@ -530,7 +569,7 @@ RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback() {
                 }
 
                 if (dbgui_begin_tab_item("Priority List", NULL)) {
-                    priority_list_tab(objects, count);
+                    priority_list_tab();
                     dbgui_end_tab_item();
                 }
                 
@@ -594,27 +633,42 @@ RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback() {
             );
 
             if (show_hitboxes) {
-                if (obj->objhitInfo != NULL) {
-                    s16 v1 = *(s16*)((u32)obj->objhitInfo + 0x52);
-                    s16 v2 = *(s16*)((u32)obj->objhitInfo + 0x54);
-                    s16 v3 = *(s16*)((u32)obj->objhitInfo + 0x56);
-                    s16 v4 = *(s16*)((u32)obj->objhitInfo + 0x58);
+                switch (obj->id) {
+                case OBJ_TriggerArea:
+                case OBJ_TriggerBits:
+                case OBJ_TriggerButton:
+                case OBJ_TriggerCurve:
+                case OBJ_TriggerCylinder:
+                case OBJ_TriggerPlane:
+                case OBJ_TriggerPoint:
+                case OBJ_TriggerSetup:
+                case OBJ_TriggerTime:
+                    draw_trigger(obj, hovered ? 0xFFFFFFFF : 0xFFFF00FF);
+                    break;
+                default:
+                    if (obj->objhitInfo != NULL) {
+                        s16 v1 = *(s16*)((u32)obj->objhitInfo + 0x52);
+                        s16 v2 = *(s16*)((u32)obj->objhitInfo + 0x54);
+                        s16 v3 = *(s16*)((u32)obj->objhitInfo + 0x56);
+                        s16 v4 = *(s16*)((u32)obj->objhitInfo + 0x58);
 
-                    draw_3d_box(
-                        &mtx, 
-                        v1 * 2,
-                        v3,
-                        v1 * 2,
-                        hovered ? 0xFFFFFFFF : 0xFFFF00FF
-                    );
-                } else {
-                    draw_3d_sphere(
-                        position.x,
-                        position.y,
-                        position.z,
-                        2 * obj->srt.scale,
-                        hovered ? 0xFFFFFFFF : 0xFFFF00FF
-                    );
+                        draw_3d_box(
+                            &mtx, 
+                            v1 * 2,
+                            v3,
+                            v1 * 2,
+                            hovered ? 0xFFFFFFFF : 0xFFFF00FF
+                        );
+                    } else {
+                        draw_3d_sphere(
+                            position.x,
+                            position.y,
+                            position.z,
+                            2 * obj->srt.scale,
+                            hovered ? 0xFFFFFFFF : 0xFFFF00FF
+                        );
+                    }
+                    break;
                 }
             }
 

@@ -26,6 +26,8 @@ mips
 -DF3DEX_GBI_2
 -DMIPS
 -I
+include
+-I
 ../lib/dino-recomp-mod-api/include
 -I
 ../lib/dino-recomp-decomp-bridge/include
