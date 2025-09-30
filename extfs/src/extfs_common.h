@@ -16,8 +16,10 @@ extern void bcopy_recomp(const void *src, void *dst, int length);
 extern void bzero_recomp(void *, int);
 #define bzero bzero_recomp
 
+#define EXTFS_ON_FST_INIT_CALLBACK RECOMP_CALLBACK(".", _extfs_on_fst_init)
 #define EXTFS_ON_INIT_CALLBACK RECOMP_CALLBACK(".", _extfs_on_init)
 #define EXTFS_ON_COMMIT_CALLBACK RECOMP_CALLBACK(".", _extfs_on_commit)
+#define EXTFS_ON_REBUILD_FST_CALLBACK RECOMP_CALLBACK(".", _extfs_on_rebuild_fst)
 
 typedef enum {
     EXTFS_STAGE_UNINITIALIZED,
@@ -28,6 +30,8 @@ typedef enum {
 } ExtFsLoadStage;
 
 extern ExtFsLoadStage extfsLoadStage;
+
+extern const char *DINO_FS_FILENAMES[NUM_FILES];
 
 void extfs_assert(_Bool condition, const char *fmt, ...);
 void extfs_log(const char *fmt, ...);
