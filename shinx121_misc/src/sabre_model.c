@@ -15,8 +15,8 @@ RECOMP_CALLBACK("*", recomp_on_game_tick_start) void sabre_model_game_tick() {
 
     if (player != NULL) {
         // Force sabre over fox if enabled
-        s32 character = gDLL_29_Gplay->vtbl->func_E90();
-        if (character == CHARACTER_SABRE) {
+        s32 playerno = gDLL_29_Gplay->vtbl->get_playerno();
+        if (playerno == PLAYER_SABRE) {
             s32 useSabreModel = recomp_get_config_u32("sabre_model") == USE_SABRE_MODEL_ON;
 
             if (!useSabreModel) {

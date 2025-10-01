@@ -1,5 +1,9 @@
 #include "modding.h"
 
+#include "PR/os.h"
+#include "libnaudio/n_libaudio.h"
+#include "sys/audio/speaker.h"
+#include "sys/audio.h"
 #include "sys/fs.h"
 #include "sys/memory.h"
 
@@ -80,43 +84,21 @@ RECOMP_PATCH s32 read_file_region(u32 id, void *dst, u32 offset, s32 size)
     return size;
 }
 
-#include "PR/os.h"
-#include "libnaudio/n_libaudio.h"
-#include "sys/audio/speaker.h"
+extern u32 audFrameCt;
+extern u32 nextDMA;
+extern AMDMAState dmaState;
+extern OSIoMesg audDMAIOMesgBuf[NUM_DMA_MESSAGES];
+extern OSMesgQueue audDMAMessageQ;
 
-typedef struct {
-    ALLink node;
-    u32 startAddr;
-    u32 lastFrame;
-    char *ptr;
-} AMDMABuffer;
-
-typedef struct {
-    u8 initialized;
-    AMDMABuffer *firstUsed;
-    AMDMABuffer *firstFree;
-} AMDMAState;
-
-#define DMA_BUFFER_LENGTH       0x800
-#define NUM_DMA_MESSAGES        50 
-
-extern s32 D_8008C8CC; // audFrameCt
-extern s32 D_8008C8D0; // nextDMA
-extern AMDMAState D_800AAA28; // dmaState
-extern OSIoMesg D_800AB088[NUM_DMA_MESSAGES]; // audDMAIOMesgBuf
-extern OSMesgQueue D_800AB808; // audDMAMessageQ
-
-RECOMP_PATCH s32 al_dame_sub(s32 addr, s32 len, void *state) {
+RECOMP_PATCH s32 __amDMA(s32 addr, s32 len, void *state) {
     AMDMABuffer *dmaPtr, *lastDmaPtr;
     void *foundBuffer;
     s32 delta, addrEnd, buffEnd;
     s32 pad;
 
-   // extfs_log("al_dame_sub(%x, %x, %x)\n", addr, len, state);
-
     lastDmaPtr = NULL;
     delta = addr & 1;
-    dmaPtr = D_800AAA28.firstUsed;
+    dmaPtr = dmaState.firstUsed;
     addrEnd = addr + len;
 
     /* first check to see if a currently existing buffer contains the
@@ -127,7 +109,7 @@ RECOMP_PATCH s32 al_dame_sub(s32 addr, s32 len, void *state) {
         if (dmaPtr->startAddr > (u32) addr) { /* since buffers are ordered */
             break;                            /* abort if past possible */
         } else if (addrEnd <= buffEnd) {      /* yes, found a buffer with samples */
-            dmaPtr->lastFrame = D_8008C8CC;   /* mark it used */
+            dmaPtr->lastFrame = audFrameCt;   /* mark it used */
             foundBuffer = dmaPtr->ptr + addr - dmaPtr->startAddr;
             return (int) osVirtualToPhysical(foundBuffer);
         }
@@ -138,10 +120,10 @@ RECOMP_PATCH s32 al_dame_sub(s32 addr, s32 len, void *state) {
     /* get here, and you didn't find a buffer, so dma a new one */
 
     /* get a buffer from the free list */
-    dmaPtr = D_800AAA28.firstFree;
+    dmaPtr = dmaState.firstFree;
 
     if (!dmaPtr && !lastDmaPtr) {
-        lastDmaPtr = D_800AAA28.firstUsed;
+        lastDmaPtr = dmaState.firstUsed;
     }
 
     /*
@@ -149,26 +131,26 @@ RECOMP_PATCH s32 al_dame_sub(s32 addr, s32 len, void *state) {
      * pointer, it's better than nothing
      */
     if (!dmaPtr) {
-        //stubbed_printf("OH DEAR - No audio DMA buffers left\n");
+        //STUBBED_PRINTF("OH DEAR - No audio DMA buffers left\n");
         return (int) osVirtualToPhysical(lastDmaPtr->ptr) + delta;
     }
 
-    D_800AAA28.firstFree = (AMDMABuffer *) dmaPtr->node.next;
+    dmaState.firstFree = (AMDMABuffer *) dmaPtr->node.next;
     alUnlink((ALLink *) dmaPtr);
 
     /* add it to the used list */
     if (lastDmaPtr) { /* if you have other dmabuffers used, add this one */
                       /* to the list, after the last one checked above */
         alLink((ALLink *) dmaPtr, (ALLink *) lastDmaPtr);
-    } else if (D_800AAA28.firstUsed) { /* if this buffer is before any others */
+    } else if (dmaState.firstUsed) { /* if this buffer is before any others */
                                      /* jam at begining of list */
-        lastDmaPtr = D_800AAA28.firstUsed;
-        D_800AAA28.firstUsed = dmaPtr;
+        lastDmaPtr = dmaState.firstUsed;
+        dmaState.firstUsed = dmaPtr;
         dmaPtr->node.next = (ALLink *) lastDmaPtr;
         dmaPtr->node.prev = 0;
         lastDmaPtr->node.prev = (ALLink *) dmaPtr;
     } else { /* no buffers in list, this is the first one */
-        D_800AAA28.firstUsed = dmaPtr;
+        dmaState.firstUsed = dmaPtr;
         dmaPtr->node.next = 0;
         dmaPtr->node.prev = 0;
     }
@@ -176,13 +158,14 @@ RECOMP_PATCH s32 al_dame_sub(s32 addr, s32 len, void *state) {
     foundBuffer = dmaPtr->ptr;
     addr -= delta;
     dmaPtr->startAddr = addr;
-    dmaPtr->lastFrame = D_8008C8CC; /* mark it */
+    dmaPtr->lastFrame = audFrameCt; /* mark it */
 
+    // @recomp: Read from replaced files, if any
     if (fst_ext_audio_dma(foundBuffer, addr, DMA_BUFFER_LENGTH)) {
-        D_8008C8D0++;
+        nextDMA++;
     } else {
-        osPiStartDma(&D_800AB088[D_8008C8D0++], OS_MESG_PRI_HIGH, OS_READ, addr, foundBuffer, DMA_BUFFER_LENGTH,
-                    &D_800AB808);
+        osPiStartDma(&audDMAIOMesgBuf[nextDMA++], OS_MESG_PRI_HIGH, OS_READ, addr, foundBuffer, DMA_BUFFER_LENGTH,
+                    &audDMAMessageQ);
     }
 
     return (int) osVirtualToPhysical(foundBuffer) + delta;
