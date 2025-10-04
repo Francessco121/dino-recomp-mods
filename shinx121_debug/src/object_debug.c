@@ -13,6 +13,13 @@
 #include "sys/linked_list.h"
 #include "common.h"
 
+#define OBJECT_TYPE_LIST_LENGTH 256
+#define OBJECT_MAX_TYPES 65
+
+extern s16 gObjectTypeIndices[OBJECT_MAX_TYPES + 1];
+extern s16 gObjectTypeListCount;
+extern Object *gObjectTypeList[OBJECT_TYPE_LIST_LENGTH];
+
 extern LinkedList gObjUpdateList;
 
 static s32 object_debug_window_open = FALSE;
@@ -588,6 +595,53 @@ static void priority_list_tab() {
     }
 }
 
+static void type_list_tab() {
+    dbgui_text("Object Type List:");
+    if (dbgui_begin_child("object_type_list")) {
+        s32 first = TRUE;
+
+        for (s32 type = 0; type < 64; type++) {
+            s32 listStart = gObjectTypeIndices[type];
+            s32 listEnd = gObjectTypeIndices[type + 1];
+            s32 count = listEnd - listStart;
+
+            if (count <= 0) {
+                continue;
+            }
+
+            if (!first) {
+                dbgui_separator();
+            } else {
+                first = FALSE;
+            }
+            
+            dbgui_textf("Type %d (%d):", type, count);
+
+            for (s32 k = 0; k < count; k++) {
+                Object *obj = gObjectTypeList[listStart + k];
+                if (obj == NULL) {
+                    dbgui_textf("[%d] (null)", k);
+                    continue;
+                }
+
+                dbgui_push_str_id(recomp_sprintf_helper("%p", obj));
+
+                if (dbgui_button("Edit")) {
+                    add_edit_object(obj);
+                }
+
+                dbgui_same_line();
+
+                dbgui_textf("[%d] %s", k, obj->def->name);
+
+                dbgui_pop_id();
+            }
+        }
+
+        dbgui_end_child();
+    }
+}
+
 RECOMP_CALLBACK(".", my_debug_menu_event) void object_debug_menu_callback() {
     dbgui_menu_item("Objects", &object_debug_window_open);
 }
@@ -613,6 +667,11 @@ RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback() {
 
                 if (dbgui_begin_tab_item("Priority List", NULL)) {
                     priority_list_tab();
+                    dbgui_end_tab_item();
+                }
+
+                if (dbgui_begin_tab_item("Type List", NULL)) {
+                    type_list_tab();
                     dbgui_end_tab_item();
                 }
                 
