@@ -1,0 +1,8 @@
+c++
+-g
+-std=gnu++20
+-fPIC
+-c 
+-I../../include/extlib
+-I../../include/shared
+-I../../src/extlib

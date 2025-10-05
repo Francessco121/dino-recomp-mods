@@ -1,0 +1,82 @@
+[manifest]
+id = "discord_rp"
+display_name = "Discord Rich Presence"
+description =  """
+Discord Rich Presence support.
+"""
+short_description = "Discord Rich Presence support."
+
+version = "1.0.0"
+authors = [ "Shinx121" ]
+
+game_id = "dino-planet"
+minimum_recomp_version = "0.1.2"
+
+dependencies = [
+
+]
+
+native_libraries = [
+    { name = "mm_recomp_mod_template_extlib", funcs = ["native_lib_test"] }
+]
+
+[inputs]
+elf_path = "build/mod.elf"
+mod_filename = "discord_rp"
+func_reference_syms_file = "../lib/dino-recomp-decomp-bridge/dino.syms.toml"
+data_reference_syms_files = [
+    "../lib/dino-recomp-decomp-bridge/dino.datasyms.toml", 
+    "../lib/dino-recomp-decomp-bridge/dino.datasyms_manual.toml", 
+    "../dino.datasyms_extra.toml"
+]
+additional_files = [
+    "thumb.png"
+]
+
+# Info for building the extlib. If this mod will have no extlib, remove this section and
+# the build scripts disable extlib compilation and packaging. You can then safely delete 
+# ./CMakeLists.txt, ./CMakePresets.json, and ./src/extlib/**
+[extlib_compiling]
+
+# # Name of the extlib. This information is passed to CMake as the target name for the extlib.
+library_name = "mm_recomp_mod_template_extlib"
+
+# Your CMake presets in this file should be designed to handle cross-compilation (using the provided
+# Zig toolchain is recommended). When building the mod, CMake will be invoked 3 times to build
+# extlib binaries for Windows, Macos, and Linux. The presets below are used to contruct 
+# `user_build_config.json` (if it isn't present already), which is read to determine what CMake
+# presets to use. The presets are organized in to groups, with each group containing "Windows", 
+# "Macos", "Linux", and "Native" presets (more on the native preset below). The "Debug" preset group
+# is the default, and the "Release" group is used by `create_thunderstore_package.py` when creating
+# the Thunderstore release. You can also add more groups, using the make variable `EXTLIB_CMAKE_PRESET_GROUP`
+# to choose the group when invoking make. You can change the presets in `user_build_config.json` in order use 
+# build with non-default presets locally (presets from `CMakeUserPresets.json`, for example) without modifying 
+# defaults here.
+
+# "Native" presets are for building your mod using your local system tools/toolchain instead of cross-compilation. 
+# This can be a useful feature for debugging. The build scripts will automatically select default native
+# presets suitable for your system when creating your `user_build_config.json` file, and you can easily
+# add new presets to `CMakePresets.json` or `CMakeUserPresets.json` for further expansion. Use `make native`
+# to run a native build. You can also select what presets you wish to use for your native build by assigning
+# the make variables `NATIVE_CMAKE_CONFIGURE_PRESET` and `NATIVE_CMAKE_BUILD_PRESET`.
+
+# CMake presets for Debug builds. 
+windows_debug_configure_preset = "zig-windows-x64-Debug"
+windows_debug_build_preset = "zig-windows-x64-Debug"
+
+macos_debug_configure_preset = "zig-macos-aarch64-Debug"
+macos_debug_build_preset = "zig-macos-aarch64-Debug"
+
+linux_debug_configure_preset = "zig-linux-x64-Debug"
+linux_debug_build_preset = "zig-linux-x64-Debug"
+
+# CMake presets for Release builds. Used to contruct preset groups in `user_build_config.json`.
+windows_release_configure_preset = "zig-windows-x64-Release"
+windows_release_build_preset = "zig-windows-x64-Release"
+
+macos_release_configure_preset = "zig-macos-aarch64-Release"
+macos_release_build_preset = "zig-macos-aarch64-Release"
+
+linux_release_configure_preset = "zig-linux-x64-Release"
+linux_release_build_preset = "zig-linux-x64-Release"
+
