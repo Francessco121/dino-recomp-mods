@@ -13,7 +13,7 @@ typedef struct {
 } TriggerCommand;
 
 typedef struct {
-/*00*/ ObjCreateInfo base;
+/*00*/ ObjSetup base;
 /*18*/ TriggerCommand commands[8];
 /*38*/ s16 localID; // TODO: needs verification
 /*3A*/ u8 sizeX; // unit depends on trigger type
@@ -42,7 +42,7 @@ typedef struct {
 // Only supported by TriggerPlane and TriggerBits (plane only supports one flag to check).
 // A negative ID indicates that there is no flag to check for that condition slot. 
 /*48*/ s16 conditionBitFlagIDs[4];
-} TriggerCreateInfo;
+} Trigger_Setup;
 
 DLL_INTERFACE(DLL_TriggerScript) {
     /*:*/ DLL_INTERFACE_BASE(DLL);
@@ -66,10 +66,10 @@ typedef struct {
 /*58*/ s16 bitFlagID;
 /*5A*/ s16 conditionBitFlagIDs[4];
 /*62*/ u8 _unk62[2];
-/*64*/ s32 soundHandles[8];
+/*64*/ u32 soundHandles[8];
 // Special "script" DLLs where each export is a "subscript".
 /*84*/ DLL_TriggerScript *scripts[8];
-} TriggerState;
+} Trigger_Data;
 
 typedef enum {
     // Activator entered at least once

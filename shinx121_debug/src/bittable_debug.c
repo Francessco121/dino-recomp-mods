@@ -24,16 +24,16 @@ RECOMP_CALLBACK(".", my_dbgui_event) void bittable_debug_dbgui_callback() {
             };
             dbgui_input_int_ext("Entry", &entry, &inputOptions);
             
-            s32 value = (s32)get_gplay_bitstring(entry);
+            s32 value = (s32)main_get_bits(entry);
             if (dbgui_input_int("Value", &value)) {
-                set_gplay_bitstring(entry, value);
+                main_set_bits(entry, value);
             }
             if (dbgui_button("Decrement")) {
-                decrement_gplay_bitstring(entry);
+                main_decrement_bits(entry);
             }
             dbgui_same_line();
             if (dbgui_button("Increment")) {
-                increment_gplay_bitstring(entry);
+                main_increment_bits(entry);
             }
 
             dbgui_new_line();

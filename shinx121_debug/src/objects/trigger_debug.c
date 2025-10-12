@@ -18,20 +18,20 @@ extern ModelInstance *sPlaneModel;
 
 void trigger_debug_tab(Object *obj) {
     if (dbgui_begin_tab_bar("##edit")) {
-        if (dbgui_begin_tab_item("Create Info", NULL)) {
-            if (obj->createInfo != NULL) {
-                TriggerCreateInfo *createInfo = (TriggerCreateInfo*)obj->createInfo;
-                dbgui_textf("objId: %d", createInfo->base.objId);
-                dbgui_textf("quarterSize: %d", createInfo->base.quarterSize);
-                dbgui_textf("setup: %d", createInfo->base.setup);
-                dbgui_textf("loadParamA: %d", createInfo->base.loadParamA);
-                dbgui_textf("loadParamB: %d", createInfo->base.loadParamB);
-                dbgui_textf("loadDistance: %d", createInfo->base.loadDistance);
-                dbgui_textf("fadeDistance: %d", createInfo->base.fadeDistance);
-                dbgui_textf("x: %f", createInfo->base.x);
-                dbgui_textf("y: %f", createInfo->base.y);
-                dbgui_textf("z: %f", createInfo->base.z);
-                dbgui_textf("uID: %d", createInfo->base.uID);
+        if (dbgui_begin_tab_item("Object Setup", NULL)) {
+            if (obj->setup != NULL) {
+                Trigger_Setup *objsetup = (Trigger_Setup*)obj->setup;
+                dbgui_textf("objId: %d", objsetup->base.objId);
+                dbgui_textf("quarterSize: %d", objsetup->base.quarterSize);
+                dbgui_textf("setup: %d", objsetup->base.setup);
+                dbgui_textf("loadParamA: %d", objsetup->base.loadParamA);
+                dbgui_textf("loadParamB: %d", objsetup->base.loadParamB);
+                dbgui_textf("loadDistance: %d", objsetup->base.loadDistance);
+                dbgui_textf("fadeDistance: %d", objsetup->base.fadeDistance);
+                dbgui_textf("x: %f", objsetup->base.x);
+                dbgui_textf("y: %f", objsetup->base.y);
+                dbgui_textf("z: %f", objsetup->base.z);
+                dbgui_textf("uID: %d", objsetup->base.uID);
 
                 dbgui_text("commands:");
                 for (s32 i = 0; i < 8; i++) {
@@ -41,54 +41,54 @@ void trigger_debug_tab(Object *obj) {
                         .stepFast = 0
                     };
                     dbgui_textf("[%d]: %02X %02X %02X %02X", i,
-                        createInfo->commands[i].condition, createInfo->commands[i].id, 
-                        createInfo->commands[i].param1, createInfo->commands[i].param2);
-                    s32 word = *((s32*)&createInfo->commands[i]);
+                        objsetup->commands[i].condition, objsetup->commands[i].id, 
+                        objsetup->commands[i].param1, objsetup->commands[i].param2);
+                    s32 word = *((s32*)&objsetup->commands[i]);
                     if (dbgui_input_int_ext(recomp_sprintf_helper("##commands[%d]", i), &word, &inputOptions)) {
-                        *((s32*)&createInfo->commands[i]) = word;
+                        *((s32*)&objsetup->commands[i]) = word;
                     }
                 }
 
-                dbgui_textf("localID: %d", createInfo->localID);
-                dbgui_textf("sizeX: %d", createInfo->sizeX);
-                dbgui_textf("sizeY: %d", createInfo->sizeY);
-                dbgui_textf("sizeZ: %d", createInfo->sizeZ);
-                dbgui_textf("rotationY: %d", createInfo->rotationY);
-                dbgui_textf("rotationX: %d", createInfo->rotationX);
-                dbgui_textf("activatorObjType: %d", createInfo->activatorObjType);
-                dbgui_textf("bitFlagID: %x", createInfo->bitFlagID);
-                dbgui_textf("timerDuration: %d", createInfo->timerDuration);
+                dbgui_textf("localID: %d", objsetup->localID);
+                dbgui_textf("sizeX: %d", objsetup->sizeX);
+                dbgui_textf("sizeY: %d", objsetup->sizeY);
+                dbgui_textf("sizeZ: %d", objsetup->sizeZ);
+                dbgui_textf("rotationY: %d", objsetup->rotationY);
+                dbgui_textf("rotationX: %d", objsetup->rotationX);
+                dbgui_textf("activatorObjType: %d", objsetup->activatorObjType);
+                dbgui_textf("bitFlagID: %x", objsetup->bitFlagID);
+                dbgui_textf("timerDuration: %d", objsetup->timerDuration);
                 dbgui_textf("conditionBitFlagIDs: [%x, %x, %x, %x]", 
-                    createInfo->conditionBitFlagIDs[0], createInfo->conditionBitFlagIDs[1],
-                    createInfo->conditionBitFlagIDs[2], createInfo->conditionBitFlagIDs[3]);
+                    objsetup->conditionBitFlagIDs[0], objsetup->conditionBitFlagIDs[1],
+                    objsetup->conditionBitFlagIDs[2], objsetup->conditionBitFlagIDs[3]);
             }
 
             dbgui_end_tab_item();
         }
 
-        if (dbgui_begin_tab_item("State", NULL)) {
-            if (obj->state != NULL) {
-                TriggerState *state = (TriggerState*)obj->state;
+        if (dbgui_begin_tab_item("Object Data", NULL)) {
+            if (obj->setup != NULL) {
+                Trigger_Data *objdata = (Trigger_Data*)obj->data;
 
-                dbgui_textf("flags: %x", state->flags);
-                dbgui_textf("radiusSquared: %f", state->radiusSquared);
-                dbgui_textf("elapsedTicks: %d", state->elapsedTicks);
-                dbgui_textf("lookVector: %f,%f,%f", state->lookVector.x, state->lookVector.y, state->lookVector.z);
-                dbgui_textf("lookVectorNegDot: %f", state->lookVectorNegDot);
-                dbgui_textf("activatorPrevPos: %f,%f,%f", state->activatorPrevPos.x, state->activatorPrevPos.y, state->activatorPrevPos.z);
-                dbgui_textf("activatorCurrPos: %f,%f,%f", state->activatorCurrPos.x, state->activatorCurrPos.y, state->activatorCurrPos.z);
-                dbgui_textf("planeMin: %f,%f,%f", state->planeMin.x, state->planeMin.y, state->planeMin.z);
-                dbgui_textf("planeMax: %f,%f,%f", state->planeMax.x, state->planeMax.y, state->planeMax.z);
-                dbgui_textf("bitFlagID: %x", state->bitFlagID);
+                dbgui_textf("flags: %x", objdata->flags);
+                dbgui_textf("radiusSquared: %f", objdata->radiusSquared);
+                dbgui_textf("elapsedTicks: %d", objdata->elapsedTicks);
+                dbgui_textf("lookVector: %f,%f,%f", objdata->lookVector.x, objdata->lookVector.y, objdata->lookVector.z);
+                dbgui_textf("lookVectorNegDot: %f", objdata->lookVectorNegDot);
+                dbgui_textf("activatorPrevPos: %f,%f,%f", objdata->activatorPrevPos.x, objdata->activatorPrevPos.y, objdata->activatorPrevPos.z);
+                dbgui_textf("activatorCurrPos: %f,%f,%f", objdata->activatorCurrPos.x, objdata->activatorCurrPos.y, objdata->activatorCurrPos.z);
+                dbgui_textf("planeMin: %f,%f,%f", objdata->planeMin.x, objdata->planeMin.y, objdata->planeMin.z);
+                dbgui_textf("planeMax: %f,%f,%f", objdata->planeMax.x, objdata->planeMax.y, objdata->planeMax.z);
+                dbgui_textf("bitFlagID: %x", objdata->bitFlagID);
                 dbgui_textf("conditionBitFlagIDs: [%x, %x, %x, %x]", 
-                    state->conditionBitFlagIDs[0], state->conditionBitFlagIDs[1], 
-                    state->conditionBitFlagIDs[2], state->conditionBitFlagIDs[3]);
+                    objdata->conditionBitFlagIDs[0], objdata->conditionBitFlagIDs[1], 
+                    objdata->conditionBitFlagIDs[2], objdata->conditionBitFlagIDs[3]);
                 dbgui_textf("soundHandles: [%x, %x, %x, %x, %x, %x, %x, %x]", 
-                    state->soundHandles[0], state->soundHandles[1], state->soundHandles[2], state->soundHandles[3],
-                    state->soundHandles[4], state->soundHandles[5], state->soundHandles[6], state->soundHandles[7]);
+                    objdata->soundHandles[0], objdata->soundHandles[1], objdata->soundHandles[2], objdata->soundHandles[3],
+                    objdata->soundHandles[4], objdata->soundHandles[5], objdata->soundHandles[6], objdata->soundHandles[7]);
                 dbgui_textf("scripts: [%p, %p, %p, %p, %p, %p, %p, %p]", 
-                    state->scripts[0], state->scripts[1], state->scripts[2], state->scripts[3],
-                    state->scripts[4], state->scripts[5], state->scripts[6], state->scripts[7]);
+                    objdata->scripts[0], objdata->scripts[1], objdata->scripts[2], objdata->scripts[3],
+                    objdata->scripts[4], objdata->scripts[5], objdata->scripts[6], objdata->scripts[7]);
             }
 
             dbgui_end_tab_item();
@@ -157,13 +157,13 @@ void draw_trigger(Object *obj, u32 color) {
 
     switch (obj->id) {
     case OBJ_TriggerPoint: {
-        TriggerCreateInfo *createInfo = (TriggerCreateInfo*)obj->createInfo;
-        if (createInfo != NULL) {
+        Trigger_Setup *setup = (Trigger_Setup*)obj->setup;
+        if (setup != NULL) {
             draw_3d_sphere(
                 position.x,
                 position.y,
                 position.z,
-                (f32)(createInfo->sizeX << 1),
+                (f32)(setup->sizeX << 1),
                 color
             );
         }

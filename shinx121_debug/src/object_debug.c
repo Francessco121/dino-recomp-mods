@@ -191,25 +191,25 @@ static void object_edit_contents(Object *obj) {
     dbgui_textf("group: %u", obj->group);
     dbgui_textf("id: %u", obj->id);
     dbgui_textf("tabIdx: %u", obj->tabIdx);
-    if (obj->createInfo != NULL) {
-        if (dbgui_tree_node("createInfo")) {
-            ObjCreateInfo *createInfo = obj->createInfo;
-            dbgui_textf("objId: %d", createInfo->objId);
-            dbgui_textf("quarterSize: %d", createInfo->quarterSize);
-            dbgui_textf("setup: %d", createInfo->setup);
-            dbgui_textf("loadParamA: %d", createInfo->loadParamA);
-            dbgui_textf("loadParamB: %d", createInfo->loadParamB);
-            dbgui_textf("loadDistance: %d", createInfo->loadDistance);
-            dbgui_textf("fadeDistance: %d", createInfo->fadeDistance);
-            dbgui_textf("x: %f", createInfo->x);
-            dbgui_textf("y: %f", createInfo->y);
-            dbgui_textf("z: %f", createInfo->z);
-            dbgui_textf("uID: %d", createInfo->uID);
+    if (obj->setup != NULL) {
+        if (dbgui_tree_node("setup")) {
+            ObjSetup *objsetup = obj->setup;
+            dbgui_textf("objId: %d", objsetup->objId);
+            dbgui_textf("quarterSize: %d", objsetup->quarterSize);
+            dbgui_textf("setup: %d", objsetup->setup);
+            dbgui_textf("loadParamA: %d", objsetup->loadParamA);
+            dbgui_textf("loadParamB: %d", objsetup->loadParamB);
+            dbgui_textf("loadDistance: %d", objsetup->loadDistance);
+            dbgui_textf("fadeDistance: %d", objsetup->fadeDistance);
+            dbgui_textf("x: %f", objsetup->x);
+            dbgui_textf("y: %f", objsetup->y);
+            dbgui_textf("z: %f", objsetup->z);
+            dbgui_textf("uID: %d", objsetup->uID);
 
-            u32 size = createInfo->quarterSize << 2;
-            u32 address = (u32)createInfo;
-            address += sizeof(ObjCreateInfo);
-            size -= sizeof(ObjCreateInfo);
+            u32 size = objsetup->quarterSize << 2;
+            u32 address = (u32)objsetup;
+            address += sizeof(ObjSetup);
+            size -= sizeof(ObjSetup);
 
             if (size > 0) {
                 dbgui_text("Additional data:");
@@ -217,7 +217,7 @@ static void object_edit_contents(Object *obj) {
                 while (size > 8) {
                     u8 *addr = (u8*)address;
 
-                    dbgui_textf("%08X:  %02X %02X %02X %02X  %02X %02X %02X %02X", (u32)addr - (u32)createInfo, 
+                    dbgui_textf("%08X:  %02X %02X %02X %02X  %02X %02X %02X %02X", (u32)addr - (u32)objsetup, 
                         addr[0], addr[1], addr[2], addr[3],
                         addr[4], addr[5], addr[6], addr[7]);
 
@@ -230,7 +230,7 @@ static void object_edit_contents(Object *obj) {
                     char extraByteStr[extraByteStrMaxLen];
                     char *extraByteStrPtr = extraByteStr;
 
-                    recomp_sprintf(extraByteStrPtr, "%08X:  ", (u32)addr - (u32)createInfo);
+                    recomp_sprintf(extraByteStrPtr, "%08X:  ", (u32)addr - (u32)objsetup);
                     extraByteStrPtr += 8 + 3;
 
                     for (u32 i = 0; i < size && i < 4; i++) {
@@ -262,7 +262,7 @@ static void object_edit_contents(Object *obj) {
             dbgui_tree_pop();
         }
     } else {
-        dbgui_textf("createInfo: null");
+        dbgui_textf("setup: null");
     }
     if (obj->def != NULL) {
         if (dbgui_tree_node("def")) {
@@ -382,7 +382,7 @@ static void object_edit_contents(Object *obj) {
     }
     dbgui_textf("unk0x58: %d", obj->unk0x58);
     dbgui_textf("ptr0x5c: %p", obj->ptr0x5c);
-    dbgui_textf("ptr0x60: %p", obj->ptr0x60);
+    dbgui_textf("curEvent: %p", obj->curEvent);
     dbgui_textf("ptr0x64: %p", obj->ptr0x64);
 
     dbgui_textf("dll: %p", obj->dll);
@@ -426,7 +426,7 @@ static void object_edit_contents(Object *obj) {
     dbgui_textf("unk0xb0: %u", obj->unk0xb0);
     dbgui_textf("unk0xb2: %u", obj->unk0xb2);
     dbgui_textf("unk0xb4: %u", obj->unk0xb4);
-    dbgui_textf("state: %p", obj->state);
+    dbgui_textf("data: %p", obj->data);
     dbgui_textf("unk0xbc: %p", obj->unk0xbc);
     if (obj->unk0xc0 != NULL) {
         if (dbgui_tree_node("unk0xc0")) {
