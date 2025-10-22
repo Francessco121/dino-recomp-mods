@@ -34,10 +34,10 @@ additional_files = [
     "thumb.png"
 ]
 
-[[manifest.config_options]]
-id = "sabre_model"
-name = "Use Sabre Model"
-description = "Use Sabre's model instead of Fox."
-type = "Enum"
-options = [ "On", "Off" ]
-default = "Off"
+# [[manifest.config_options]]
+# id = "sabre_model"
+# name = "Use Sabre Model"
+# description = "Use Sabre's model instead of Fox."
+# type = "Enum"
+# options = [ "On", "Off" ]
+# default = "Off"

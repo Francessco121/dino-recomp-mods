@@ -45,7 +45,7 @@ const char *DINO_FS_FILENAMES[NUM_FILES] = {
     "MAPS.bin",
     "MAPS.tab",
     "MAPINFO.bin",
-    "MAPSETUP_IND",
+    "MAPSETUP.ind",
     "MAPSETUP.tab",
     "TEX1.bin",
     "TEX1.tab",

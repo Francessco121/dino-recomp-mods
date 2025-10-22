@@ -12,7 +12,7 @@ RECOMP_HOOK("obj_load_objdef") void obj_load_objdef_hook(s32 tabIdx) {
     }
 }
 
-RECOMP_HOOK("obj_load_objdef") void obj_setup_object_hook(ObjSetup *setup, u32 setupFlags, s32 mapID, s32 param4, Object *parent, s32 param6) {
+RECOMP_HOOK("obj_setup_object") void obj_setup_object_hook(ObjSetup *setup, u32 setupFlags, s32 mapID, s32 param4, Object *parent, s32 param6) {
     s32 objId = setup->objId;
 
     if (!(setupFlags & 2)) {

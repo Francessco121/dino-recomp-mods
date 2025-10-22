@@ -3,6 +3,8 @@
 #include "dbgui.h"
 
 #include "PR/ultratypes.h"
+#include "game/objects/object.h"
+#include "sys/math.h"
 
 // TODO: clean up struct in decomp and remove this one
 typedef struct{
@@ -32,3 +34,5 @@ s32 dbgui_input_sbyte_ext(const char *label, s8 *value, const DbgUiInputIntOptio
 void dbgui_input_short(const char *label, s16 *value);
 void dbgui_input_short_ext(const char *label, s16 *value, const DbgUiInputIntOptions *options);
 void dbgui_input_uint(const char *label, u32 *value);
+void dbgui_input_vec3f(const char *label, Vec3f *value);
+void dbgui_input_obj_position(const char *label, Object *value);
