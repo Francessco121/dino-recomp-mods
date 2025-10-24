@@ -89,9 +89,10 @@ void object_edit_contents(Object *obj) {
             u32 size = objsetup->quarterSize << 2;
             u32 address = (u32)objsetup;
             address += sizeof(ObjSetup);
-            size -= sizeof(ObjSetup);
 
-            if (size > 0) {
+            if (size > sizeof(ObjSetup)) {
+                size -= sizeof(ObjSetup);
+                
                 dbgui_text("Additional data:");
 
                 while (size > 8) {
