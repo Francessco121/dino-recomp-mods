@@ -14,6 +14,7 @@
 static DLL27_Data *get_dll27_data(Object *obj) {
     switch (obj->def->dllID) {
         case 0x8001: // Player
+        case 0x81ed: // KT_Rex
             return (DLL27_Data*)((u32)obj->data + 0x4);
         case 0x811f: // Snowhorn
             return (DLL27_Data*)((u32)obj->data + 0x170);

@@ -5,6 +5,7 @@
 #include "3d.h"
 #include "debug_common.h"
 #include "objects/dll27_debug.h"
+#include "objects/kt_rex_debug.h"
 #include "objects/object_debug.h"
 #include "objects/trigger_debug.h"
 
@@ -98,6 +99,8 @@ static void object_editor(Object *obj, s32 index) {
                     dbgui_end_tab_item();
                 }
                 break;
+            }
+            switch (obj->id) {
             case OBJ_Sabre:
             case OBJ_Krystal:
             case OBJ_Tumbleweed1:
@@ -112,11 +115,18 @@ static void object_editor(Object *obj, s32 index) {
             case OBJ_NWguardiandaugh:
             case OBJ_NWmammothguardi:
             case OBJ_SHspore:
+            case OBJ_KT_Rex:
                 if (dbgui_begin_tab_item("DLL 27 Data", NULL)) {
                     dll27_debug_tab(obj);
                     dbgui_end_tab_item();
                 }
                 break;
+            }
+            if (obj->id == OBJ_KT_Rex) {
+                if (dbgui_begin_tab_item("KT_Rex", NULL)) {
+                    kt_rex_debug_tab(obj);
+                    dbgui_end_tab_item();
+                }
             }
 
             dbgui_end_tab_bar();

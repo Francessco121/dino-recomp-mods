@@ -4,6 +4,12 @@
 #include "sys/fs.h"
 #include "dll.h"
 
+static const DbgUiInputIntOptions hexInput = {
+    .step = 1,
+    .stepFast = 0x10,
+    .flags = DBGUI_INPUT_TEXT_FLAGS_CharsHexadecimal
+};
+
 extern s32 *gFile_MPEG_TAB;
 extern void mpeg_fs_play(s32 id);
 
@@ -12,7 +18,7 @@ static s32 sfxID;
 static s32 lastSfxID = -1;
 static s32 musicAction;
 static s32 lastMusicAction = -1;
-static s32 volume = 255;
+static s32 volume = 127;
 static s32 mpegID;
 static s32 numMPEGEntries = -1;
 
@@ -29,8 +35,8 @@ RECOMP_CALLBACK(".", my_dbgui_event) void sound_test_dbgui_callback() {
         if (dbgui_begin("Sound Test", &sound_test_window_open)) {
             if (dbgui_begin_tab_bar("sound_test_tab_bar")) {
                 if (dbgui_begin_tab_item("AMSFX", NULL)) {
-                    dbgui_set_next_item_width(100);
-                    if (dbgui_input_int("ID", &sfxID)) {
+                    dbgui_set_next_item_width(120);
+                    if (dbgui_input_int_ext("ID", &sfxID, &hexInput)) {
                         if (sfxID < 0) sfxID = 0;
                     }
                     dbgui_same_line();

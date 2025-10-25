@@ -49,7 +49,7 @@ void object_edit_contents(Object *obj) {
     dbgui_textf("positionMirror: %f,%f,%f",
         obj->positionMirror.x, obj->positionMirror.y, obj->positionMirror.z);
 
-    dbgui_textf("Speed: %f,%f,%f", 
+    dbgui_textf("speed: %f,%f,%f", 
         obj->speed.x, obj->speed.y, obj->speed.z);
 
     if (obj->parent != NULL) {
@@ -75,7 +75,7 @@ void object_edit_contents(Object *obj) {
         if (dbgui_tree_node("setup")) {
             ObjSetup *objsetup = obj->setup;
             dbgui_textf("objId: %d", objsetup->objId);
-            dbgui_textf("quarterSize: %d", objsetup->quarterSize);
+            dbgui_textf("quarterSize: 0x%X", objsetup->quarterSize);
             dbgui_textf("setup: %d", objsetup->setup);
             dbgui_textf("loadParamA: %d", objsetup->loadParamA);
             dbgui_textf("loadParamB: %d", objsetup->loadParamB);
@@ -84,7 +84,7 @@ void object_edit_contents(Object *obj) {
             dbgui_textf("x: %f", objsetup->x);
             dbgui_textf("y: %f", objsetup->y);
             dbgui_textf("z: %f", objsetup->z);
-            dbgui_textf("uID: %d", objsetup->uID);
+            dbgui_textf("uID: 0x%X", objsetup->uID);
 
             u32 size = objsetup->quarterSize << 2;
             u32 address = (u32)objsetup;
