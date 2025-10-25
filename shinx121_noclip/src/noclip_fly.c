@@ -77,7 +77,7 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick() {
             player->positionMirror3 = fly_position;
 
             *((u16*)((u32)player + 0x0360)) = 28; // anim
-            player->unk_0x36 = 0x80;
+            player->unk36 = 0x80;
             player->animProgress = 0.0f;
 
             flying_cooldown = FLY_COOLDOWN;
@@ -85,7 +85,7 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick() {
             flying_cooldown--;
             *((u16*)((u32)player + 0x0360)) = 1;
             player->animProgress = 0.0f;
-            player->unk_0x36 = 0xFF;
+            player->unk36 = 0xFF;
         }
     }
 }

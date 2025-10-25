@@ -61,13 +61,13 @@ void object_edit_contents(Object *obj) {
         dbgui_textf("parent: null");
     }
     
-    dbgui_input_byte("unk_0x34", &obj->unk_0x34);
+    dbgui_input_byte("unk34", &obj->unk34);
     dbgui_input_sbyte("matrixIdx", &obj->matrixIdx);
-    dbgui_input_byte("unk_0x36", &obj->unk_0x36);
-    dbgui_input_byte("unk_0x37", &obj->unk_0x37);
+    dbgui_input_byte("unk36", &obj->unk36);
+    dbgui_input_byte("unk37", &obj->unk37);
     dbgui_textf("next: %p", &obj->next);
-    dbgui_textf("unk0x3c: %f", obj->unk0x3c);
-    dbgui_textf("unk0x40: %f", obj->unk0x40);
+    dbgui_textf("unk3C: %f", obj->unk3C);
+    dbgui_textf("unk40: %f", obj->unk40);
     dbgui_textf("group: %u", obj->group);
     dbgui_textf("id: %u", obj->id);
     dbgui_textf("tabIdx: %u", obj->tabIdx);
@@ -202,66 +202,66 @@ void object_edit_contents(Object *obj) {
     if (obj->objhitInfo != NULL) {
         if (dbgui_tree_node("objhitInfo")) {
             ObjectHitInfo *objhitInfo = obj->objhitInfo;
-            if (objhitInfo->unk_0x0 != NULL) {
-                if (dbgui_tree_node("unk_0x0")) {
-                    object_edit_contents(objhitInfo->unk_0x0);
+            if (objhitInfo->unk0 != NULL) {
+                if (dbgui_tree_node("unk0")) {
+                    object_edit_contents(objhitInfo->unk0);
                     dbgui_tree_pop();
                 }
             } else {
-                dbgui_textf("unk_0x0: null");
+                dbgui_textf("unk0: null");
             }
-            dbgui_textf("unk_0x4: %d", objhitInfo->unk_0x4);
-            dbgui_textf("unk_0x6: %d", objhitInfo->unk_0x6);
-            dbgui_textf("unk_0x8: %p", objhitInfo->unk_0x8);
-            dbgui_textf("unk_0xC: %f", objhitInfo->unk_0xc);
-            dbgui_textf("unk_0x10: %f,%f,%f", 
-                objhitInfo->unk_0x10.x, objhitInfo->unk_0x10.y, objhitInfo->unk_0x10.z);
-            dbgui_textf("unk_0x1c: %f", objhitInfo->unk_0x1c);
-            dbgui_textf("unk_0x20: %f,%f,%f", 
-                objhitInfo->unk_0x20.x, objhitInfo->unk_0x20.y, objhitInfo->unk_0x20.z);
-            dbgui_textf("unk_0x2c: %f", objhitInfo->unk_0x2c);
-            dbgui_textf("unk_0x30: %f", objhitInfo->unk_0x30);
-            dbgui_textf("unk_0x34: %f", objhitInfo->unk_0x34);
-            dbgui_textf("unk_0x38: %f", objhitInfo->unk_0x38);
-            dbgui_textf("unk_0x3c: %f", objhitInfo->unk_0x3c);
-            dbgui_textf("unk_0x40: %d", objhitInfo->unk_0x40);
-            dbgui_textf("unk_0x44: %d", objhitInfo->unk_0x44);
-            dbgui_textf("unk_0x48: %d", objhitInfo->unk_0x48);
-            dbgui_textf("unk_0x4c: %d", objhitInfo->unk_0x4c);
-            dbgui_textf("unk_0x50: %d", objhitInfo->unk_0x50);
-            dbgui_textf("unk_0x52: %d", objhitInfo->unk_0x52);
-            dbgui_textf("unk_0x54: %d", objhitInfo->unk_0x54);
-            dbgui_textf("unk_0x56: %d", objhitInfo->unk_0x56);
-            dbgui_input_short_ext("unk_0x58", &objhitInfo->unk_0x58, &hexInput);
-            dbgui_input_byte_ext("unk_0x5a", &objhitInfo->unk_0x5a, &hexInput);
-            dbgui_textf("unk_0x5f: %d", objhitInfo->unk_0x5f);
-            dbgui_textf("unk_0x5b: %d", objhitInfo->unk_0x5b);
-            dbgui_textf("unk_0x5c: %d", objhitInfo->unk_0x5c);
-            dbgui_textf("unk_0x5d: %d", objhitInfo->unk_0x5d);
-            dbgui_textf("unk_0x5e: %d", objhitInfo->unk_0x5e);
-            dbgui_textf("unk_0x5f: %d", objhitInfo->unk_0x5f);
-            dbgui_textf("unk_0x60: %d", objhitInfo->unk_0x60);
-            dbgui_textf("unk_0x61: %d", objhitInfo->unk_0x61);
-            dbgui_textf("unk_0x62: %d", objhitInfo->unk_0x62);
-            dbgui_textf("unk_0x63: %d,%d,%d", objhitInfo->unk_0x63[0], objhitInfo->unk_0x63[1], objhitInfo->unk_0x63[2]);
-            dbgui_textf("unk_0x66: %d,%d,%d", objhitInfo->unk_0x66[0], objhitInfo->unk_0x66[1], objhitInfo->unk_0x66[2]);
-            dbgui_textf("unk_0x69: %d,%d,%d", objhitInfo->unk_0x69[0], objhitInfo->unk_0x69[1], objhitInfo->unk_0x69[2]);
-            dbgui_textf("unk_0x6c: %d,%d,%d", objhitInfo->unk_0x6c[0], objhitInfo->unk_0x6c[1], objhitInfo->unk_0x6c[2]);
-            dbgui_textf("unk_0x78: %f,%f,%f", objhitInfo->unk_0x78[0], objhitInfo->unk_0x78[1], objhitInfo->unk_0x78[2]);
-            dbgui_textf("unk_0x84: %f,%f,%f", objhitInfo->unk_0x84[0], objhitInfo->unk_0x84[1], objhitInfo->unk_0x84[2]);
-            dbgui_textf("unk_0x90: %f,%f,%f", objhitInfo->unk_0x90[0], objhitInfo->unk_0x90[1], objhitInfo->unk_0x90[2]);
-            dbgui_textf("unk_0x9c: %d", objhitInfo->unk_0x9c);
-            dbgui_textf("unk_0x9d: %d", objhitInfo->unk_0x9d);
-            dbgui_textf("unk_0x9e: %d", objhitInfo->unk_0x9e);
-            dbgui_textf("unk_0x9f: %d", objhitInfo->unk_0x9f);
-            dbgui_textf("unk_0xa0: %d", objhitInfo->unk_0xa0);
-            dbgui_textf("unk_0xa1: %d", objhitInfo->unk_0xa1);
+            dbgui_textf("unk4: %d", objhitInfo->unk4);
+            dbgui_textf("unk6: %d", objhitInfo->unk6);
+            dbgui_textf("unk8: %p", objhitInfo->unk8);
+            dbgui_textf("unkC: %f", objhitInfo->unkC);
+            dbgui_textf("unk10: %f,%f,%f", 
+                objhitInfo->unk10.x, objhitInfo->unk10.y, objhitInfo->unk10.z);
+            dbgui_textf("unk1C: %f", objhitInfo->unk1C);
+            dbgui_textf("unk20: %f,%f,%f", 
+                objhitInfo->unk20.x, objhitInfo->unk20.y, objhitInfo->unk20.z);
+            dbgui_textf("unk2C: %f", objhitInfo->unk2C);
+            dbgui_textf("unk30: %f", objhitInfo->unk30);
+            dbgui_textf("unk34: %f", objhitInfo->unk34);
+            dbgui_textf("unk38: %f", objhitInfo->unk38);
+            dbgui_textf("unk3C: %f", objhitInfo->unk3C);
+            dbgui_textf("unk40: %d", objhitInfo->unk40);
+            dbgui_textf("unk44: %d", objhitInfo->unk44);
+            dbgui_textf("unk48: %d", objhitInfo->unk48);
+            dbgui_textf("unk4C: %d", objhitInfo->unk4C);
+            dbgui_textf("unk50: %d", objhitInfo->unk50);
+            dbgui_textf("unk52: %d", objhitInfo->unk52);
+            dbgui_textf("unk54: %d", objhitInfo->unk54);
+            dbgui_textf("unk56: %d", objhitInfo->unk56);
+            dbgui_input_short_ext("unk58", &objhitInfo->unk58, &hexInput);
+            dbgui_input_byte_ext("unk5A", &objhitInfo->unk5A, &hexInput);
+            dbgui_textf("unk5F: %d", objhitInfo->unk5F);
+            dbgui_textf("unk5B: %d", objhitInfo->unk5B);
+            dbgui_textf("unk5C: %d", objhitInfo->unk5C);
+            dbgui_textf("unk5D: %d", objhitInfo->unk5D);
+            dbgui_textf("unk5E: %d", objhitInfo->unk5E);
+            dbgui_textf("unk5F: %d", objhitInfo->unk5F);
+            dbgui_textf("unk60: %d", objhitInfo->unk60);
+            dbgui_textf("unk61: %d", objhitInfo->unk61);
+            dbgui_textf("unk62: %d", objhitInfo->unk62);
+            dbgui_textf("unk63: %d,%d,%d", objhitInfo->unk63[0], objhitInfo->unk63[1], objhitInfo->unk63[2]);
+            dbgui_textf("unk66: %d,%d,%d", objhitInfo->unk66[0], objhitInfo->unk66[1], objhitInfo->unk66[2]);
+            dbgui_textf("unk69: %d,%d,%d", objhitInfo->unk69[0], objhitInfo->unk69[1], objhitInfo->unk69[2]);
+            dbgui_textf("unk6C: %d,%d,%d", objhitInfo->unk6C[0], objhitInfo->unk6C[1], objhitInfo->unk6C[2]);
+            dbgui_textf("unk78: %f,%f,%f", objhitInfo->unk78[0], objhitInfo->unk78[1], objhitInfo->unk78[2]);
+            dbgui_textf("unk84: %f,%f,%f", objhitInfo->unk84[0], objhitInfo->unk84[1], objhitInfo->unk84[2]);
+            dbgui_textf("unk90: %f,%f,%f", objhitInfo->unk90[0], objhitInfo->unk90[1], objhitInfo->unk90[2]);
+            dbgui_textf("unk9C: %d", objhitInfo->unk9C);
+            dbgui_textf("unk9D: %d", objhitInfo->unk9D);
+            dbgui_textf("unk9E: %d", objhitInfo->unk9E);
+            dbgui_textf("unk9F: %d", objhitInfo->unk9F);
+            dbgui_textf("unkA0: %d", objhitInfo->unkA0);
+            dbgui_textf("unkA1: %d", objhitInfo->unkA1);
             dbgui_tree_pop();
         }
     } else {
         dbgui_textf("objhitInfo: null");
     }
-    dbgui_textf("unk0x58: %d", obj->unk0x58);
+    dbgui_textf("unk58: %d", obj->unk58);
     dbgui_textf("ptr0x5c: %p", obj->ptr0x5c);
     dbgui_textf("curEvent: %p", obj->curEvent);
     dbgui_textf("ptr0x64: %p", obj->ptr0x64);
@@ -269,19 +269,19 @@ void object_edit_contents(Object *obj) {
     dbgui_textf("dll: %p", obj->dll);
     dbgui_textf("ptr0x6c: %p", obj->ptr0x6c);
     dbgui_textf("ptr0x70: %p", obj->ptr0x70);
-    dbgui_textf("unk0x74: %d", obj->unk0x74);
-    if (obj->unk_0x78 != NULL) {
-        if (dbgui_tree_node("unk_0x78")) {
-            ObjectStruct78 *unk_0x78 = obj->unk_0x78;
-            dbgui_textf("unk0: %u", unk_0x78->unk0);
-            dbgui_textf("unk1: %u", unk_0x78->unk1);
-            dbgui_textf("unk2: %u", unk_0x78->unk2);
-            dbgui_textf("unk3: %u", unk_0x78->unk3);
-            dbgui_textf("unk4: %u", unk_0x78->unk4);
+    dbgui_textf("unk74: %d", obj->unk74);
+    if (obj->unk78 != NULL) {
+        if (dbgui_tree_node("unk78")) {
+            ObjectStruct78 *unk78 = obj->unk78;
+            dbgui_textf("unk0: %u", unk78->unk0);
+            dbgui_textf("unk1: %u", unk78->unk1);
+            dbgui_textf("unk2: %u", unk78->unk2);
+            dbgui_textf("unk3: %u", unk78->unk3);
+            dbgui_textf("unk4: %u", unk78->unk4);
             dbgui_tree_pop();
         }
     } else {
-        dbgui_textf("unk_0x78: null");
+        dbgui_textf("unk78: null");
     }
     dbgui_textf("positionMirror2: %f,%f,%f",
         obj->positionMirror2.x, obj->positionMirror2.y, obj->positionMirror2.z);
@@ -291,8 +291,8 @@ void object_edit_contents(Object *obj) {
     dbgui_textf("animProgressLayered: %f", obj->animProgressLayered);
     dbgui_textf("curModAnimId: %d", obj->curModAnimId);
     dbgui_textf("curModAnimIdLayered: %d", obj->curModAnimIdLayered);
-    dbgui_textf("unk_0xa4: %f", obj->unk_0xa4);
-    dbgui_textf("unk_0xa8: %f", obj->unk_0xa8);
+    dbgui_textf("unkA4: %f", obj->unkA4);
+    dbgui_textf("unkA8: %f", obj->unkA8);
     dbgui_textf("mapID: %d", obj->mapID);
     if (dbgui_input_sbyte("modelInstIdx", &obj->modelInstIdx)) {
         // Game will crash if this goes out of bounds
@@ -303,21 +303,21 @@ void object_edit_contents(Object *obj) {
         }
     }
     dbgui_textf("updatePriority: %d", obj->updatePriority);
-    dbgui_textf("unk0xaf: %d", obj->unk0xaf);
-    dbgui_textf("unk0xb0: %u", obj->unk0xb0);
-    dbgui_textf("unk0xb2: %u", obj->unk0xb2);
-    dbgui_textf("unk0xb4: %u", obj->unk0xb4);
+    dbgui_textf("unkAF: %d", obj->unkAF);
+    dbgui_textf("unkB0: %u", obj->unkB0);
+    dbgui_textf("unkB2: %u", obj->unkB2);
+    dbgui_textf("unkB4: %u", obj->unkB4);
     dbgui_textf("data: %p", obj->data);
-    dbgui_textf("unk0xbc: %p", obj->unk0xbc);
-    if (obj->unk0xc0 != NULL) {
-        if (dbgui_tree_node("unk0xc0")) {
-            object_edit_contents(obj->unk0xc0);
+    dbgui_textf("unkBC: %p", obj->unkBC);
+    if (obj->unkC0 != NULL) {
+        if (dbgui_tree_node("unkC0")) {
+            object_edit_contents(obj->unkC0);
             dbgui_tree_pop();
         }
     } else {
-        dbgui_textf("unk0xc0: null");
+        dbgui_textf("unkC0: null");
     }
-    dbgui_textf("unk0xc4: %u", obj->unk0xc4);
+    dbgui_textf("unkC4: %u", obj->unkC4);
     if (obj->linkedObject != NULL) {
         if (dbgui_tree_node("linkedObject")) {
             object_edit_contents(obj->linkedObject);
@@ -336,10 +336,10 @@ void object_edit_contents(Object *obj) {
     } else {
         dbgui_textf("mesgQueue: null");
     }
-    dbgui_textf("unk_0xd4: %u", obj->unk_0xd4);
-    dbgui_textf("unk_0xd6: %u", obj->unk_0xd6);
-    dbgui_textf("unk_0xd8: %u", obj->unk_0xd8);
-    dbgui_textf("unk_0xd9: %u", obj->unk_0xd9);
-    dbgui_textf("unk_0xda: %u", obj->unk_0xda);
-    dbgui_textf("unk0xdc: %d", obj->unk0xdc);
+    dbgui_textf("unkD4: %u", obj->unkD4);
+    dbgui_textf("unkD6: %u", obj->unkD6);
+    dbgui_textf("unkD8: %u", obj->unkD8);
+    dbgui_textf("unkD9: %u", obj->unkD9);
+    dbgui_textf("unkDA: %u", obj->unkDA);
+    dbgui_textf("unkDC: %d", obj->unkDC);
 }
