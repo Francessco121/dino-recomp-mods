@@ -113,7 +113,7 @@ void kt_rex_debug_tab(Object *obj) {
             dbgui_textf("speed: %f", fsa->speed);
             dbgui_textf("unk290: %f", fsa->unk290);
             dbgui_textf("unk294: %f", fsa->unk294);
-            dbgui_textf("unk298: %f", fsa->unk298);
+            dbgui_textf("animTickDelta: %f", fsa->animTickDelta);
             dbgui_textf("unk29C: %f", fsa->unk29C);
             dbgui_textf("unk2A0: %f", fsa->unk2A0);
             dbgui_textf("unk2A4: %f", fsa->unk2A4);

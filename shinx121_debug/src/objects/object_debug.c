@@ -308,7 +308,7 @@ void object_edit_contents(Object *obj) {
     dbgui_textf("unkB2: %u", obj->unkB2);
     dbgui_textf("unkB4: %u", obj->unkB4);
     dbgui_textf("data: %p", obj->data);
-    dbgui_textf("unkBC: %p", obj->unkBC);
+    dbgui_textf("animCallback: %p", obj->animCallback);
     if (obj->unkC0 != NULL) {
         if (dbgui_tree_node("unkC0")) {
             object_edit_contents(obj->unkC0);

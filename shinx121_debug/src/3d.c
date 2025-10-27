@@ -43,9 +43,9 @@ static s32 world_to_dbgui_coords(f32 x, f32 y, f32 z, f32 *o_sx, f32 *o_sy) {
     f32 screen_width, screen_height;
     dbgui_get_display_size(&screen_width, &screen_height);
 
-    u32 wh = get_some_resolution_encoded();
-    u32 fb_width = (f32)(wh & 0xffff);
-    u32 fb_height = (f32)(wh >> 16);
+    u32 wh = vi_get_current_size();
+    u32 fb_width = GET_VIDEO_WIDTH(wh);
+    u32 fb_height = GET_VIDEO_HEIGHT(wh);
 
     f32 correct_screen_width = (screen_height * gAspect);
 
