@@ -3,7 +3,7 @@
 
 #include "common.h"
 #include "dlls/objects/210_player.h"
-#include "sys/controller.h"
+#include "sys/joypad.h"
 #include "sys/objects.h"
 #include "sys/math.h"
 
@@ -35,8 +35,8 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick() {
 
             const float SPEED = 5.0f;
 
-            s8 jx = get_joystick_x(0);
-            s8 jy = get_joystick_y(0);
+            s8 jx = joy_get_stick_x(0);
+            s8 jy = joy_get_stick_y(0);
 
             Vec3f fly_dir;
 

@@ -112,7 +112,7 @@ static void debug_draw_curves() {
                 dbgui_textf("unk2E: 0x%X", setup->unk2E);
                 dbgui_textf("unk2F: 0x%X", setup->unk2F);
                 if (setup->unk19 == 0x15) {
-                    dbgui_textf("unk30: 0x%X", setup->type15.unk30);
+                    dbgui_textf("unk30: 0x%X", setup->type15.pad30);
                     dbgui_textf("unk34: 0x%X", setup->type15.unk34);
                 } else if (setup->unk19 == 0x22) {
                     dbgui_textf("unk30: 0x%X", setup->type22.unk30);
@@ -125,10 +125,11 @@ static void debug_draw_curves() {
                     dbgui_textf("unk31: 0x%X", setup->type26.unk31);
                     dbgui_textf("unk32: 0x%X", setup->type26.unk32);
                     dbgui_textf("unk33: 0x%X", setup->type26.unk33);
-                    dbgui_textf("unk34: 0x%X", setup->type26.unk34);
-                    dbgui_textf("unk35: 0x%X", setup->type26.unk35);
-                    dbgui_textf("unk36: 0x%X", setup->type26.unk36);
-                    dbgui_textf("unk37: 0x%X", setup->type26.unk37);
+                    for (s32 k = 0; k < 4; k++) {
+                        for (s32 j = 0; j < 4; j++) {
+                            dbgui_textf("unk34[%d][%d]: %d", k, j, setup->type26.unk34[k][j]);
+                        }
+                    }
                 }
                 
                 dbgui_tree_pop();
@@ -157,7 +158,7 @@ static void debug_draw_curves() {
         }
 
         for (s32 k = 0; k < 4; k++) {
-            CurveSetup *other = gDLL_26_Curves->vtbl->curves_func_39c(node->setup->unk1C[k]);
+            CurveSetup *other = gDLL_26_Curves->vtbl->func_39C(node->setup->unk1C[k]);
             if (other == NULL) {
                 continue;
             }
