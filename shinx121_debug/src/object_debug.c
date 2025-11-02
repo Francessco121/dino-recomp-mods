@@ -4,6 +4,7 @@
 
 #include "3d.h"
 #include "debug_common.h"
+#include "objects/bwlog_debug.h"
 #include "objects/dll27_debug.h"
 #include "objects/kt_rex_debug.h"
 #include "objects/object_debug.h"
@@ -116,6 +117,7 @@ static void object_editor(Object *obj, s32 index) {
             case OBJ_NWmammothguardi:
             case OBJ_SHspore:
             case OBJ_KT_Rex:
+            case OBJ_BWLog:
                 if (dbgui_begin_tab_item("DLL 27 Data", NULL)) {
                     dll27_debug_tab(obj);
                     dbgui_end_tab_item();
@@ -125,6 +127,12 @@ static void object_editor(Object *obj, s32 index) {
             if (obj->id == OBJ_KT_Rex) {
                 if (dbgui_begin_tab_item("KT_Rex", NULL)) {
                     kt_rex_debug_tab(obj);
+                    dbgui_end_tab_item();
+                }
+            }
+            if (obj->id == OBJ_BWLog) {
+                if (dbgui_begin_tab_item("BWLog", NULL)) {
+                    bwlog_debug_tab(obj);
                     dbgui_end_tab_item();
                 }
             }
