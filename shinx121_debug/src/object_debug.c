@@ -8,6 +8,7 @@
 #include "objects/dll27_debug.h"
 #include "objects/kt_rex_debug.h"
 #include "objects/object_debug.h"
+#include "objects/snowbike_debug.h"
 #include "objects/trigger_debug.h"
 
 #include "game/objects/object.h"
@@ -118,6 +119,9 @@ static void object_editor(Object *obj, s32 index) {
             case OBJ_SHspore:
             case OBJ_KT_Rex:
             case OBJ_BWLog:
+            case OBJ_IMSnowBike:
+            case OBJ_IMSnowClawBike:
+            case OBJ_IMSnowClawBike2:
                 if (dbgui_begin_tab_item("DLL 27 Data", NULL)) {
                     dll27_debug_tab(obj);
                     dbgui_end_tab_item();
@@ -133,6 +137,12 @@ static void object_editor(Object *obj, s32 index) {
             if (obj->id == OBJ_BWLog) {
                 if (dbgui_begin_tab_item("BWLog", NULL)) {
                     bwlog_debug_tab(obj);
+                    dbgui_end_tab_item();
+                }
+            }
+            if (obj->id == OBJ_IMSnowBike || obj->id == OBJ_IMSnowClawBike || obj->id == OBJ_IMSnowClawBike2) {
+                if (dbgui_begin_tab_item("IMSnowBike", NULL)) {
+                    snowbike_debug_tab(obj);
                     dbgui_end_tab_item();
                 }
             }

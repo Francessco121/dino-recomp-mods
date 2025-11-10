@@ -18,6 +18,8 @@ static DLL27_Data *get_dll27_data(Object *obj) {
             return (DLL27_Data*)((u32)obj->data + 0x4);
         case 0x811f: // Snowhorn
             return (DLL27_Data*)((u32)obj->data + 0x170);
+        case 0x81f6: // IMSnowBike
+            return (DLL27_Data*)((u32)obj->data + 0x4C);
         default: // Those that have DLL27 data at the start of their object data
             return (DLL27_Data*)obj->data;
     }
