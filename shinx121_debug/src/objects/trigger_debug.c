@@ -22,16 +22,21 @@ void trigger_debug_tab(Object *obj) {
             if (obj->setup != NULL) {
                 Trigger_Setup *objsetup = (Trigger_Setup*)obj->setup;
                 dbgui_textf("objId: %d", objsetup->base.objId);
-                dbgui_textf("quarterSize: %d", objsetup->base.quarterSize);
-                dbgui_textf("setup: %d", objsetup->base.setup);
-                dbgui_textf("loadParamA: %d", objsetup->base.loadParamA);
-                dbgui_textf("loadParamB: %d", objsetup->base.loadParamB);
-                dbgui_textf("loadDistance: %d", objsetup->base.loadDistance);
+                dbgui_textf("quarterSize: 0x%X", objsetup->base.quarterSize);
+                dbgui_textf("setupExclusions1: 0x%X", objsetup->base.setupExclusions1);
+                dbgui_textf("loadFlags: 0x%X", objsetup->base.loadFlags);
+                dbgui_textf("setupExclusions2: 0x%X", objsetup->base.setupExclusions2 & 0xF0);
+                dbgui_textf("fadeFlags: 0x%X", objsetup->base.fadeFlags & 0x0F);
+                if (objsetup->base.loadFlags & 0x10) {
+                    dbgui_textf("mapObjGroup: %d", objsetup->base.mapObjGroup);
+                } else {
+                    dbgui_textf("loadDistance: %d", objsetup->base.loadDistance);
+                }
                 dbgui_textf("fadeDistance: %d", objsetup->base.fadeDistance);
                 dbgui_textf("x: %f", objsetup->base.x);
                 dbgui_textf("y: %f", objsetup->base.y);
                 dbgui_textf("z: %f", objsetup->base.z);
-                dbgui_textf("uID: %d", objsetup->base.uID);
+                dbgui_textf("uID: 0x%X", objsetup->base.uID);
 
                 dbgui_text("commands:");
                 for (s32 i = 0; i < 8; i++) {

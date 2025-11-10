@@ -63,11 +63,11 @@ void object_edit_contents(Object *obj) {
     
     dbgui_input_byte("unk34", &obj->unk34);
     dbgui_input_sbyte("matrixIdx", &obj->matrixIdx);
-    dbgui_input_byte("unk36", &obj->unk36);
-    dbgui_input_byte("unk37", &obj->unk37);
+    dbgui_input_byte("opacity", &obj->opacity);
+    dbgui_textf("opacityWithFade: %d", obj->opacityWithFade);
     dbgui_textf("next: %p", &obj->next);
-    dbgui_textf("unk3C: %f", obj->unk3C);
-    dbgui_textf("unk40: %f", obj->unk40);
+    dbgui_textf("loadDistance: %f", obj->loadDistance);
+    dbgui_textf("fadeDistance: %f", obj->fadeDistance);
     dbgui_textf("group: %u", obj->group);
     dbgui_textf("id: %u", obj->id);
     dbgui_textf("tabIdx: %u", obj->tabIdx);
@@ -76,10 +76,15 @@ void object_edit_contents(Object *obj) {
             ObjSetup *objsetup = obj->setup;
             dbgui_textf("objId: %d", objsetup->objId);
             dbgui_textf("quarterSize: 0x%X", objsetup->quarterSize);
-            dbgui_textf("setup: %d", objsetup->setup);
-            dbgui_textf("loadParamA: %d", objsetup->loadParamA);
-            dbgui_textf("loadParamB: %d", objsetup->loadParamB);
-            dbgui_textf("loadDistance: %d", objsetup->loadDistance);
+            dbgui_textf("setupExclusions1: 0x%X", objsetup->setupExclusions1);
+            dbgui_textf("loadFlags: 0x%X", objsetup->loadFlags);
+            dbgui_textf("setupExclusions2: 0x%X", objsetup->setupExclusions2 & 0xF0);
+            dbgui_textf("fadeFlags: 0x%X", objsetup->fadeFlags & 0x0F);
+            if (objsetup->loadFlags & 0x10) {
+                dbgui_textf("mapObjGroup: %d", objsetup->mapObjGroup);
+            } else {
+                dbgui_textf("loadDistance: %d", objsetup->loadDistance);
+            }
             dbgui_textf("fadeDistance: %d", objsetup->fadeDistance);
             dbgui_textf("x: %f", objsetup->x);
             dbgui_textf("y: %f", objsetup->y);
@@ -261,15 +266,15 @@ void object_edit_contents(Object *obj) {
     } else {
         dbgui_textf("objhitInfo: null");
     }
-    dbgui_textf("unk58: %d", obj->unk58);
-    dbgui_textf("ptr0x5c: %p", obj->ptr0x5c);
+    dbgui_textf("unk58: %p", obj->unk58);
+    dbgui_textf("unk5C: %p", obj->unk5C);
     dbgui_textf("curEvent: %p", obj->curEvent);
-    dbgui_textf("ptr0x64: %p", obj->ptr0x64);
+    dbgui_textf("unk64: %p", obj->unk64);
 
     dbgui_textf("dll: %p", obj->dll);
-    dbgui_textf("ptr0x6c: %p", obj->ptr0x6c);
-    dbgui_textf("ptr0x70: %p", obj->ptr0x70);
-    dbgui_textf("unk74: %d", obj->unk74);
+    dbgui_textf("unk6C: %p", obj->unk6C);
+    dbgui_textf("unk70: %p", obj->unk70);
+    dbgui_textf("unk74: %p", obj->unk74);
     if (obj->unk78 != NULL) {
         if (dbgui_tree_node("unk78")) {
             ObjectStruct78 *unk78 = obj->unk78;

@@ -80,7 +80,7 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick() {
             player->positionMirror3 = fly_position;
 
             playerdata->unk0.animState = 28;
-            player->unk36 = 0x80;
+            player->opacity = 0x80;
             player->animProgress = 0.0f;
 
             flying_cooldown = FLY_COOLDOWN;
@@ -88,7 +88,7 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick() {
             flying_cooldown--;
             playerdata->unk0.animState = 1;
             player->animProgress = 0.0f;
-            player->unk36 = 0xFF;
+            player->opacity = 0xFF;
         }
     }
 }

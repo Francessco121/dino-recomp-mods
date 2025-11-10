@@ -71,7 +71,7 @@ static void debug_draw_curves() {
             }
 
             if (filterByDist) {
-                f32 dist = vec3_distance(&camPos, (Vec3f*)&setup->base.x);
+                f32 dist = vec3_distance(&camPos, &setup->pos);
                 if (dist > curveRenderDist) {
                     continue;
                 }
@@ -82,23 +82,23 @@ static void debug_draw_curves() {
                     hoveredIdx = i;
                 }
 
-                dbgui_textf("objId: 0x%X", setup->base.objId);
-                dbgui_textf("quarterSize: 0x%X", setup->base.quarterSize);
-                dbgui_textf("setup: 0x%X", setup->base.setup);
+                dbgui_textf("objId: 0x%X", setup->objId);
+                dbgui_textf("quarterSize: 0x%X", setup->quarterSize);
+                dbgui_textf("unk3: 0x%X", setup->unk3);
                 if (setup->unk19 == 0x22) {
-                    dbgui_textf("unk4: 0x%X", setup->base.curve_type22.unk4);
-                    dbgui_textf("unk6: 0x%X", setup->base.curve_type22.unk6);
-                    dbgui_textf("unk7: 0x%X", setup->base.curve_type22.unk7);
+                    dbgui_textf("unk4: 0x%X", setup->base_type22.unk4);
+                    dbgui_textf("unk6: 0x%X", setup->base_type22.unk6);
+                    dbgui_textf("unk7: 0x%X", setup->base_type22.unk7);
                 } else if (setup->unk19 == 0x26) {
-                    dbgui_textf("unk4: 0x%X", setup->base.curve_type26.unk4);
-                    dbgui_textf("unk5: 0x%X", setup->base.curve_type26.unk5);
-                    dbgui_textf("unk6: 0x%X", setup->base.curve_type26.unk6);
-                    dbgui_textf("unk7: 0x%X", setup->base.curve_type26.unk7);
+                    dbgui_textf("unk4: 0x%X", setup->base_type26.unk4);
+                    dbgui_textf("unk5: 0x%X", setup->base_type26.unk5);
+                    dbgui_textf("unk6: 0x%X", setup->base_type26.unk6);
+                    dbgui_textf("unk7: 0x%X", setup->base_type26.unk7);
                 }
-                dbgui_textf("x: %f", setup->base.x);
-                dbgui_textf("y: %f", setup->base.y);
-                dbgui_textf("z: %f", setup->base.z);
-                dbgui_textf("uID: 0x%X", setup->base.uID);
+                dbgui_textf("x: %f", setup->pos.x);
+                dbgui_textf("y: %f", setup->pos.y);
+                dbgui_textf("z: %f", setup->pos.z);
+                dbgui_textf("uID: 0x%X", setup->uID);
 
                 dbgui_textf("unk18: 0x%X", setup->unk18);
                 dbgui_textf("unk19: 0x%X", setup->unk19);
@@ -152,7 +152,7 @@ static void debug_draw_curves() {
             continue;
         }
 
-        f32 dist = vec3_distance(&camPos, (Vec3f*)&setup->base.x);
+        f32 dist = vec3_distance(&camPos, &setup->pos);
         if (dist > curveRenderDist) {
             continue;
         }
@@ -164,12 +164,12 @@ static void debug_draw_curves() {
             }
 
             draw_3d_line(
-                setup->base.x, setup->base.y, setup->base.z, 
-                other->base.x, other->base.y, other->base.z, 
+                setup->pos.x, setup->pos.y, setup->pos.z, 
+                other->pos.x, other->pos.y, other->pos.z, 
                 hoveredIdx == i ? 0xFFFFFFFF : 0xFFFF00FF);
         }
         
-        draw_3d_text(node->setup->base.x, node->setup->base.y, node->setup->base.z, 
+        draw_3d_text(node->setup->pos.x, node->setup->pos.y, node->setup->pos.z, 
             recomp_sprintf_helper("[%d] Curve (0x%X) 0x%X", i, setup->unk19, node->uID),
             hoveredIdx == i ? 0xFFFFFFFF : 0xFF00FFFF);
     }
