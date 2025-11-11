@@ -28,9 +28,10 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick() {
 
         // Noclip fly
         u16 buttons = gContPads[gVirtualContPortMap[0]].button;
-        if ((buttons & L_TRIG) && recomp_get_config_u32("noclip") == ALLOW_NOCLIP_ON && player->parent == NULL) {
+        s32 allowFlight = playerdata->unk858 == NULL; // Don't allow while on vehicle
+        if ((buttons & L_TRIG) && recomp_get_config_u32("noclip") == ALLOW_NOCLIP_ON && allowFlight) {
             if (flying_cooldown != FLY_COOLDOWN) {
-                fly_position = player->srt.transl;
+                fly_position = player->positionMirror;
             }
 
             const float SPEED = 5.0f;
@@ -74,6 +75,7 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick() {
             fly_position.y += fly_dir_transformed.y;
             fly_position.z += fly_dir_transformed.z;
 
+            player->parent = NULL;
             player->srt.transl = fly_position;
             player->positionMirror = fly_position;
             player->positionMirror2 = fly_position;
