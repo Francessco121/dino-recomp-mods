@@ -75,7 +75,7 @@ void object_edit_contents(Object *obj) {
         if (dbgui_tree_node("setup")) {
             ObjSetup *objsetup = obj->setup;
             dbgui_textf("objId: %d", objsetup->objId);
-            dbgui_textf("quarterSize: 0x%X", objsetup->quarterSize);
+            dbgui_textf("quarterSize: 0x%X (full size: 0x%X)", objsetup->quarterSize, objsetup->quarterSize << 2);
             dbgui_textf("setupExclusions1: 0x%X", objsetup->setupExclusions1);
             dbgui_textf("loadFlags: 0x%X", objsetup->loadFlags);
             dbgui_textf("setupExclusions2: 0x%X", objsetup->setupExclusions2 & 0xF0);
@@ -100,7 +100,7 @@ void object_edit_contents(Object *obj) {
                 
                 dbgui_text("Additional data:");
 
-                while (size > 8) {
+                while (size >= 8) {
                     u8 *addr = (u8*)address;
 
                     dbgui_textf("%08X:  %02X %02X %02X %02X  %02X %02X %02X %02X", (u32)addr - (u32)objsetup, 
@@ -116,28 +116,22 @@ void object_edit_contents(Object *obj) {
                     char extraByteStr[extraByteStrMaxLen];
                     char *extraByteStrPtr = extraByteStr;
 
-                    recomp_sprintf(extraByteStrPtr, "%08X:  ", (u32)addr - (u32)objsetup);
-                    extraByteStrPtr += 8 + 3;
+                    recomp_sprintf(extraByteStrPtr, "%08X: ", (u32)addr - (u32)objsetup);
+                    extraByteStrPtr += 8 + 2;
 
-                    for (u32 i = 0; i < size && i < 4; i++) {
-                        recomp_sprintf(extraByteStrPtr, "%02X ", *addr);
-                        extraByteStrPtr += 3;
-
-                        addr++;
-                        size--;
-                    }
-
-                    if (size > 0) {
+                    while (size > 0) {
                         *extraByteStrPtr = ' ';
-                        extraByteStrPtr += 1;
+                        extraByteStrPtr++;
 
-                        for (u32 i = 0; i < size; i++) {
+                        u32 i = 0;
+                        for (i = 0; i < size && i < 4; i++) {
                             recomp_sprintf(extraByteStrPtr, "%02X ", *addr);
                             extraByteStrPtr += 3;
 
                             addr++;
-                            size--;
                         }
+
+                        size -= i;
                     }
 
                     extraByteStr[extraByteStrMaxLen - 1] = '\0';
