@@ -34,6 +34,7 @@ extern ExtFsLoadStage extfsLoadStage;
 extern const char *DINO_FS_FILENAMES[NUM_FILES];
 
 void extfs_assert(_Bool condition, const char *fmt, ...);
+void extfs_assert_no_exit(_Bool condition, const char *fmt, ...);
 void extfs_log(const char *fmt, ...);
 void extfs_log_error(const char *fmt, ...);
 void extfs_error_box(const char *fmt, ...);

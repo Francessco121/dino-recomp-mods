@@ -98,6 +98,17 @@ void extfs_assert(_Bool condition, const char *fmt, ...) {
     va_end(args);
 }
 
+void extfs_assert_no_exit(_Bool condition, const char *fmt, ...) {
+    va_list args;
+	va_start(args, fmt);
+
+    if (!condition) {
+        recomp_error_message_box(recomp_vsprintf_helper(fmt, args));
+    }
+
+    va_end(args);
+}
+
 void extfs_log(const char *fmt, ...) {
     va_list args;
 	va_start(args, fmt);
