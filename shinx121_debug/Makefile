@@ -14,11 +14,12 @@ CPPFLAGS := -nostdinc -D_LANGUAGE_C -DMIPS -D_MIPS_SZLONG=32 -DF3DEX_GBI_2 -DAVO
 LDFLAGS  := -nostdlib -T $(LDSCRIPT) -Map $(BUILD_DIR)/mod.map --unresolved-symbols=ignore-all --emit-relocs -e 0 --no-nmagic
 
 C_SRCS := $(wildcard src/*.c)
+C_SRCS += $(wildcard src/alarms/*.c)
 C_SRCS += $(wildcard src/objects/*.c)
 C_OBJS := $(addprefix $(BUILD_DIR)/, $(C_SRCS:.c=.o))
 C_DEPS := $(addprefix $(BUILD_DIR)/, $(C_SRCS:.c=.d))
 
-BUILD_DIRS := $(BUILD_DIR) $(BUILD_DIR)/src $(BUILD_DIR)/src/objects
+BUILD_DIRS := $(BUILD_DIR) $(BUILD_DIR)/src $(BUILD_DIR)/src/alarms $(BUILD_DIR)/src/objects
 
 $(TARGET): $(C_OBJS) $(LDSCRIPT)
 	$(LD) $(C_OBJS) $(LDFLAGS) -o $@

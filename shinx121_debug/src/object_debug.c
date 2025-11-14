@@ -4,19 +4,25 @@
 
 #include "3d.h"
 #include "debug_common.h"
+#include "object_editor.h"
+#include "object_dll_ids.h"
 #include "objects/bwlog_debug.h"
 #include "objects/dll27_debug.h"
 #include "objects/kt_rex_debug.h"
 #include "objects/object_debug.h"
+#include "objects/objfsa_debug.h"
+#include "objects/seqobj_debug.h"
 #include "objects/snowbike_debug.h"
 #include "objects/trigger_debug.h"
 
+#include "libc/string.h"
+#include "dlls/engine/18_objfsa.h"
+#include "dlls/engine/27.h"
 #include "game/objects/object.h"
 #include "game/objects/object_id.h"
 #include "sys/objects.h"
 #include "sys/objtype.h"
 #include "sys/linked_list.h"
-#include "common.h"
 
 #define OBJECT_TYPE_LIST_LENGTH 256
 #define OBJECT_MAX_TYPES 65
@@ -36,6 +42,7 @@ static char search_buffer[256] = {0};
 static s32 type_filter = 0;
 static s32 filter_types = FALSE;
 static Object *edit_objects[256] = {NULL};
+static ObjEditorData edit_objects_data[256] = {NULL};
 
 static void add_edit_object(Object *obj) {
     for (s32 i = 0; i < (s32)(sizeof(edit_objects) / sizeof(Object*)); i++) {
@@ -47,6 +54,8 @@ static void add_edit_object(Object *obj) {
     for (s32 i = 0; i < (s32)(sizeof(edit_objects) / sizeof(Object*)); i++) {
         if (edit_objects[i] == NULL) {
             edit_objects[i] = obj;
+            bzero(&edit_objects_data[i], sizeof(edit_objects_data[i]));
+            edit_objects_data[i].seqActorBits = -1;
             break;
         }
     }
@@ -74,11 +83,12 @@ static void remove_freed_edit_objects() {
     }
 }
 
-static void object_editor(Object *obj, s32 index) {
+static void object_editor(Object *obj, ObjEditorData *editorData, s32 index) {
     s32 open = TRUE;
     s32 destroy = FALSE;
     if (dbgui_begin(recomp_sprintf_helper("%s###object_edit_%p", obj->def->name, obj), &open)) {
         if (dbgui_begin_tab_bar(recomp_sprintf_helper("%s###object_edit_%p_tabbar", obj->def->name, obj))) {
+            // Main tab
             if (dbgui_begin_tab_item("Object", NULL)) {
                 if (dbgui_button("Destroy")) {
                     destroy = TRUE;
@@ -86,65 +96,61 @@ static void object_editor(Object *obj, s32 index) {
                 object_edit_contents(obj);
                 dbgui_end_tab_item();
             }
-            switch (obj->id) {
-            case OBJ_TriggerArea:
-            case OBJ_TriggerBits:
-            case OBJ_TriggerButton:
-            case OBJ_TriggerCurve:
-            case OBJ_TriggerCylinder:
-            case OBJ_TriggerPlane:
-            case OBJ_TriggerPoint:
-            case OBJ_TriggerSetup:
-            case OBJ_TriggerTime:
-                if (dbgui_begin_tab_item("Trigger", NULL)) {
-                    trigger_debug_tab(obj);
+            // Common tabs
+            if (obj->def->pSeq != NULL) {
+                if (dbgui_begin_tab_item("Sequences", NULL)) {
+                    object_seq_debug(obj, editorData);
                     dbgui_end_tab_item();
                 }
-                break;
             }
-            switch (obj->id) {
-            case OBJ_Sabre:
-            case OBJ_Krystal:
-            case OBJ_Tumbleweed1:
-            case OBJ_Tumbleweed2:
-            case OBJ_Tumbleweed1twig:
-            case OBJ_Tumbleweed2twig:
-            case OBJ_Tumbleweed3:
-            case OBJ_Tumbleweed3twig:
-            case OBJ_NWmammothsquirt:
-            case OBJ_NWmammothhelp:
-            case OBJ_NWmammothwalk:
-            case OBJ_NWguardiandaugh:
-            case OBJ_NWmammothguardi:
-            case OBJ_SHspore:
-            case OBJ_KT_Rex:
-            case OBJ_BWLog:
-            case OBJ_IMSnowBike:
-            case OBJ_IMSnowClawBike:
-            case OBJ_IMSnowClawBike2:
+            // DLL 27 tab
+            DLL27_Data *dll27Data = dll27_debug_get_data(obj);
+            if (dll27Data != NULL) {
                 if (dbgui_begin_tab_item("DLL 27 Data", NULL)) {
-                    dll27_debug_tab(obj);
-                    dbgui_end_tab_item();
-                }
-                break;
-            }
-            if (obj->id == OBJ_KT_Rex) {
-                if (dbgui_begin_tab_item("KT_Rex", NULL)) {
-                    kt_rex_debug_tab(obj);
+                    dll27_debug_tab(obj, dll27Data);
                     dbgui_end_tab_item();
                 }
             }
-            if (obj->id == OBJ_BWLog) {
-                if (dbgui_begin_tab_item("BWLog", NULL)) {
-                    bwlog_debug_tab(obj);
+            // Objfsa tab
+            ObjFSA_Data *fsa = objfsa_debug_get_data(obj);
+            if (fsa != NULL) {
+                if (dbgui_begin_tab_item("Obj FSA Data", NULL)) {
+                    objfsa_debug_tab(obj, fsa);
                     dbgui_end_tab_item();
                 }
             }
-            if (obj->id == OBJ_IMSnowBike || obj->id == OBJ_IMSnowClawBike || obj->id == OBJ_IMSnowClawBike2) {
-                if (dbgui_begin_tab_item("IMSnowBike", NULL)) {
-                    snowbike_debug_tab(obj);
-                    dbgui_end_tab_item();
-                }
+            // DLL specific tabs
+            switch (obj->def->dllID) {
+                case DLL_ID_SEQOBJ:
+                    if (dbgui_begin_tab_item("SEQOBJ", NULL)) {
+                        seqobj_debug_tab(obj);
+                        dbgui_end_tab_item();
+                    }
+                    break;
+                case DLL_ID_trigger:
+                    if (dbgui_begin_tab_item("Trigger", NULL)) {
+                        trigger_debug_tab(obj);
+                        dbgui_end_tab_item();
+                    }
+                    break;
+                case DLL_ID_KT_Rex:
+                    if (dbgui_begin_tab_item("KT_Rex", NULL)) {
+                        kt_rex_debug_tab(obj);
+                        dbgui_end_tab_item();
+                    }
+                    break;
+                case DLL_ID_IMSnowBike:
+                    if (dbgui_begin_tab_item("IMSnowBike", NULL)) {
+                        snowbike_debug_tab(obj);
+                        dbgui_end_tab_item();
+                    }
+                    break;
+                case DLL_ID_BWLog:
+                    if (dbgui_begin_tab_item("BWLog", NULL)) {
+                        bwlog_debug_tab(obj);
+                        dbgui_end_tab_item();
+                    }
+                    break;
             }
 
             dbgui_end_tab_bar();
@@ -349,7 +355,7 @@ RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback() {
             }
 
             if (stillExists) {
-                object_editor(obj, i);
+                object_editor(obj, &edit_objects_data[i], i);
             } else {
                 edit_objects[i] = NULL;
             }
@@ -390,16 +396,8 @@ RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback() {
             );
 
             if (show_hitboxes) {
-                switch (obj->id) {
-                case OBJ_TriggerArea:
-                case OBJ_TriggerBits:
-                case OBJ_TriggerButton:
-                case OBJ_TriggerCurve:
-                case OBJ_TriggerCylinder:
-                case OBJ_TriggerPlane:
-                case OBJ_TriggerPoint:
-                case OBJ_TriggerSetup:
-                case OBJ_TriggerTime:
+                switch (obj->def->dllID) {
+                case DLL_ID_trigger:
                     draw_trigger(obj, hovered ? 0xFFFFFFFF : 0xFFFF00FF);
                     break;
                 default:

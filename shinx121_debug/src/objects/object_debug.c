@@ -1,6 +1,7 @@
 #include "object_debug.h"
 
 #include "dbgui.h"
+#include "dll.h"
 #include "recomputils.h"
 
 #include "../debug_common.h"
@@ -30,6 +31,109 @@ static u16 resolve_dll_number(u16 id) {
     }
 
     return id;
+}
+
+static void object_show_def(ObjDef *def) {
+    dbgui_textf("dllID: 0x%X (idx %d)", def->dllID, resolve_dll_number(def->dllID));
+    dbgui_textf("name: %s", def->name);
+    dbgui_separator();
+    dbgui_textf("unk00: %f", def->unk00);
+    dbgui_textf("scale: %f", def->scale);
+    dbgui_textf("pModelList: %p", def->pModelList);
+    dbgui_textf("pTextures: %p", def->pTextures);
+    dbgui_textf("pSequenceBones: %p", def->pSequenceBones);
+    dbgui_textf("unk14: %p", def->unk14);
+    dbgui_textf("unk18: %p", def->unk18);
+    if (def->pSeq != NULL) {
+        if (dbgui_tree_node("pSeq")) {
+            for (int i = 0; i < def->numSequences; i++) {
+                dbgui_textf("[%x]: %d", i, def->pSeq[i]);
+            }
+
+            dbgui_tree_pop();
+        }
+    } else {
+        dbgui_textf("pSeq: (null)");
+    }
+    dbgui_textf("pEvent: %p", def->pEvent);
+    dbgui_textf("pHits: %p", def->pHits);
+    dbgui_textf("pWeaponData: %p", def->pWeaponData);
+    dbgui_textf("pAttachPoints: %p", def->pAttachPoints);
+    dbgui_textf("pModLines: %p", def->pModLines);
+    dbgui_textf("pIntersectPoints: %p", def->pIntersectPoints);
+    dbgui_textf("nextIntersectPoint: %p", def->nextIntersectPoint);
+    dbgui_textf("nextIntersectLine: %p", def->nextIntersectLine);
+    dbgui_textf("unk40: %p", def->unk40);
+    dbgui_textf("flags: 0x%X", def->flags);
+    dbgui_textf("shadowType: %d", def->shadowType);
+    dbgui_textf("shadowTexture: %d", def->shadowTexture);
+    dbgui_textf("unk4C: %d", def->unk4C);
+    dbgui_textf("unk4D: %d", def->unk4D);
+    dbgui_textf("hitbox_flags60: 0x%X", def->hitbox_flags60);
+    dbgui_textf("unk50: %d", def->unk50);
+    dbgui_textf("unk52: %d", def->unk52);
+    dbgui_textf("unk53: %d", def->unk53);
+    dbgui_textf("unk54: %d", def->unk54);
+    dbgui_textf("unk55: %d", def->unk55);
+    dbgui_textf("numPlayerObjs: %d", def->numPlayerObjs);
+    dbgui_textf("unk57: %d", def->unk57);
+    dbgui_textf("group: %d", def->group);
+    dbgui_textf("modLinesSize: %d", def->modLinesSize);
+    dbgui_textf("numModels: %d", def->numModels);
+    dbgui_textf("unk5e: %d", def->unk5e);
+
+    if (def->pAttachPoints != NULL) {
+        if (dbgui_tree_node("pAttachPoints")) {
+            for (int i = 0; i < def->numAttachPoints; i++) {
+                if (dbgui_tree_node(recomp_sprintf_helper("[%d]", i))) {
+                    dbgui_input_float("x", &def->pAttachPoints[i].pos.x);
+                    dbgui_input_float("y", &def->pAttachPoints[i].pos.y);
+                    dbgui_input_float("z", &def->pAttachPoints[i].pos.z);
+
+                    dbgui_tree_pop();
+                }
+            }
+
+            dbgui_tree_pop();
+        }
+    } else {
+        dbgui_textf("pAttachPoints: (null)");
+    }
+
+    dbgui_textf("numAnimatedFrames: %d", def->numAnimatedFrames);
+    dbgui_textf("numSequenceBones: %d", def->numSequenceBones);
+    dbgui_textf("stateVar73: %d", def->stateVar73);
+    dbgui_textf("unk74: %d", def->unk74);
+    dbgui_textf("unk75: %d", def->unk75);
+    dbgui_textf("modLineCount: %d", def->modLineCount);
+    dbgui_textf("modLineNo: %d", def->modLineNo);
+    dbgui_textf("numSequences: %d", def->numSequences);
+
+    if (def->pModLines != NULL && def->modLineCount > 0) {
+        if (dbgui_tree_node("pModLines")) {
+            for (int i = 0; i < def->modLineCount; i++) {
+                if (dbgui_tree_node(recomp_sprintf_helper("[%d]", i))) {
+                    HitsLineCustom *line = (HitsLineCustom*)&def->pModLines[i];
+
+                    dbgui_textf("A: %d, %d, %d", line->Ax, line->Ay, line->Az);
+                    dbgui_textf("B: %d, %d, %d", line->Bx, line->By, line->Bz);
+                    if (line->settingsA & 0x80) {
+                        dbgui_textf("height: %d", line->height);
+                    } else {
+                        dbgui_textf("heightA: %d", line->heightA);
+                        dbgui_textf("heightB: %d", line->heightB);
+                    }
+                    dbgui_textf("settingsA: %02X", line->settingsA);
+                    dbgui_textf("settingsB: %02X", line->settingsB);
+                    dbgui_textf("animatorID: %d", line->animatorID);
+
+                    dbgui_tree_pop();
+                }
+            }
+
+            dbgui_tree_pop();
+        }
+    }
 }
 
 void object_edit_contents(Object *obj) {
@@ -147,51 +251,7 @@ void object_edit_contents(Object *obj) {
     if (obj->def != NULL) {
         if (dbgui_tree_node("def")) {
             ObjDef *def = obj->def;
-            dbgui_textf("dll: %d", resolve_dll_number(def->dllID));
-            dbgui_textf("numModels: %d", def->numModels);
-            dbgui_textf("name: %s", def->name);
-
-            if (def->pAttachPoints != NULL && def->numAttachPoints > 0) {
-                if (dbgui_tree_node("pAttachPoints")) {
-                    for (int i = 0; i < def->numAttachPoints; i++) {
-                        if (dbgui_tree_node(recomp_sprintf_helper("[%d]", i))) {
-                            dbgui_input_float("x", &def->pAttachPoints[i].pos.x);
-                            dbgui_input_float("y", &def->pAttachPoints[i].pos.y);
-                            dbgui_input_float("z", &def->pAttachPoints[i].pos.z);
-
-                            dbgui_tree_pop();
-                        }
-                    }
-
-                    dbgui_tree_pop();
-                }
-            }
-
-            if (def->pModLines != NULL && def->modLineCount > 0) {
-                if (dbgui_tree_node("pModLines")) {
-                    for (int i = 0; i < def->modLineCount; i++) {
-                        if (dbgui_tree_node(recomp_sprintf_helper("[%d]", i))) {
-                            HitsLineCustom *line = (HitsLineCustom*)&def->pModLines[i];
-
-                            dbgui_textf("A: %d, %d, %d", line->Ax, line->Ay, line->Az);
-                            dbgui_textf("B: %d, %d, %d", line->Bx, line->By, line->Bz);
-                            if (line->settingsA & 0x80) {
-                                dbgui_textf("height: %d", line->height);
-                            } else {
-                                dbgui_textf("heightA: %d", line->heightA);
-                                dbgui_textf("heightB: %d", line->heightB);
-                            }
-                            dbgui_textf("settingsA: %02X", line->settingsA);
-                            dbgui_textf("settingsB: %02X", line->settingsB);
-                            dbgui_textf("animatorID: %d", line->animatorID);
-
-                            dbgui_tree_pop();
-                        }
-                    }
-
-                    dbgui_tree_pop();
-                }
-            }
+            object_show_def(def);
 
             dbgui_tree_pop();
         }
@@ -341,4 +401,42 @@ void object_edit_contents(Object *obj) {
     dbgui_textf("unkD9: %u", obj->unkD9);
     dbgui_textf("unkDA: %u", obj->unkDA);
     dbgui_textf("unkDC: %d", obj->unkDC);
+}
+
+void object_seq_debug(Object *obj, ObjEditorData *editorData) {
+    ObjDef *def = obj->def;
+    if (def == NULL || def->pSeq == NULL) {
+        return;
+    }
+
+    s16 *seq = def->pSeq;
+    s32 seqCount = def->numSequences;
+
+    if (dbgui_begin_combo("Sequence", recomp_sprintf_helper("[%d] 0x%X", editorData->seqIdx, seq[editorData->seqIdx]))) {
+        for (s32 i = 0; i < seqCount; i++) {
+            if (dbgui_selectable(recomp_sprintf_helper("[%d] 0x%X", i, seq[i]), i == editorData->seqIdx)) {
+                editorData->seqIdx = i;
+            }
+        }
+        dbgui_end_combo();
+    }
+
+    dbgui_text("Actors");
+    for (s32 k = 0; k < 16; k++) {
+        s32 status = (editorData->seqActorBits & (1 << k)) ? 1 : 0;
+        if (dbgui_checkbox(recomp_sprintf_helper("%d", k), &status)) {
+            if (!status) {
+                editorData->seqActorBits &= ~(1 << k);
+            } else {
+                editorData->seqActorBits |= (1 << k);
+            }
+        }
+        if (((k + 1) % 4) != 0) {
+            dbgui_same_line();
+        }
+    }
+
+    if (dbgui_button("Play")) {
+        gDLL_3_Animation->vtbl->func17(editorData->seqIdx, obj, editorData->seqActorBits);
+    }
 }

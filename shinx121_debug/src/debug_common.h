@@ -6,6 +6,12 @@
 #include "game/objects/object.h"
 #include "sys/math.h"
 
+extern void bcopy_recomp(const void *src, void *dst, int length);
+#define bcopy bcopy_recomp
+
+extern void bzero_recomp(void *, int);
+#define bzero bzero_recomp
+
 // TODO: clean up struct in decomp and remove this one
 typedef struct{
 /*00*/    s16 Ax;

@@ -4,6 +4,7 @@
 #include "dbgui.h"
 #include "recomputils.h"
 
+#include "object_dll_ids.h"
 #include "object_debug.h"
 #include "../3d.h"
 
@@ -11,17 +12,21 @@
 #include "game/objects/object_id.h"
 #include "dlls/engine/27.h"
 
-static DLL27_Data *get_dll27_data(Object *obj) {
+DLL27_Data *dll27_debug_get_data(Object *obj) {
     switch (obj->def->dllID) {
-        case 0x8001: // Player
-        case 0x81ed: // KT_Rex
+        case DLL_ID_Player:
+        case DLL_ID_KT_Rex:
             return (DLL27_Data*)((u32)obj->data + 0x4);
-        case 0x811f: // Snowhorn
+        case DLL_ID_snowhorn:
             return (DLL27_Data*)((u32)obj->data + 0x170);
-        case 0x81f6: // IMSnowBike
+        case DLL_ID_IMSnowBike:
             return (DLL27_Data*)((u32)obj->data + 0x4C);
-        default: // Those that have DLL27 data at the start of their object data
+        case DLL_ID_tumbleweed:
+        case DLL_ID_SHspore:
+        case DLL_ID_BWLog:
             return (DLL27_Data*)obj->data;
+        default:
+            return NULL;
     }
 }
 
@@ -49,12 +54,7 @@ static void draw_bounds(Object *obj, DLL27_Data *data, u32 color) {
 
 static s32 drawBounds = FALSE;
 
-void dll27_debug_tab(Object *obj) {
-    DLL27_Data *data = get_dll27_data(obj);
-    if (data == NULL) {
-        return;
-    }
-
+void dll27_debug_tab(Object *obj, DLL27_Data *data) {
     dbgui_checkbox("Draw", &drawBounds);
 
     s32 count1 = data->numTestPoints >> 4;
