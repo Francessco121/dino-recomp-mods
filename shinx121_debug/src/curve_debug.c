@@ -139,9 +139,8 @@ static void debug_draw_curves() {
                 }
             }
         }
-
-        dbgui_end_child();
     }
+    dbgui_end_child();
 
 
     for (s32 i = 0; i < _bss_28A8; i++) {

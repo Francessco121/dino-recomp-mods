@@ -8,6 +8,7 @@
 #include "object_dll_ids.h"
 #include "objects/bwlog_debug.h"
 #include "objects/dll27_debug.h"
+#include "objects/effectbox_debug.h"
 #include "objects/kt_rex_debug.h"
 #include "objects/object_debug.h"
 #include "objects/objfsa_debug.h"
@@ -223,8 +224,8 @@ static void objects_list_tab(Object** objects, s32 count, s32 *hovered_object_id
             dbgui_pop_id();
         }
 
-        dbgui_end_child();
     }
+    dbgui_end_child();
 }
 
 static void priority_list_tab() {
@@ -251,9 +252,8 @@ static void priority_list_tab() {
             node = *LINKED_LIST_NEXT_FIELD3(gObjUpdateList, node);
             i++;
         }
-
-        dbgui_end_child();
     }
+    dbgui_end_child();
 }
 
 static void type_list_tab() {
@@ -298,9 +298,8 @@ static void type_list_tab() {
                 dbgui_pop_id();
             }
         }
-
-        dbgui_end_child();
     }
+    dbgui_end_child();
 }
 
 RECOMP_CALLBACK(".", my_debug_menu_event) void object_debug_menu_callback() {
@@ -399,6 +398,9 @@ RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback() {
                 switch (obj->def->dllID) {
                 case DLL_ID_trigger:
                     draw_trigger(obj, hovered ? 0xFFFFFFFF : 0xFFFF00FF);
+                    break;
+                case DLL_ID_EffectBox:
+                    draw_effectbox(obj, hovered ? 0xFFFFFFFF : 0xFFFF00FF);
                     break;
                 default:
                     if (obj->objhitInfo != NULL) {

@@ -137,9 +137,8 @@ static void debug_checkpoints(void) {
                 }
             }
         }
-
-        dbgui_end_child();
     }
+    dbgui_end_child();
 }
 
 static void debug_draw_checkpoints(void) {

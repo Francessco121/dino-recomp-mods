@@ -89,8 +89,8 @@ RECOMP_CALLBACK(".", my_dbgui_event) void map_debug_dbgui_callback() {
                                 dbgui_tree_pop();
                             }
                         }
-                        dbgui_end_child();
                     }
+                    dbgui_end_child();
                     dbgui_end_tab_item();
                 }
 
