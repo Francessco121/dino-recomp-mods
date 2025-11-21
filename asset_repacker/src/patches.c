@@ -7,37 +7,37 @@
 #include "sys/fs.h"
 #include "sys/memory.h"
 
-#include "extfs_common.h"
+#include "repacker_common.h"
 #include "fst_ext.h"
 
-RECOMP_DECLARE_EVENT(extfs_on_load_fst_replacements());
-RECOMP_DECLARE_EVENT(extfs_on_load_replacements());
-RECOMP_DECLARE_EVENT(extfs_on_load_modifications());
+RECOMP_DECLARE_EVENT(repacker_on_load_fst_replacements());
+RECOMP_DECLARE_EVENT(repacker_on_load_replacements());
+RECOMP_DECLARE_EVENT(repacker_on_load_modifications());
 
 // TODO: review event names
-RECOMP_DECLARE_EVENT(_extfs_on_fst_init());
-RECOMP_DECLARE_EVENT(_extfs_on_init());
-RECOMP_DECLARE_EVENT(_extfs_on_commit());
-RECOMP_DECLARE_EVENT(_extfs_on_rebuild_fst());
+RECOMP_DECLARE_EVENT(_repacker_on_fst_init());
+RECOMP_DECLARE_EVENT(_repacker_on_init());
+RECOMP_DECLARE_EVENT(_repacker_on_commit());
+RECOMP_DECLARE_EVENT(_repacker_on_rebuild_fst());
 
 RECOMP_HOOK_RETURN("init_filesystem") void fs_init_hook() {
-    _extfs_on_fst_init();
+    _repacker_on_fst_init();
 
-    extfsLoadStage = EXTFS_STAGE_FST_REPLACEMENTS;
-    extfs_on_load_fst_replacements();
+    repackerStage = REPACKER_STAGE_FST_REPLACEMENTS;
+    repacker_on_load_fst_replacements();
 
-    _extfs_on_init();
+    _repacker_on_init();
 
-    extfsLoadStage = EXTFS_STAGE_SUBFILE_REPLACEMENTS;
-    extfs_on_load_replacements();
+    repackerStage = REPACKER_STAGE_SUBFILE_REPLACEMENTS;
+    repacker_on_load_replacements();
 
-    extfsLoadStage = EXTFS_STAGE_MODIFICATIONS;
-    extfs_on_load_modifications();
+    repackerStage = REPACKER_STAGE_MODIFICATIONS;
+    repacker_on_load_modifications();
 
-    extfsLoadStage = EXTFS_STAGE_COMMITTED;
-    _extfs_on_commit();
+    repackerStage = REPACKER_STAGE_COMMITTED;
+    _repacker_on_commit();
     
-    _extfs_on_rebuild_fst();
+    _repacker_on_rebuild_fst();
 }
 
 RECOMP_PATCH void *read_alloc_file(u32 id, u32 a1)

@@ -1,10 +1,10 @@
 [manifest]
-id = "extfs"
-display_name = "Extended Filesystem"
+id = "asset_repacker"
+display_name = "Asset Repacker"
 description =  """
-A library providing APIs for replacing and modifying content in the game's filesystem.
+A library providing a runtime asset repacker that allows other mods to contribute asset patches and custom content to the game while reducing the risk of conflicting patches.
 """
-short_description = "Lets mods modify game filesystem content."
+short_description = "Lets mods add and modify game assets."
 
 version = "0.1.0"
 authors = [ "Shinx121" ]
@@ -24,19 +24,21 @@ native_libraries = [
 
 [inputs]
 elf_path = "build/mod.elf"
-mod_filename = "extfs"
+mod_filename = "asset_repacker"
 func_reference_syms_file = "../lib/dino-recomp-decomp-bridge/dino.syms.toml"
 data_reference_syms_files = [
     "../lib/dino-recomp-decomp-bridge/dino.datasyms.toml", 
     "../lib/dino-recomp-decomp-bridge/dino.datasyms_manual.toml", 
     "../dino.datasyms_extra.toml"
 ]
-additional_files = [ ]
+additional_files = [
+    "thumb.png"
+]
 
 [[manifest.config_options]]
 id = "logging"
 name = "Debug Logging"
-description = "Whether to enable stdout debug logging for extfs."
+description = "Whether to enable stdout debug logging."
 type = "Enum"
 options = [ "On", "Off" ]
 default = "Off"

@@ -6,7 +6,7 @@
 // #include "sys/map.h"
 // #include "sys/map_enums.h"
 
-// #include "extfs.h"
+// #include "asset_repacker.h"
 
 // #include "mod_common.h"
 
@@ -14,15 +14,15 @@
 // INCBIN(villagePatch, "assets/blocks0643 - LightFoot Village LOD.bin");
 // INCBIN(shHits0643Patch, "assets/hits0643.bin");
 
-// EXTFS_ON_LOAD_REPLACEMENTS_CALLBACK void my_extfs_replacements() {
-//     extfs_models_set_replacement(0, krystalModelPatch, krystalModelPatch_end - krystalModelPatch);
-//     extfs_blocks_set_replacement(643, villagePatch, villagePatch_end - villagePatch);
-//     extfs_hits_set_replacement(643, shHits0643Patch, shHits0643Patch_end - shHits0643Patch);
+// REPACKER_ON_LOAD_REPLACEMENTS_CALLBACK void my_repacker_replacements() {
+//     repacker_models_set_replacement(0, krystalModelPatch, krystalModelPatch_end - krystalModelPatch);
+//     repacker_blocks_set_replacement(643, villagePatch, villagePatch_end - villagePatch);
+//     repacker_hits_set_replacement(643, shHits0643Patch, shHits0643Patch_end - shHits0643Patch);
 // }
 
 // static void cc_log_patch() {
-//     MapHeader *header = extfs_maps_get(MAP_CAPE_CLAW, 0, NULL);
-//     void *objects = extfs_maps_get(MAP_CAPE_CLAW, 4, NULL);
+//     MapHeader *header = repacker_maps_get(MAP_CAPE_CLAW, 0, NULL);
+//     void *objects = repacker_maps_get(MAP_CAPE_CLAW, 4, NULL);
 
 //     ObjCreateInfo *objInfo = (ObjCreateInfo*)objects;
 
@@ -39,7 +39,7 @@
 // static void sh_hits_patch() {
 //     // Adjust hit line on the upper right of the path leading to diamond bay
 //     u32 hitsSize;
-//     HitsLine *lines = extfs_hits_get(349, &hitsSize);
+//     HitsLine *lines = repacker_hits_get(349, &hitsSize);
 //     lines[7].Ax = 0;
 //     lines[7].Ay = -725;
 //     lines[7].Az = 281;
@@ -49,7 +49,7 @@
 
 //     // Add new line to the upper right of the path leading to diamond bay preventing the player from walking off the ledge
 //     hitsSize += sizeof(HitsLine);
-//     lines = extfs_hits_resize(349, hitsSize);
+//     lines = repacker_hits_resize(349, hitsSize);
 //     HitsLine *newLine = &lines[(hitsSize / sizeof(HitsLine)) - 1];
 //     newLine->Ax = 0;
 //     newLine->Ay = -726;
@@ -64,8 +64,8 @@
 //     newLine->animatorID = -1;
 // }
 
-// EXTFS_ON_LOAD_MODIFICATIONS_CALLBACK void my_extfs_modifications() {
-//     ObjDef *sabreObjDef = extfs_objects_get(1, NULL);
+// REPACKER_ON_LOAD_MODIFICATIONS_CALLBACK void my_repacker_modifications() {
+//     ObjDef *sabreObjDef = repacker_objects_get(1, NULL);
 //     u32 *sabreModelList = (u32*)((u32)sabreObjDef + (u32)sabreObjDef->pModelList);
 //     sabreModelList[0] = 9;
 //     sabreModelList[1] = 9;

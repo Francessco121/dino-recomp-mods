@@ -1,4 +1,4 @@
-#include "extfs_common.h"
+#include "repacker_common.h"
 
 #include "recompconfig.h"
 #include "recomputils.h"
@@ -8,7 +8,7 @@ typedef enum {
     DEBUG_LOGGING_OFF,
 } DebugLogging;
 
-ExtFsLoadStage extfsLoadStage = EXTFS_STAGE_UNINITIALIZED;
+RepackerStage repackerStage = REPACKER_STAGE_UNINITIALIZED;
 
 const char *DINO_FS_FILENAMES[NUM_FILES] = {
     "AUDIO.tab",
@@ -87,7 +87,7 @@ const char *DINO_FS_FILENAMES[NUM_FILES] = {
     "ENVFXACT.bin"
 };
 
-void extfs_assert(_Bool condition, const char *fmt, ...) {
+void repacker_assert(_Bool condition, const char *fmt, ...) {
     va_list args;
 	va_start(args, fmt);
 
@@ -98,7 +98,7 @@ void extfs_assert(_Bool condition, const char *fmt, ...) {
     va_end(args);
 }
 
-void extfs_assert_no_exit(_Bool condition, const char *fmt, ...) {
+void repacker_assert_no_exit(_Bool condition, const char *fmt, ...) {
     va_list args;
 	va_start(args, fmt);
 
@@ -109,7 +109,7 @@ void extfs_assert_no_exit(_Bool condition, const char *fmt, ...) {
     va_end(args);
 }
 
-void extfs_log(const char *fmt, ...) {
+void repacker_log(const char *fmt, ...) {
     va_list args;
 	va_start(args, fmt);
 
@@ -121,7 +121,7 @@ void extfs_log(const char *fmt, ...) {
     va_end(args);
 }
 
-void extfs_log_error(const char *fmt, ...) {
+void repacker_log_error(const char *fmt, ...) {
     va_list args;
 	va_start(args, fmt);
 
@@ -130,7 +130,7 @@ void extfs_log_error(const char *fmt, ...) {
     va_end(args);
 }
 
-void extfs_error_box(const char *fmt, ...) {
+void repacker_error_box(const char *fmt, ...) {
     va_list args;
 	va_start(args, fmt);
 

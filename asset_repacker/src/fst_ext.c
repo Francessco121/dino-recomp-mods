@@ -2,7 +2,7 @@
 
 #include "modding.h"
 #include "recomputils.h"
-#include "extfs_common.h"
+#include "repacker_common.h"
 
 #include "PR/ultratypes.h"
 #include "sys/fs.h"
@@ -11,18 +11,18 @@
 typedef struct {
     void *data;
     u32 size;
-    _Bool ownedByExtfs;
+    _Bool ownedByRepacker;
 } FstExtEntry;
 
 static FstExtEntry fstReplacements[NUM_FILES];
 static Fs *originalFst;
 
-EXTFS_ON_FST_INIT_CALLBACK void fst_init() {
+REPACKER_ON_FST_INIT_CALLBACK void fst_init() {
     // Save vanilla FS.tab
     originalFst = gFST;
 }
 
-EXTFS_ON_REBUILD_FST_CALLBACK void fst_rebuild() {
+REPACKER_ON_REBUILD_FST_CALLBACK void fst_rebuild() {
     // Alloc new FS.tab and build it
     s32 size = (s32)&__file1Address - (s32)&__fstAddress;
     gFST = (Fs *)recomp_alloc(size);
@@ -34,7 +34,7 @@ EXTFS_ON_REBUILD_FST_CALLBACK void fst_rebuild() {
         FstExtEntry *replacement = &fstReplacements[i];
         gFST->offsets[i] = offset;
 
-        //extfs_log("[extfs] %04x -> %s.\n", (s32)&__file1Address + offset, DINO_FS_FILENAMES[i]);
+        //repacker_log("[repacker] %04x -> %s.\n", (s32)&__file1Address + offset, DINO_FS_FILENAMES[i]);
 
         if (replacement->data != NULL) {
             offset += replacement->size;
@@ -47,14 +47,14 @@ EXTFS_ON_REBUILD_FST_CALLBACK void fst_rebuild() {
 
     gFST->offsets[i] = offset;
 
-    extfs_log("[extfs] Rebuilt FS.tab.\n");
+    repacker_log("[repacker] Rebuilt FS.tab.\n");
 }
 
-void fst_ext_set_file(s32 fileID, void *data, u32 size, _Bool ownedByExtfs) {
-    extfs_assert(fileID >= 0 && fileID < NUM_FILES, "[extfs] File ID out of bounds: %d", fileID);
+void fst_ext_set_file(s32 fileID, void *data, u32 size, _Bool ownedByRepacker) {
+    repacker_assert(fileID >= 0 && fileID < NUM_FILES, "[repacker] File ID out of bounds: %d", fileID);
 
     FstExtEntry *replacement = &fstReplacements[fileID];
-    if (replacement->data != NULL && replacement->ownedByExtfs) {
+    if (replacement->data != NULL && replacement->ownedByRepacker) {
         if (replacement->data != data) {
             recomp_free(replacement->data);
         }
@@ -62,13 +62,13 @@ void fst_ext_set_file(s32 fileID, void *data, u32 size, _Bool ownedByExtfs) {
     
     replacement->data = data;
     replacement->size = size;
-    replacement->ownedByExtfs = ownedByExtfs;
+    replacement->ownedByRepacker = ownedByRepacker;
 }
 
-RECOMP_EXPORT void extfs_set_fst_file_replacement(s32 fileID, const void *data, u32 size) {
-    fst_ext_set_file(fileID, (void*)data, size, /*ownedByExtfs=*/FALSE);
+RECOMP_EXPORT void repacker_set_fst_file_replacement(s32 fileID, const void *data, u32 size) {
+    fst_ext_set_file(fileID, (void*)data, size, /*ownedByRepacker=*/FALSE);
 
-    extfs_log("[extfs] Set FST file replacement for %s.\n", DINO_FS_FILENAMES[fileID]);
+    repacker_log("[repacker] Set FST file replacement for %s.\n", DINO_FS_FILENAMES[fileID]);
 }
 
 u32 fst_ext_get_file_size(s32 fileID) {
@@ -94,16 +94,18 @@ void fst_ext_read_from_file(s32 fileID, void *dst, u32 offset, u32 size) {
         // HACK: The game reads out of bounds in AMAP.tab when reading the last couple entries. It doesn't actually
         //       use this data so we can cheat here and pretend it's big enough.
         fileSize += 0x14;
+    } else if (fileID == ANIM_TAB) {
+        fileSize += 0x4; // :(
     }
-    extfs_assert_no_exit(*((s32*)&offset) >= 0 && offset < fileSize && (*((s32*)&offset) + size) >= 0 && (offset + size) <= fileSize, 
-        "[extfs] fst_ext_read_from_file(%s, %p, 0x%X, 0x%X) out of bounds read! file size: 0x%X", 
+    repacker_assert_no_exit(*((s32*)&offset) >= 0 && offset < fileSize && (*((s32*)&offset) + size) >= 0 && (offset + size) <= fileSize, 
+        "[repacker] fst_ext_read_from_file(%s, %p, 0x%X, 0x%X) out of bounds read! file size: 0x%X", 
         DINO_FS_FILENAMES[fileID], dst, offset, size, fileSize);
 
     // Read
     if (replacement->data != NULL) {
         // Read replacement file
         bcopy((u8*)replacement->data + offset, dst, size);
-        //extfs_log("[extfs] Reading from FST file replacement for %d.\n", fileID);
+        //repacker_log("[repacker] Reading from FST file replacement for %d.\n", fileID);
     } else {
         // Read original ROM
         u32 fileOffset = originalFst->offsets[fileID];
@@ -138,7 +140,7 @@ s32 fst_ext_audio_dma(void *dst, u32 romAddr, u32 size) {
         return FALSE;
     }
 
-    //extfs_log("[extfs] [AUDIO DMA] Reading from FST file replacement for %d. %x   %x\n", fileID, offset, size);
+    //repacker_log("[repacker] [AUDIO DMA] Reading from FST file replacement for %d. %x   %x\n", fileID, offset, size);
 
     bcopy((u8*)replacement->data + offset, dst, size);
     return TRUE;

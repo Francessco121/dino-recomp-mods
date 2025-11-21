@@ -1,7 +1,7 @@
 #include "tab_ext.h"
 
 #include "recomputils.h"
-#include "extfs_common.h"
+#include "repacker_common.h"
 #include "fst_ext.h"
 
 #include "PR/ultratypes.h"
@@ -9,7 +9,7 @@
 #include "sys/memory.h"
 
 static void resize_tab(TabExt *tab, u32 newCount) {
-    extfs_assert(tab->replacements.entries == NULL, "[extfs] Cannot resize rebuilt tab: %s!", tab->name);
+    repacker_assert(tab->replacements.entries == NULL, "[repacker] Cannot resize rebuilt tab: %s!", tab->name);
 
     if (newCount < tab->replacements.count) {
         // Shrink
@@ -23,7 +23,7 @@ static void resize_tab(TabExt *tab, u32 newCount) {
             }
         }
 
-        extfs_log("[extfs] Resized tab %s: %d -> %d\n", tab->name, tab->replacements.count, newCount);
+        repacker_log("[repacker] Resized tab %s: %d -> %d\n", tab->name, tab->replacements.count, newCount);
 
         tab->replacements.count = newCount;
         tab->isDirty = TRUE;
@@ -33,7 +33,7 @@ static void resize_tab(TabExt *tab, u32 newCount) {
         if (newCount > tab->replacements.capacity) {
             // Doesn't fit within existing capacity, allocate a new array
             TabExtEntry *newReplacements = recomp_alloc(newCount * sizeof(TabExtEntry));
-            extfs_assert(newReplacements != NULL, "[extfs] resize_tab recomp_alloc failed: %d", tab->id, newCount * sizeof(TabExtEntry));
+            repacker_assert(newReplacements != NULL, "[repacker] resize_tab recomp_alloc failed: %d", tab->id, newCount * sizeof(TabExtEntry));
             
             // Copy over old entries
             bcopy(tab->replacements.entries, newReplacements, tab->replacements.count * sizeof(TabExtEntry));
@@ -46,7 +46,7 @@ static void resize_tab(TabExt *tab, u32 newCount) {
             tab->replacements.capacity = newCount;
         }
 
-        extfs_log("[extfs] Resized tab %s: %d -> %d\n", tab->name, tab->replacements.count, newCount);
+        repacker_log("[repacker] Resized tab %s: %d -> %d\n", tab->name, tab->replacements.count, newCount);
 
         tab->replacements.count = newCount;
         tab->isDirty = TRUE;
@@ -54,8 +54,8 @@ static void resize_tab(TabExt *tab, u32 newCount) {
 }
 
 static TabExtEntry *get_tab_entry(TabExt *tab, s32 tabIdx) {
-    extfs_assert(tabIdx >= 0 && (u32)tabIdx < tab->replacements.count, 
-        "[extfs] Attempted to get out of bounds tab index given for tab %s: %d  %s", tab->name, tabIdx);
+    repacker_assert(tabIdx >= 0 && (u32)tabIdx < tab->replacements.count, 
+        "[repacker] Attempted to get out of bounds tab index given for tab %s: %d  %s", tab->name, tabIdx);
 
     TabExtEntry *entry = &tab->replacements.entries[tabIdx];
 
@@ -70,7 +70,7 @@ static TabExtEntry *get_tab_entry(TabExt *tab, s32 tabIdx) {
             entry->sizeBytes = size;
             entry->capacityBytes = size;
 
-            extfs_assert(entry->data != NULL, "[extfs] get_tab_entry(%d) original buffer recomp_alloc failed: %d", tab->id, size);
+            repacker_assert(entry->data != NULL, "[repacker] get_tab_entry(%d) original buffer recomp_alloc failed: %d", tab->id, size);
 
             fst_ext_read_from_file(tab->binId, entry->data, offset, size);
         }
@@ -82,8 +82,8 @@ static TabExtEntry *get_tab_entry(TabExt *tab, s32 tabIdx) {
 }
 
 void tab_ext_set_entry_replacement(TabExt *tab, s32 tabIdx, const void *data, u32 sizeBytes) {
-    extfs_assert(extfsLoadStage == EXTFS_STAGE_SUBFILE_REPLACEMENTS, "[extfs] Cannot set replacements outside of replacements load stage/event.");
-    extfs_assert(tabIdx >= 0, "[extfs] Negative tab index given for tab %s: %d", tab->name, tabIdx);
+    repacker_assert(repackerStage == REPACKER_STAGE_SUBFILE_REPLACEMENTS, "[repacker] Cannot set replacements outside of replacements load stage/event.");
+    repacker_assert(tabIdx >= 0, "[repacker] Negative tab index given for tab %s: %d", tab->name, tabIdx);
 
     if ((u32)tabIdx >= tab->replacements.count) {
         resize_tab(tab, tabIdx + 1);
@@ -96,14 +96,14 @@ void tab_ext_set_entry_replacement(TabExt *tab, s32 tabIdx, const void *data, u3
         entry->data = recomp_alloc(sizeBytes);
         entry->capacityBytes = sizeBytes;
         
-        extfs_assert(entry->data != NULL, "[extfs] tab_ext_set_entry_replacement(%d) initial recomp_alloc failed: %d", tab->id, sizeBytes);
+        repacker_assert(entry->data != NULL, "[repacker] tab_ext_set_entry_replacement(%d) initial recomp_alloc failed: %d", tab->id, sizeBytes);
     } else if (sizeBytes > entry->capacityBytes) {
         // Not enough room in current replacement buffer, reallocate it
         recomp_free(entry->data);
         entry->data = recomp_alloc(sizeBytes);
         entry->capacityBytes = sizeBytes;
         
-        extfs_assert(entry->data != NULL, "[extfs] tab_ext_set_entry_replacement(%d) reallocate recomp_alloc failed: %d", tab->id, sizeBytes);
+        repacker_assert(entry->data != NULL, "[repacker] tab_ext_set_entry_replacement(%d) reallocate recomp_alloc failed: %d", tab->id, sizeBytes);
     }
 
     // Update replacement data
@@ -112,12 +112,12 @@ void tab_ext_set_entry_replacement(TabExt *tab, s32 tabIdx, const void *data, u3
 
     tab->isDirty = TRUE;
 
-    extfs_log("[extfs] Set replacement file data for %s/%d.\n", tab->name, tabIdx);
+    repacker_log("[repacker] Set replacement file data for %s/%d.\n", tab->name, tabIdx);
 }
 
 void *tab_ext_get_entry(TabExt *tab, s32 tabIdx, u32 *outSize) {
-    extfs_assert(extfsLoadStage == EXTFS_STAGE_MODIFICATIONS, "[extfs] Cannot get tab entries outside of modifications load stage/event.");
-    extfs_assert(tabIdx >= 0, "[extfs] Negative tab index given for tab %s: %d", tab->name, tabIdx);
+    repacker_assert(repackerStage == REPACKER_STAGE_MODIFICATIONS, "[repacker] Cannot get tab entries outside of modifications load stage/event.");
+    repacker_assert(tabIdx >= 0, "[repacker] Negative tab index given for tab %s: %d", tab->name, tabIdx);
 
     if ((u32)tabIdx >= tab->replacements.count) {
         resize_tab(tab, tabIdx + 1);
@@ -134,8 +134,8 @@ void *tab_ext_get_entry(TabExt *tab, s32 tabIdx, u32 *outSize) {
 }
 
 void *tab_ext_resize_entry(TabExt *tab, s32 tabIdx, u32 newSize) {
-    extfs_assert(extfsLoadStage == EXTFS_STAGE_MODIFICATIONS, "[extfs] Cannot resize tab entries outside of modifications load stage/event.");
-    extfs_assert(tabIdx >= 0, "[extfs] Negative tab index given for tab %s: %d", tab->name, tabIdx);
+    repacker_assert(repackerStage == REPACKER_STAGE_MODIFICATIONS, "[repacker] Cannot resize tab entries outside of modifications load stage/event.");
+    repacker_assert(tabIdx >= 0, "[repacker] Negative tab index given for tab %s: %d", tab->name, tabIdx);
 
     if ((u32)tabIdx >= tab->replacements.count) {
         resize_tab(tab, tabIdx + 1);
@@ -145,7 +145,7 @@ void *tab_ext_resize_entry(TabExt *tab, s32 tabIdx, u32 newSize) {
 
     if (newSize < entry->sizeBytes) {
         // Shrink
-        extfs_log("[extfs] Resized entry data for %s/%d %x -> %x.\n", tab->name, tabIdx, entry->sizeBytes, newSize);
+        repacker_log("[repacker] Resized entry data for %s/%d %x -> %x.\n", tab->name, tabIdx, entry->sizeBytes, newSize);
 
         entry->sizeBytes = newSize;
     } else if (newSize > entry->sizeBytes) {
@@ -153,7 +153,7 @@ void *tab_ext_resize_entry(TabExt *tab, s32 tabIdx, u32 newSize) {
         if (newSize > entry->capacityBytes) {
             // Need more space
             void *newData = recomp_alloc(newSize);
-            extfs_assert(newData != NULL, "[extfs] tab_ext_resize_entry(%d) resize recomp_alloc failed: %d", tab->id, newSize);
+            repacker_assert(newData != NULL, "[repacker] tab_ext_resize_entry(%d) resize recomp_alloc failed: %d", tab->id, newSize);
             
             bcopy(entry->data, newData, entry->sizeBytes);
             recomp_free(entry->data);
@@ -162,7 +162,7 @@ void *tab_ext_resize_entry(TabExt *tab, s32 tabIdx, u32 newSize) {
             entry->capacityBytes = newSize;
         }
 
-        extfs_log("[extfs] Resized entry data for %s/%d %x -> %x.\n", tab->name, tabIdx, entry->sizeBytes, newSize);
+        repacker_log("[repacker] Resized entry data for %s/%d %x -> %x.\n", tab->name, tabIdx, entry->sizeBytes, newSize);
 
         entry->sizeBytes = newSize;
     }
@@ -173,8 +173,8 @@ void *tab_ext_resize_entry(TabExt *tab, s32 tabIdx, u32 newSize) {
 }
 
 void tab_ext_init(TabExt *tab) {
-    extfs_assert(tab->original.entries == NULL && tab->replacements.entries == NULL, 
-        "[extfs] tab_ext_init: Tab %s already initialized!", tab->name);
+    repacker_assert(tab->original.entries == NULL && tab->replacements.entries == NULL, 
+        "[repacker] tab_ext_init: Tab %s already initialized!", tab->name);
         
     tab->isDirty = FALSE;
 
@@ -182,7 +182,7 @@ void tab_ext_init(TabExt *tab) {
     u32 size = fst_ext_get_file_size(tab->id);
 
     void *originalEntries = recomp_alloc(size);
-    extfs_assert(originalEntries != NULL, "[extfs] load_tab_ext(%d) originalEntries recomp_alloc failed: %d", tab->id, size);
+    repacker_assert(originalEntries != NULL, "[repacker] load_tab_ext(%d) originalEntries recomp_alloc failed: %d", tab->id, size);
 
     fst_ext_read_from_file(tab->id, originalEntries, 0, size);
     tab->original.entries = originalEntries;
@@ -201,15 +201,15 @@ void tab_ext_init(TabExt *tab) {
     u32 replacementsSize = sizeof(TabExtEntry) * tab->original.count;
 
     tab->replacements.entries = recomp_alloc(replacementsSize);
-    extfs_assert(tab->replacements.entries != NULL, 
-        "[extfs] load_tab_ext(%d) replacements recomp_alloc failed: %d", tab->id, replacementsSize);
+    repacker_assert(tab->replacements.entries != NULL, 
+        "[repacker] load_tab_ext(%d) replacements recomp_alloc failed: %d", tab->id, replacementsSize);
 
     bzero(tab->replacements.entries, replacementsSize);
     
     tab->replacements.capacity = tab->original.count;
     tab->replacements.count = tab->original.count;
 
-    extfs_log("[extfs] Initialized tab_ext for %s with %d entries.\n", tab->name, entryCount);
+    repacker_log("[repacker] Initialized tab_ext for %s with %d entries.\n", tab->name, entryCount);
 }
 
 void tab_ext_rebuild(TabExt *tab) {
@@ -222,7 +222,7 @@ void tab_ext_rebuild(TabExt *tab) {
         }
 
         u32 *newTab = recomp_alloc(tabSizeBytes);
-        extfs_assert(newTab != NULL, "[extfs] rebuild_tab %d newTab recomp_alloc failed: %d", tab->id, tabSizeBytes);
+        repacker_assert(newTab != NULL, "[repacker] rebuild_tab %d newTab recomp_alloc failed: %d", tab->id, tabSizeBytes);
         
         u32 offset = 0;
         for (u32 i = 0; i < tab->replacements.count; i++) {
@@ -251,15 +251,15 @@ void tab_ext_rebuild(TabExt *tab) {
             newTab[tab->replacements.count + 1] = 0xFFFFFFFF;
         }
 
-        fst_ext_set_file(tab->id, newTab, tabSizeBytes, /*ownedByExtfs=*/TRUE);
+        fst_ext_set_file(tab->id, newTab, tabSizeBytes, /*ownedByRepacker=*/TRUE);
 
-        extfs_log("[extfs] Rebuilt %s.tab.\n", tab->name);
+        repacker_log("[repacker] Rebuilt %s.tab.\n", tab->name);
 
         // Rebuild bin
         u32 binSizeBytes = offset;
 
         u8 *newBin = recomp_alloc(binSizeBytes);
-        extfs_assert(newTab != NULL, "[extfs] rebuild_tab %d newBin recomp_alloc failed: %d", tab->id, binSizeBytes);
+        repacker_assert(newTab != NULL, "[repacker] rebuild_tab %d newBin recomp_alloc failed: %d", tab->id, binSizeBytes);
         bzero(newBin, binSizeBytes);
 
         // Note: ROM reads must be to aligned RDRAM addresses. So, we'll read original entries
@@ -288,7 +288,7 @@ void tab_ext_rebuild(TabExt *tab) {
                         }
                         tempBuffer = recomp_alloc(originalSize);
                         tempBufferCapacity = originalSize;
-                        extfs_assert(newTab != NULL, "[extfs] rebuild_tab %d temp buffer recomp_alloc failed: %d", tab->id, originalSize);
+                        repacker_assert(newTab != NULL, "[repacker] rebuild_tab %d temp buffer recomp_alloc failed: %d", tab->id, originalSize);
                     }
 
                     fst_ext_read_from_file(tab->binId, tempBuffer, originalOffset, originalSize);
@@ -304,11 +304,11 @@ void tab_ext_rebuild(TabExt *tab) {
             tempBuffer = NULL;
         }
 
-        fst_ext_set_file(tab->binId, newBin, binSizeBytes, /*ownedByExtfs=*/TRUE);
+        fst_ext_set_file(tab->binId, newBin, binSizeBytes, /*ownedByRepacker=*/TRUE);
 
-        extfs_log("[extfs] Rebuilt %s.bin.\n", tab->name);
+        repacker_log("[repacker] Rebuilt %s.bin.\n", tab->name);
     } else {
-        extfs_log("[extfs] Not rebuilding %s (wasn't modified).\n", tab->name);
+        repacker_log("[repacker] Not rebuilding %s (wasn't modified).\n", tab->name);
     }
 
     // Clean up
