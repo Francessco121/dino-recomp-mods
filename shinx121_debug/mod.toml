@@ -41,10 +41,10 @@ additional_files = [
     "thumb.png"
 ]
 
-[[manifest.config_options]]
-id = "trigger_logging"
-name = "Trigger Logging"
-description = "Whether to enable stdout debug logging for trigger objects."
-type = "Enum"
-options = [ "On", "Off" ]
-default = "Off"
+# [[manifest.config_options]]
+# id = "trigger_logging"
+# name = "Trigger Logging"
+# description = "Whether to enable stdout debug logging for trigger objects."
+# type = "Enum"
+# options = [ "On", "Off" ]
+# default = "Off"
