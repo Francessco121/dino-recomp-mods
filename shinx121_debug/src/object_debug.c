@@ -285,7 +285,7 @@ static void type_list_tab() {
                     continue;
                 }
 
-                dbgui_push_str_id(recomp_sprintf_helper("%p", obj));
+                dbgui_push_str_id(recomp_sprintf_helper("%d%p", type, obj));
 
                 if (dbgui_button("Edit")) {
                     add_edit_object(obj);
@@ -293,7 +293,14 @@ static void type_list_tab() {
 
                 dbgui_same_line();
 
-                dbgui_textf("[%d] %s", k, obj->def->name);
+                if ((u32)obj->def < 0x80000000 || (u32)obj->def >= 0x80800000) {
+                    dbgui_textf("[%d] %X (already freed!?)", k, obj->id);
+                } else {
+                    char name[15];
+                    bcopy(obj->def->name, name, 14);
+                    name[14] = '\0';
+                    dbgui_textf("[%d] %s", k, name);
+                }
 
                 dbgui_pop_id();
             }
