@@ -2,14 +2,20 @@
 id = "shinx121_debug"
 display_name = "Debug Tools"
 description =  """
-Expands the debug menu with:
-- Object debug: View objects in the scene, their details, modify certain properties, and optionally destroy them.
-- Object 3D visualizer: View positions and rough hitboxes of objects and see them through walls.
-- Map debug: View a list of the currently loaded maps.
-- Bit Table debug: View and edit game flags and global state.
-- Blocks debug: View and edit blocks (including hits) at runtime.
+Expands the debug menu with new options:
+- Bit Table: View and edit game flags and global state.
+- Blocks: View and edit blocks (including hits) at runtime.
+- Curves: Visualize loaded curves and inspect their properties.
+- Maps: View and edit the current act number and object groups for any map.
+- Objects: View objects in the scene, their details, modify certain properties, visualize hitboxes, and more.
+- Particles: Play around with any particle type in the game.
+- Sound Test: Play any sound effect, music track, or MPEG file.
+- Time: View and edit the time of day.
+- And more!
 
 Open the Debug UI (F9) and select the 'Debug' dropdown to access these tools.
+
+WARNING: It is very possible to corrupt your game save with these tools! It is not recommended to save after modifying the game this way, unless you know what you're doing.
 """
 short_description = "Expands the debug menu."
 
@@ -17,7 +23,7 @@ version = "0.3.0"
 authors = [ "Shinx121" ]
 
 game_id = "dino-planet"
-minimum_recomp_version = "0.1.1"
+minimum_recomp_version = "0.1.2"
 
 dependencies = [
 
