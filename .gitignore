@@ -12,5 +12,6 @@
 patches.map
 build/
 .vscode/
+.venv/
 N64Recomp
 RecompModTool
