@@ -1,0 +1,7 @@
+{
+  "name": "AssetRepacker",
+  "description": "Lets mods add and modify game assets.",
+  "version_number": "0.1.0",
+  "website_url": "https://github.com/Francessco121/dino-recomp-mods",
+  "dependencies": []
+}
