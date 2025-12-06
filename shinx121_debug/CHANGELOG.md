@@ -1,3 +1,10 @@
+## v0.4.0
+- Added error prints for invalid attempts at starting an object sequence.
+- Added debug window for inspecting the state of the ANIM DLL (ID 3).
+- Added object editor tab for playing any model animation for the object's active model.
+- Added inspector for KamerianBoss object data.
+- Small updates to the object editor.
+
 ## v0.3.0
 - Added object type list.
 - Added debug window for blocks, hits, and mod lines.
