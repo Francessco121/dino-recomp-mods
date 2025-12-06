@@ -1,3 +1,6 @@
+## v1.0.3
+- Noclip is now disabled while a sequence (cutscene) has control over the player character.
+
 ## v1.0.2
 - Speed is now independent of framerate (60 Hz support).
 - Noclip is now allowed again while standing on a mobile map (e.g. the Galleon).
