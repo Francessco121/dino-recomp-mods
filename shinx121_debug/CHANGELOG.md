@@ -3,6 +3,8 @@
 - Added debug window for inspecting the state of the ANIM DLL (ID 3).
 - Added object editor tab for playing any model animation for the object's active model.
 - Added inspector for KamerianBoss object data.
+- Custom music actions can now be played in the sound test window.
+- Stop buttons in the sound test AMSEQ tab now work correctly.
 - Small updates to the object editor.
 
 ## v0.3.0
