@@ -9,6 +9,7 @@ enum ObjectDLLID {
     DLL_ID_snowhorn = 0x811f,
     DLL_ID_SHspore = 0x8128,
     DLL_ID_KT_Rex = 0x81ed,
+    DLL_ID_KamerianBoss = 0x81f2,
     DLL_ID_IMSnowBike = 0x81f6,
     DLL_ID_BWLog = 0x8248,
 };

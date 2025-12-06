@@ -9,6 +9,7 @@
 #include "objects/bwlog_debug.h"
 #include "objects/dll27_debug.h"
 #include "objects/effectbox_debug.h"
+#include "objects/kd_debug.h"
 #include "objects/kt_rex_debug.h"
 #include "objects/object_debug.h"
 #include "objects/objfsa_debug.h"
@@ -21,6 +22,7 @@
 #include "dlls/engine/27.h"
 #include "game/objects/object.h"
 #include "game/objects/object_id.h"
+#include "sys/gfx/model.h"
 #include "sys/objects.h"
 #include "sys/objtype.h"
 #include "sys/linked_list.h"
@@ -104,6 +106,15 @@ static void object_editor(Object *obj, ObjEditorData *editorData, s32 index) {
                     dbgui_end_tab_item();
                 }
             }
+            if (obj->def->numModels > 0 && obj->modelInsts != NULL) {
+                ModelInstance *modelInst = obj->modelInsts[obj->modelInstIdx];
+                if (modelInst != NULL && modelInst->model != NULL && modelInst->model->animCount > 0) {
+                    if (dbgui_begin_tab_item("Animations", NULL)) {
+                        object_anim_debug(obj, editorData);
+                        dbgui_end_tab_item();
+                    }
+                }
+            }
             // DLL 27 tab
             DLL27_Data *dll27Data = dll27_debug_get_data(obj);
             if (dll27Data != NULL) {
@@ -137,6 +148,12 @@ static void object_editor(Object *obj, ObjEditorData *editorData, s32 index) {
                 case DLL_ID_KT_Rex:
                     if (dbgui_begin_tab_item("KT_Rex", NULL)) {
                         kt_rex_debug_tab(obj);
+                        dbgui_end_tab_item();
+                    }
+                    break;
+                case DLL_ID_KamerianBoss:
+                    if (dbgui_begin_tab_item("KamerianBoss", NULL)) {
+                        kd_debug_tab(obj);
                         dbgui_end_tab_item();
                     }
                     break;

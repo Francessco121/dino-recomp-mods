@@ -8,6 +8,8 @@
 
 #include "game/objects/object.h"
 #include "sys/dll.h"
+#include "sys/gfx/model.h"
+#include "sys/objanim.h"
 
 static const DbgUiInputIntOptions hexInput = {
     .step = 0,
@@ -362,10 +364,10 @@ void object_edit_contents(Object *obj) {
         }
     }
     dbgui_textf("updatePriority: %d", obj->updatePriority);
-    dbgui_textf("unkAF: %d", obj->unkAF);
-    dbgui_textf("unkB0: %u", obj->unkB0);
-    dbgui_textf("unkB2: %u", obj->unkB2);
-    dbgui_textf("unkB4: %u", obj->unkB4);
+    dbgui_input_byte_ext("unkAF", &obj->unkAF, &hexInput);
+    dbgui_textf("unkB0: 0x%X", obj->unkB0);
+    dbgui_textf("unkB2: 0x%X", obj->unkB2);
+    dbgui_textf("unkB4: 0x%X", obj->unkB4);
     dbgui_textf("data: %p", obj->data);
     dbgui_textf("animCallback: %p", obj->animCallback);
     if (obj->unkC0 != NULL) {
@@ -437,6 +439,30 @@ void object_seq_debug(Object *obj, ObjEditorData *editorData) {
     }
 
     if (dbgui_button("Play")) {
-        gDLL_3_Animation->vtbl->func17(editorData->seqIdx, obj, editorData->seqActorBits);
+        editorData->seqPlayLastRet = gDLL_3_Animation->vtbl->func17(editorData->seqIdx, obj, editorData->seqActorBits);
+    }
+    
+    dbgui_textf("Last play return value: %d", editorData->seqPlayLastRet);
+}
+
+void object_anim_debug(Object *obj, ObjEditorData *editorData) {
+    ModelInstance *modelInst = obj->modelInsts[obj->modelInstIdx];
+    if (modelInst == NULL) {
+        return;
+    }
+
+    Model *model = modelInst->model;
+    if (model == NULL) {
+        return;
+    }
+
+    dbgui_textf("Num model animations: %d", model->animCount);
+
+    dbgui_input_int("Model anim index", &editorData->modAnimIdx);
+    if (editorData->modAnimIdx < 0) editorData->modAnimIdx = 0;
+    if (editorData->modAnimIdx >= model->animCount) editorData->modAnimIdx = model->animCount - 1;
+
+    if (dbgui_button("Play")) {
+        func_80023D30(obj, editorData->modAnimIdx, 0.0f, 0);
     }
 }
