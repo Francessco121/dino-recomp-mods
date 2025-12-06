@@ -97,9 +97,11 @@ void fst_ext_read_from_file(s32 fileID, void *dst, u32 offset, u32 size) {
     } else if (fileID == ANIM_TAB) {
         fileSize += 0x4; // :(
     }
-    repacker_assert_no_exit(*((s32*)&offset) >= 0 && offset < fileSize && (*((s32*)&offset) + size) >= 0 && (offset + size) <= fileSize, 
-        "[repacker] fst_ext_read_from_file(%s, %p, 0x%X, 0x%X) out of bounds read! file size: 0x%X", 
-        DINO_FS_FILENAMES[fileID], dst, offset, size, fileSize);
+    if (!(*((s32*)&offset) >= 0 && offset < fileSize && (*((s32*)&offset) + size) >= 0 && (offset + size) <= fileSize)) {
+        repacker_log_error(
+            "[repacker] fst_ext_read_from_file(%s, %p, 0x%X, 0x%X) out of bounds read! file size: 0x%X", 
+            DINO_FS_FILENAMES[fileID], dst, offset, size, fileSize);
+    }
 
     // Read
     if (replacement->data != NULL) {
