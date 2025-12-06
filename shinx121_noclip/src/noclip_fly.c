@@ -10,7 +10,7 @@
 extern SRT gCameraSRT;
 extern MtxF gViewMtx;
 
-const s32 FLY_COOLDOWN = 10;
+const s32 FLY_COOLDOWN = 1;
 
 s32 flying_cooldown = 0;
 Vec3f fly_position;
@@ -28,7 +28,9 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick() {
 
         // Noclip fly
         u16 buttons = gContPads[gVirtualContPortMap[0]].button;
-        s32 allowFlight = playerdata->unk858 == NULL; // Don't allow while on vehicle
+        s32 allowFlight = 
+            playerdata->unk858 == NULL && // Don't allow while on vehicle
+            !(player->unkB0 & 0x1000); // Don't allow while a sequence has control over the player
         if ((buttons & L_TRIG) && recomp_get_config_u32("noclip") == ALLOW_NOCLIP_ON && allowFlight) {
             if (flying_cooldown != FLY_COOLDOWN) {
                 fly_position = player->positionMirror;
