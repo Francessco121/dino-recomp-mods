@@ -20,15 +20,12 @@ static const DbgUiInputIntOptions hexInput = {
 static u16 resolve_dll_number(u16 id) {
     if (id >= 0x8000) {
         id -= 0x8000;
-        // bank3
-        id += gFile_DLLS_TAB->header.bank3;
+        id += gFile_DLLS_TAB->header.bank4;
     } else if (id >= 0x2000) {
         id -= 0x2000;
-        // bank2
         id += gFile_DLLS_TAB->header.bank2 + 1;
     } else if (id >= 0x1000) {
         id -= 0x1000;
-        // bank1
         id += gFile_DLLS_TAB->header.bank1 + 1;
     }
 
