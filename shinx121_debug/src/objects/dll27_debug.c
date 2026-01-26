@@ -16,6 +16,8 @@ DLL27_Data *dll27_debug_get_data(Object *obj) {
     switch (obj->def->dllID) {
         case DLL_ID_Player:
         case DLL_ID_KT_Rex:
+        case DLL_ID_BossDrakor:
+        case DLL_ID_BassaltWeavel:
             return (DLL27_Data*)((u32)obj->data + 0x4);
         case DLL_ID_snowhorn:
             return (DLL27_Data*)((u32)obj->data + 0x170);

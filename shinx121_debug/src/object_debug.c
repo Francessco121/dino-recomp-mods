@@ -17,6 +17,7 @@
 #include "objects/snowbike_debug.h"
 #include "objects/trigger_debug.h"
 
+#include "PR/ultratypes.h"
 #include "libc/string.h"
 #include "dlls/engine/18_objfsa.h"
 #include "dlls/engine/27.h"
@@ -232,7 +233,11 @@ static void objects_list_tab(Object** objects, s32 count, s32 *hovered_object_id
 
             dbgui_same_line();
 
-            dbgui_textf("[%d] %s", i, name);
+            if (obj->setup == NULL || obj->setup->uID == -1) {
+                dbgui_textf("[%d] %s", i, name);
+            } else {
+                dbgui_textf("[%d] %s (0x%X)", i, name, obj->setup->uID);
+            }
 
             if (dbgui_is_item_hovered()) {
                 *hovered_object_idx = i;
@@ -240,7 +245,6 @@ static void objects_list_tab(Object** objects, s32 count, s32 *hovered_object_id
 
             dbgui_pop_id();
         }
-
     }
     dbgui_end_child();
 }
@@ -410,11 +414,15 @@ RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback() {
                 matrix_concat(&mtx, &pmtx, &mtx);
             }
 
+            const char *label = obj->setup == NULL || obj->setup->uID == -1
+                ? recomp_sprintf_helper("[%d] %s", i, obj->def->name)
+                : recomp_sprintf_helper("[%d] %s (0x%X)", i, obj->def->name, obj->setup->uID);
+
             draw_3d_text(
                 position.x,
                 position.y,
                 position.z,
-                recomp_sprintf_helper("[%d] %s", i, obj->def->name),
+                label,
                 hovered ? 0xFFFFFFFF : 0xFF00FFFF
             );
 

@@ -73,5 +73,7 @@ void seqobj_debug_tab(Object *obj) {
 
             dbgui_end_tab_item();
         }
+
+        dbgui_end_tab_bar();
     }
 }

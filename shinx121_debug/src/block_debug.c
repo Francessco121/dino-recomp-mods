@@ -9,6 +9,10 @@
 #include "sys/map.h"
 #include "common.h"
 
+extern BlocksModel **gLoadedBlocks;
+extern u8 gLoadedBlockCount;
+extern s16 *gLoadedBlockIds;
+
 typedef struct {
     f32 x;
     f32 z;
@@ -66,31 +70,31 @@ static void block_debug(BlocksModel *block, s16 id, s32 idx) {
         }
 
         if (dbgui_tree_node("Details")) {
-            dbgui_textf("unk_14: %d", block->unk_14);
-            dbgui_textf("unk_1c: %d", block->unk_1c);
-            dbgui_textf("unk_20: %d", block->unk_20);
-            dbgui_textf("unk_22: %d", block->unk_22);
-            dbgui_textf("unk_24: %d", block->unk_24);
-            dbgui_textf("unk_2c: %d", block->unk_2c);
-            dbgui_textf("unk_2e: %d", block->unk_2e);
+            dbgui_textf("unk14: %d", block->unk14);
+            dbgui_textf("unk1C: %d", block->unk1C);
+            dbgui_textf("unk20[0]: %p", block->unk20[0]);
+            dbgui_textf("unk20[1]: %p", block->unk20[1]);
+            dbgui_textf("unk28: %p", block->unk28);
+            dbgui_textf("unk2C: %d", block->unk2C);
+            dbgui_textf("unk2E: %d", block->unk2E);
             dbgui_textf("flags: %x", block->flags);
             dbgui_textf("vertex_count: %d", block->vertex_count);
             dbgui_textf("face_count: %d", block->face_count);
             dbgui_textf("faceBatch_count: %d", block->faceBatch_count);
             dbgui_textf("hits_line_count: %d", block->hits_line_count);
-            dbgui_textf("unk_3a: %d", block->unk_3a);
-            dbgui_textf("unk_3b: %d", block->unk_3b);
-            dbgui_textf("unk_3c: %d", block->unk_3c);
-            dbgui_textf("unk_3e: %d", block->unk_3e);
+            dbgui_textf("unk3A: %d", block->unk3A);
+            dbgui_textf("unk3B: %d", block->unk3B);
+            dbgui_textf("unk3C: %d", block->unk3C);
+            dbgui_textf("unk3E: %d", block->unk3E);
             dbgui_textf("minY: %d", block->minY);
             dbgui_textf("maxY: %d", block->maxY);
             dbgui_textf("modelSize: %d", block->modelSize);
             dbgui_textf("textureLoadCount: %d", block->textureLoadCount);
-            dbgui_textf("unk_48: %u", block->unk_48);
-            dbgui_textf("unk_49: %d", block->unk_49);
+            dbgui_textf("unk48: %u", block->unk48);
+            dbgui_textf("unk49: %d", block->unk49);
             dbgui_textf("material_count: %u", block->material_count);
-            dbgui_textf("unk_4b: %d", block->unk_4b);
-            dbgui_textf("unk_4e: %d", block->unk_4e);
+            dbgui_textf("unk4B: %d", block->unk4B);
+            dbgui_textf("unk4E: %d", block->unk4E);
 
             dbgui_tree_pop();
         }

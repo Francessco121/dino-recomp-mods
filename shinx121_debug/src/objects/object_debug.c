@@ -11,6 +11,8 @@
 #include "sys/gfx/model.h"
 #include "sys/objanim.h"
 
+extern DLLTab *gFile_DLLS_TAB;
+
 static const DbgUiInputIntOptions hexInput = {
     .step = 0,
     .stepFast = 0,
@@ -36,7 +38,7 @@ static void object_show_def(ObjDef *def) {
     dbgui_textf("dllID: 0x%X (idx %d)", def->dllID, resolve_dll_number(def->dllID));
     dbgui_textf("name: %s", def->name);
     dbgui_separator();
-    dbgui_textf("unk00: %f", def->unk00);
+    dbgui_textf("shadowScale: %f", def->shadowScale);
     dbgui_textf("scale: %f", def->scale);
     dbgui_textf("pModelList: %p", def->pModelList);
     dbgui_textf("pTextures: %p", def->pTextures);
@@ -64,7 +66,16 @@ static void object_show_def(ObjDef *def) {
     dbgui_textf("nextIntersectLine: %p", def->nextIntersectLine);
     dbgui_textf("unk40: %p", def->unk40);
     dbgui_textf("flags: 0x%X", def->flags);
-    dbgui_textf("shadowType: %d", def->shadowType);
+    if (def->shadowType != 0) {
+        s32 type = def->shadowType;
+        if (dbgui_input_int("shadowType", &type)) {
+            if (type > 0) {
+                def->shadowType = type;
+            }
+        }
+    } else {
+        dbgui_textf("shadowType: %d", def->shadowType);
+    }
     dbgui_textf("shadowTexture: %d", def->shadowTexture);
     dbgui_textf("unk4C: %d", def->unk4C);
     dbgui_textf("unk4D: %d", def->unk4D);
@@ -322,7 +333,78 @@ void object_edit_contents(Object *obj) {
     dbgui_textf("unk58: %p", obj->unk58);
     dbgui_textf("unk5C: %p", obj->unk5C);
     dbgui_textf("curEvent: %p", obj->curEvent);
-    dbgui_textf("unk64: %p", obj->unk64);
+     if (obj->shadow != NULL) {
+        if (dbgui_tree_node("shadow")) {
+            ObjectShadow *shadow = obj->shadow;
+            dbgui_input_float("scale", &shadow->scale);
+            dbgui_textf("texture: %p", shadow->texture);
+            dbgui_textf("unk8: %p", shadow->unk8);
+            dbgui_textf("gdl: %p", shadow->gdl);
+            dbgui_textf("gdl2: %p", shadow->gdl2);
+            dbgui_textf("dir: %f,%f,%f", shadow->dir.x, shadow->dir.y, shadow->dir.z);
+            dbgui_textf("tr: %f,%f,%f", shadow->tr.x, shadow->tr.y, shadow->tr.z);
+            dbgui_input_float("maxDistScale", &shadow->maxDistScale);
+            if (dbgui_tree_node(recomp_sprintf_helper("flags: 0x%X###flags", shadow->flags))) {
+                static s32 allowUnsafeTexSlotEdit = FALSE;
+                dbgui_checkbox("Allow unsafe texture slot edits", &allowUnsafeTexSlotEdit);
+                s32 texSlot = OBJ_SHADOW_FLAG_GET_TEX_SLOT(shadow->flags);
+                if (dbgui_input_int("texSlot", &texSlot)) {
+                    if (!allowUnsafeTexSlotEdit) {
+                        texSlot &= 1;
+                    }
+                    shadow->flags &= ~3;
+                    shadow->flags |= OBJ_SHADOW_FLAG_MAKE_TEX_SLOT(texSlot);
+                }
+                const char *flagNames[32] = {
+                    /*texSlot*/"", "",
+                    /*OBJ_SHADOW_FLAG_4*/"Enabled",
+                    /*OBJ_SHADOW_FLAG_8*/"Dynamic shadow texture",
+                    /*OBJ_SHADOW_FLAG_10*/"Custom shadow direction",
+                    /*OBJ_SHADOW_FLAG_20*/"Custom objecet position",
+                    /*OBJ_SHADOW_FLAG_40*/"Custom shadow color",
+                    /*OBJ_SHADOW_FLAG_80*/"Disable Z-buffering",
+                    /*OBJ_SHADOW_FLAG_100*/"",
+                    /*OBJ_SHADOW_FLAG_200*/"Use object yaw",
+                    /*OBJ_SHADOW_FLAG_400*/"Custom opacity",
+                    /*OBJ_SHADOW_FLAG_800*/"Top down shadow",
+                    /*OBJ_SHADOW_FLAG_1000*/"Fade out",
+                    /*OBJ_SHADOW_FLAG_2000*/"Unused",
+                    /*OBJ_SHADOW_FLAG_4000*/"Unused",
+                    /*OBJ_SHADOW_FLAG_8000*/"",
+                    /*OBJ_SHADOW_FLAG_10000*/"Prevent fade in",
+                    /*OBJ_SHADOW_FLAG_20000*/"Unused",
+                    /*OBJ_SHADOW_FLAG_40000*/"Water surface"
+                };
+                for (s32 k = 2; k < 19; k++) {
+                    s32 status = (1 << k) & shadow->flags;
+                    const char *label = flagNames[k];
+                    if (label == NULL) label = "";
+                    if (dbgui_checkbox(recomp_sprintf_helper("0x%X %s###%d", (1 << k), label, k), &status)) {
+                        if (status) {
+                            shadow->flags |= (1 << k);
+                        } else {
+                            shadow->flags &= ~(1 << k);
+                        }
+                    }
+                }
+                dbgui_tree_pop();
+            }
+            dbgui_textf("visibility: %d", shadow->visibility);
+            dbgui_input_byte("distFadeStart", &shadow->distFadeStart);
+            dbgui_input_byte("distFadeEnd", &shadow->distFadeEnd);
+            dbgui_input_byte("distFadeMaxOpacity", &shadow->distFadeMaxOpacity);
+            dbgui_input_byte("distFadeMinOpacity", &shadow->distFadeMinOpacity);
+            dbgui_input_byte("r", &shadow->r);
+            dbgui_input_byte("g", &shadow->g);
+            dbgui_input_byte("b", &shadow->b);
+            dbgui_input_byte("a", &shadow->a);
+            dbgui_input_byte("opacity", &shadow->opacity);
+            dbgui_textf("bufferIdx: %d", shadow->bufferIdx);
+            dbgui_tree_pop();
+        }
+    } else {
+        dbgui_textf("shadow: null");
+    }
 
     dbgui_textf("dll: %p", obj->dll);
     dbgui_textf("unk6C: %p", obj->unk6C);
@@ -335,7 +417,7 @@ void object_edit_contents(Object *obj) {
             dbgui_textf("unk1: %u", unk78->unk1);
             dbgui_textf("unk2: %u", unk78->unk2);
             dbgui_textf("unk3: %u", unk78->unk3);
-            dbgui_textf("unk4: %u", unk78->unk4);
+            dbgui_textf("colourIndex: %u", unk78->colourIndex);
             dbgui_tree_pop();
         }
     } else {
@@ -399,7 +481,7 @@ void object_edit_contents(Object *obj) {
     dbgui_textf("unkD8: %u", obj->unkD8);
     dbgui_textf("unkD9: %u", obj->unkD9);
     dbgui_textf("unkDA: %u", obj->unkDA);
-    dbgui_textf("unkDC: %d", obj->unkDC);
+    dbgui_input_int("unkDC", &obj->unkDC);
 }
 
 void object_seq_debug(Object *obj, ObjEditorData *editorData) {

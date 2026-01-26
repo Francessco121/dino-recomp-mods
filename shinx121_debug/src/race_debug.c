@@ -44,7 +44,6 @@ RECOMP_CALLBACK(".", my_dbgui_event) void race_debug_dbgui_callback() {
                 }
                 dbgui_end_tab_bar();
             }
-            
         }
         dbgui_end();
 

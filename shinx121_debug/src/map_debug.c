@@ -12,6 +12,8 @@
 #include "functions.h"
 #include "dll.h"
 
+extern MapHeader* gLoadedMapsDataTable[120];
+
 static s32 map_debug_window_open = FALSE;
 static char mapNames[120][28];
 static s32 loadedMapNames = FALSE;

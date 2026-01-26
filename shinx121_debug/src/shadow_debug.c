@@ -4,6 +4,19 @@
 #include "PR/ultratypes.h"
 #include "sys/newshadows.h"
 
+extern Gfx *D_800B98A0[2];
+extern Vec3f *D_800B98A8[2];
+extern Vtx *D_800B98B0[2];
+extern Gfx *D_800BB150;
+extern Vec3f *D_800BB140;
+extern Vtx *D_800BB148;
+extern Gfx *D_800BB158[2];
+extern Vtx *D_800BB160[2];
+extern Vec3f *D_800BB168[2];
+extern Gfx* D_800BB184;
+extern Vtx* D_800BB17C;
+extern Vec3f* D_800BB174;
+
 static s32 windowOpen = FALSE;
 
 static u32 D_800B98A0_capacity;
@@ -48,7 +61,7 @@ RECOMP_CALLBACK(".", my_dbgui_event) void shadow_debug_dbgui_callback() {
     }
 }
 
-RECOMP_HOOK("func_8004D9B8") void func_8004D9B8_hook(void) {
+RECOMP_HOOK("shadows_func_8004D9B8") void shadows_func_8004D9B8_hook(void) {
     D_800B98A0_capacity = (u32)D_800B98A0[1] - (u32)D_800B98A0[0];
     D_800B98A8_capacity = (u32)D_800B98A8[1] - (u32)D_800B98A8[0];
     D_800B98B0_capacity = (u32)D_800B98B0[1] - (u32)D_800B98B0[0];
@@ -58,7 +71,7 @@ RECOMP_HOOK("func_8004D9B8") void func_8004D9B8_hook(void) {
     D_800B98B0_count = (u32)D_800BB148 - (u32)D_800B98B0[D_80092C08];
 }
 
-RECOMP_HOOK("func_8004DABC") void func_8004DABC_hook(void) {
+RECOMP_HOOK("shadows_func_8004DABC") void shadows_func_8004DABC_hook(void) {
     D_800BB158_capacity = (s32)D_800BB158[1] - (s32)D_800BB158[0];
     D_800BB160_capacity = (s32)D_800BB160[1] - (s32)D_800BB160[0];
     D_800BB168_capacity = (s32)D_800BB168[1] - (s32)D_800BB168[0];

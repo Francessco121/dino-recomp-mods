@@ -16,6 +16,8 @@ ObjFSA_Data *objfsa_debug_get_data(Object *obj) {
     switch (obj->def->dllID) {
         case DLL_ID_Player:
         case DLL_ID_KT_Rex:
+        case DLL_ID_BossDrakor:
+        case DLL_ID_BassaltWeavel:
             return (ObjFSA_Data*)obj->data;
         default:
             return NULL;
