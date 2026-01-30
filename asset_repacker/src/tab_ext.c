@@ -6,7 +6,6 @@
 
 #include "PR/ultratypes.h"
 #include "sys/fs.h"
-#include "sys/memory.h"
 
 static void resize_tab(TabExt *tab, u32 newCount) {
     repacker_assert(tab->replacements.entries == NULL, "[repacker] Cannot resize rebuilt tab: %s!", tab->name);

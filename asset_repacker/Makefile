@@ -16,10 +16,11 @@ LDFLAGS  := -nostdlib -T $(LDSCRIPT) -Map $(BUILD_DIR)/mod.map --unresolved-symb
 
 C_SRCS := $(wildcard src/*.c)
 C_SRCS += $(wildcard src/files/*.c)
+C_SRCS += $(wildcard src/util/*.c)
 C_OBJS := $(addprefix $(BUILD_DIR)/, $(C_SRCS:.c=.o))
 C_DEPS := $(addprefix $(BUILD_DIR)/, $(C_SRCS:.c=.d))
 
-BUILD_DIRS := $(BUILD_DIR) $(BUILD_DIR)/src $(BUILD_DIR)/src/files
+BUILD_DIRS := $(BUILD_DIR) $(BUILD_DIR)/src $(BUILD_DIR)/src/files $(BUILD_DIR)/src/util
 
 $(TARGET): $(C_OBJS) $(LDSCRIPT)
 	$(LD) $(C_OBJS) $(LDFLAGS) -o $@

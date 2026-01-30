@@ -16,6 +16,14 @@ extern void bcopy_recomp(const void *src, void *dst, int length);
 extern void bzero_recomp(void *, int);
 #define bzero bzero_recomp
 
+#ifndef MAX
+#define MAX(a, b)				((a) > (b) ? (a) : (b))
+#endif
+
+#ifndef MIN
+#define MIN(a, b)				((a) < (b) ? (a) : (b))
+#endif
+
 #define REPACKER_ON_FST_INIT_CALLBACK RECOMP_CALLBACK(".", _repacker_on_fst_init)
 #define REPACKER_ON_INIT_CALLBACK RECOMP_CALLBACK(".", _repacker_on_init)
 #define REPACKER_ON_COMMIT_CALLBACK RECOMP_CALLBACK(".", _repacker_on_commit)
