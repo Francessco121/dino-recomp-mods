@@ -5,6 +5,7 @@
 #include "recomputils.h"
 
 #include "../debug_common.h"
+#include "../3d.h"
 
 #include "game/objects/object.h"
 #include "sys/dll.h"
@@ -142,6 +143,211 @@ static void object_show_def(ObjDef *def) {
             }
 
             dbgui_tree_pop();
+        }
+    }
+
+    dbgui_textf("unk98: %d", def->_unk98[0]);
+    dbgui_textf("unk99: %d", def->_unk98[1]);
+    dbgui_textf("unk9A: %d", def->_unk98[2]);
+}
+
+static void object_edit_model(Model *model) {
+    dbgui_textf("(model address): %p", model);
+
+    dbgui_textf("materials: %p", model->materials);
+    dbgui_textf("vertices: %p", model->vertices);
+    dbgui_textf("faces: %p", model->faces);
+    dbgui_textf("displayList: %p", model->displayList);
+    dbgui_textf("anims: %p", model->anims);
+    dbgui_textf("vertexGroupOffsets: %p", model->vertexGroupOffsets);
+    dbgui_textf("vertexGroups: %p", model->vertexGroups);
+    dbgui_textf("blendshapes: %p", model->blendshapes);
+    dbgui_textf("joints: %p", model->joints);
+    dbgui_textf("amap: %p", model->amap);
+    dbgui_textf("hitSpheres: %p", model->hitSpheres);
+    dbgui_textf("edgeVectors: %p", model->edgeVectors);
+    dbgui_textf("modAnim: %p", model->modAnim);
+    dbgui_textf("facebatchBounds: %p", model->facebatchBounds);
+    dbgui_textf("drawModes: %p", model->drawModes);
+    dbgui_textf("textureAnimations: %p", model->textureAnimations);
+    for (s32 i = 0; i < 8; i++) {
+        dbgui_textf("modAnimBankBases[%d]: %d", model->modAnimBankBases[i]);
+    }
+    dbgui_textf("collisionA: %p", model->collisionA);
+    dbgui_textf("collisionB: %p", model->collisionB);
+    dbgui_textf("decompressedSize: %d", model->decompressedSize);
+    dbgui_textf("unk5C: %d", model->unk5C);
+    dbgui_textf("maxAnimatedVertDistance: %d", model->maxAnimatedVertDistance);
+    dbgui_textf("vertexCount: %d", model->vertexCount);
+    dbgui_textf("faceCount: %d", model->faceCount);
+    dbgui_textf("animCount: %d", model->animCount);
+    dbgui_textf("unk68: %d", model->unk68);
+    dbgui_textf("modelId: %d", model->modelId);
+    dbgui_textf("displayListLength: %d", model->displayListLength);
+    dbgui_textf("hitSphereCount: %d", model->hitSphereCount);
+    dbgui_textf("jointCount: %d", model->jointCount);
+    dbgui_textf("unk70: %d", model->unk70);
+    dbgui_textf("unk71: %d", model->unk71);
+    dbgui_textf("refCount: %d", model->refCount);
+    dbgui_textf("textureCount: %d", model->textureCount);
+    dbgui_textf("envMapCount: %d", model->envMapCount);
+    dbgui_textf("drawModesCount: %d", model->drawModesCount);
+    dbgui_textf("textureAnimationCount: %d", model->textureAnimationCount);
+    dbgui_textf("unk77: %d", model->unk77);
+    dbgui_textf("unk78: %d", model->unk78);
+    dbgui_textf("unk7c: %d", model->unk7c);
+}
+
+static void object_draw_skeleton_hits(ModelInstance *modelInst, _Bool drawBoxes, _Bool drawBroadHits) {
+    if (modelInst->unk14 == NULL || modelInst->model == NULL) {
+        return;
+    }
+    ModelInstance_0x14_0x14 *sp50[100];
+    bzero(sp50, sizeof(sp50));
+    ModelInstance_0x14_0x14 arg3[100];
+    bzero(arg3, sizeof(arg3));
+    ModelInstance_0x14_0x14 arg4 = {0};
+    static u32 colors[] = {
+        0xFF3d0a0e,
+        0xFFd48e21,
+        0xFFfa1f99,
+        0xFF09069e,
+        0xFF03c03d,
+        0xFF2d78ba,
+        0xFFb78af5,
+        0xFFdf2b6a,
+        0xFF3143d3,
+        0xFFe8a284,
+        0xFF824c62,
+        0xFF1ce580,
+        0xFFb057fa,
+        0xFFfafe6e,
+        0xFF5ea52b,
+        0xFFdc66a6
+    };
+    
+    if (drawBroadHits) {
+        func_8002F498(modelInst->unk14->unk0, modelInst->unk14, modelInst->model, arg3, &arg4);
+
+        for (s32 k = 0; k < 20; k++) {
+            ModelInstance_0x14_0x14 *thing = &arg3[k];
+            if (thing->unk0[0] == -1) {
+                break;
+            }
+
+            u32 color = colors[k % ARRAYCOUNT(colors)];
+
+            s32 idx = thing->unk30 - 1;
+            while (idx >= 0) {
+                s32 joint = thing->unk0[idx];
+                s32 parentIdx = modelInst->model->joints[joint].parentJointID;
+                while (parentIdx != thing->unkC[idx]) {
+                    Vec3f jointPos = {
+                        modelInst->unk14->unk0[joint].x + gWorldX, 
+                        modelInst->unk14->unk0[joint].y, 
+                        modelInst->unk14->unk0[joint].z + gWorldZ
+                    };
+
+                    Vec3f parentPos = {
+                        modelInst->unk14->unk0[parentIdx].x + gWorldX, 
+                        modelInst->unk14->unk0[parentIdx].y, 
+                        modelInst->unk14->unk0[parentIdx].z + gWorldZ
+                    };
+
+                    draw_3d_text(
+                        jointPos.x, 
+                        jointPos.y,
+                        jointPos.z,
+                        recomp_sprintf_helper("%d (%d[%d])", joint, k, idx), 
+                        color);
+
+                    draw_3d_line(jointPos.x, jointPos.y, jointPos.z, parentPos.x, parentPos.y, parentPos.z, color);
+
+                    joint = parentIdx;
+                    parentIdx = modelInst->model->joints[joint].parentJointID;
+                }
+                
+                idx--;
+            }
+
+            SRT srt = {
+                .yaw = 0,
+                .pitch = 0,
+                .roll = 0,
+                .flags = 0,
+                .scale = 1.0f,
+                .transl = {
+                    ((thing->unk18.x + thing->unk24.x) / 2.0f) + gWorldX,
+                    ((thing->unk18.y + thing->unk24.y) / 2.0f) - ((thing->unk24.y - thing->unk18.y) / 2.0f),
+                    ((thing->unk18.z + thing->unk24.z) / 2.0f) + gWorldZ
+                }
+            };
+            MtxF mtx;
+            matrix_from_srt(&mtx, &srt);
+
+            draw_3d_box(&mtx, 
+                thing->unk24.x - thing->unk18.x, 
+                thing->unk24.y - thing->unk18.y, 
+                thing->unk24.z - thing->unk18.z, 
+                color);
+        }
+    }
+
+    for (s32 k = 0; k < modelInst->model->jointCount; k++) {
+        s32 parentIdx = modelInst->model->joints[k].parentJointID;
+
+        if (drawBroadHits) {
+            draw_3d_text(
+                modelInst->unk14->unk0[k].x + gWorldX, 
+                modelInst->unk14->unk0[k].y, 
+                modelInst->unk14->unk0[k].z + gWorldZ, 
+                recomp_sprintf_helper("\n%d", k), 
+                0xFFFFFFFF);
+        } else {
+            draw_3d_text(
+                modelInst->unk14->unk0[k].x + gWorldX, 
+                modelInst->unk14->unk0[k].y, 
+                modelInst->unk14->unk0[k].z + gWorldZ, 
+                recomp_sprintf_helper("%d (%d)", k, parentIdx), 
+                0xFFFFFFFF);
+        }
+
+        if (drawBoxes) {
+            f32 radius = modelInst->unk14->unk4[k];
+            SRT srt = {
+                .yaw = 0,
+                .pitch = 0,
+                .roll = 0,
+                .flags = 0,
+                .scale = 1.0f,
+                .transl = {
+                    modelInst->unk14->unk0[k].x + gWorldX, 
+                    modelInst->unk14->unk0[k].y - radius, 
+                    modelInst->unk14->unk0[k].z + gWorldZ
+                }
+            };
+            MtxF mtx;
+            matrix_from_srt(&mtx, &srt);
+
+            draw_3d_box(&mtx, radius*2, radius*2, radius*2, 0xFFFFFFFF);
+        }
+        
+        if (!drawBroadHits) {
+            Vec3f pos = {
+                modelInst->unk14->unk0[k].x + gWorldX, 
+                modelInst->unk14->unk0[k].y, 
+                modelInst->unk14->unk0[k].z + gWorldZ
+            };
+
+            if (parentIdx >= 0) {
+                Vec3f parent = {
+                    modelInst->unk14->unk0[parentIdx].x + gWorldX, 
+                    modelInst->unk14->unk0[parentIdx].y, 
+                    modelInst->unk14->unk0[parentIdx].z + gWorldZ
+                };
+
+                draw_3d_line(pos.x, pos.y, pos.z, parent.x, parent.y, parent.z, 0xFFFFFFFF);
+            }
         }
     }
 }
@@ -422,6 +628,76 @@ void object_edit_contents(Object *obj) {
         }
     } else {
         dbgui_textf("unk78: null");
+    }
+    if (obj->modelInsts != NULL) {
+        if (dbgui_tree_node("modelInsts")) {
+            ModelInstance **modelInsts = obj->modelInsts;
+            if (obj->def != NULL) {
+                for (s32 i = 0; i < obj->def->numModels; i++) {
+                    ModelInstance *modelInst = modelInsts[i];
+                    if (modelInst == NULL) {
+                        dbgui_textf("[%d]: null", i);
+                        continue;
+                    }
+                    if (dbgui_tree_node(recomp_sprintf_helper("[%d]", i))) {
+                        if (modelInst->model != NULL && modelInst->unk14 != NULL) {
+                            static s32 drawSkeleton = FALSE;
+                            static s32 drawSkeletonHitboxes = FALSE;
+                            static s32 drawSkeletonBroadHits = FALSE;
+                            dbgui_checkbox("Draw skeleton hits", &drawSkeleton);
+                            if (drawSkeleton) {
+                                dbgui_checkbox("Draw skeleton hit boxes", &drawSkeletonHitboxes);
+                                dbgui_checkbox("Draw skeleton broad hits", &drawSkeletonBroadHits);
+                            }
+                            if (drawSkeleton) {
+                                object_draw_skeleton_hits(modelInst, drawSkeletonHitboxes, drawSkeletonBroadHits);
+                            }
+                        }
+
+                        if (modelInst->model != NULL) {
+                            if (dbgui_tree_node("model")) {
+                                object_edit_model(modelInst->model);
+                                dbgui_tree_pop();
+                            }
+                        } else {
+                            dbgui_textf("model: null");
+                        }
+                        dbgui_textf("vertices[0]: %p", modelInst->vertices[0]);
+                        dbgui_textf("vertices[1]: %p", modelInst->vertices[1]);
+                        dbgui_textf("matrices[0]: %p", modelInst->matrices[0]);
+                        dbgui_textf("matrices[1]: %p", modelInst->matrices[1]);
+                        if (modelInst->unk14 != NULL) {
+                            if (dbgui_tree_node("unk14")) {
+                                ModelInstance_0x14 *unk14 = modelInst->unk14;
+                                if (modelInst->model != NULL) {
+                                    for (s32 k = 0; k < modelInst->model->jointCount; k++) {
+                                        dbgui_textf("unk0[%d]: %f, %f, %f", k, unk14->unk0[k].x, unk14->unk0[k].y, unk14->unk0[k].z);
+                                    }
+                                    for (s32 k = 0; k < modelInst->model->jointCount; k++) {
+                                        dbgui_textf("unk4[%d]: %f", k, unk14->unk4[k]);
+                                    }
+                                }
+                                dbgui_tree_pop();
+                            }
+                        } else {
+                            dbgui_textf("unk14: null");
+                        }
+                        dbgui_textf("displayList: %p", modelInst->displayList);
+                        dbgui_textf("unk1C[0]: %p", modelInst->unk1C[0]);
+                        dbgui_textf("unk1C[1]: %p", modelInst->unk1C[1]);
+                        dbgui_textf("unk24: %p", modelInst->unk24);
+                        dbgui_textf("animState0: %p", modelInst->animState0);
+                        dbgui_textf("animState1: %p", modelInst->animState1);
+                        dbgui_textf("blendshapes: %p", modelInst->blendshapes);
+                        dbgui_textf("unk34: %d", modelInst->unk34);
+                        dbgui_tree_pop();
+                    }
+                }
+            }
+            dbgui_tree_pop();
+        }
+    } else {
+        dbgui_textf("modelInsts: null");
     }
     dbgui_textf("positionMirror2: %f,%f,%f",
         obj->positionMirror2.x, obj->positionMirror2.y, obj->positionMirror2.z);
