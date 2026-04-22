@@ -1,3 +1,12 @@
+## v0.5.0
+- Added inspector for object shadow data.
+- Added inspector for object model and model instances.
+- Improved sound test menu.
+- Updated object properties from the decomp.
+- Fixed DLL ID display.
+- Fixed incorrect ImGui calls.
+- Fixed crash when inspecting an object that has no setup.
+
 ## v0.4.0
 - Added error prints for invalid attempts at starting an object sequence.
 - Added debug window for inspecting the state of the ANIM DLL (ID 3).
