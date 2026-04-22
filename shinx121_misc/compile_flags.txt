@@ -32,6 +32,4 @@ mips
 ../lib/dino-recomp-decomp-bridge/include
 -I
 ../lib/dino-recomp-decomp-bridge/dinosaur-planet/include
--I
-../asset_repacker/include
 -c
