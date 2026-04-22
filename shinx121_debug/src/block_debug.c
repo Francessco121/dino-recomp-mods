@@ -9,7 +9,7 @@
 #include "sys/map.h"
 #include "common.h"
 
-extern BlocksModel **gLoadedBlocks;
+extern Block **gLoadedBlocks;
 extern u8 gLoadedBlockCount;
 extern s16 *gLoadedBlockIds;
 
@@ -62,7 +62,7 @@ RECOMP_HOOK("block_add_to_render_list") void block_add_to_render_list(Block *blo
     blockPositions[idx].set = TRUE;
 }
 
-static void block_debug(BlocksModel *block, s16 id, s32 idx) {
+static void block_debug(Block *block, s16 id, s32 idx) {
     if (dbgui_tree_node(recomp_sprintf_helper("Block %d###%d", id, id))) {
         if (dbgui_is_item_hovered()) {
             hoveredBlock = idx;
@@ -70,17 +70,12 @@ static void block_debug(BlocksModel *block, s16 id, s32 idx) {
         }
 
         if (dbgui_tree_node("Details")) {
-            dbgui_textf("unk14: %d", block->unk14);
             dbgui_textf("unk1C: %d", block->unk1C);
-            dbgui_textf("unk20[0]: %p", block->unk20[0]);
-            dbgui_textf("unk20[1]: %p", block->unk20[1]);
             dbgui_textf("unk28: %p", block->unk28);
-            dbgui_textf("unk2C: %d", block->unk2C);
-            dbgui_textf("unk2E: %d", block->unk2E);
-            dbgui_textf("flags: %x", block->flags);
-            dbgui_textf("vertex_count: %d", block->vertex_count);
-            dbgui_textf("face_count: %d", block->face_count);
-            dbgui_textf("faceBatch_count: %d", block->faceBatch_count);
+            dbgui_textf("vtxFlags: %x", block->vtxFlags);
+            dbgui_textf("vtxCount: %d", block->vtxCount);
+            dbgui_textf("unk34: %d", block->unk34);
+            dbgui_textf("shapeCount: %d", block->shapeCount);
             dbgui_textf("hits_line_count: %d", block->hits_line_count);
             dbgui_textf("unk3A: %d", block->unk3A);
             dbgui_textf("unk3B: %d", block->unk3B);
@@ -92,7 +87,7 @@ static void block_debug(BlocksModel *block, s16 id, s32 idx) {
             dbgui_textf("textureLoadCount: %d", block->textureLoadCount);
             dbgui_textf("unk48: %u", block->unk48);
             dbgui_textf("unk49: %d", block->unk49);
-            dbgui_textf("material_count: %u", block->material_count);
+            dbgui_textf("materialCount: %u", block->materialCount);
             dbgui_textf("unk4B: %d", block->unk4B);
             dbgui_textf("unk4E: %d", block->unk4E);
 
@@ -181,7 +176,7 @@ static void block_debug(BlocksModel *block, s16 id, s32 idx) {
     }
 }
 
-static void block_debug_3d(BlocksModel *block, s16 id, s32 idx) {
+static void block_debug_3d(Block *block, s16 id, s32 idx) {
     BlockPosition *pos = &blockPositions[idx];
     if (pos->set) {
         pos->set = FALSE;
@@ -255,7 +250,7 @@ RECOMP_CALLBACK(".", my_dbgui_event) void blocks_debug_dbgui_callback() {
             }
 
             for (s32 i = 0; i < gLoadedBlockCount; i++) {
-                BlocksModel *block = gLoadedBlocks[i];
+                Block *block = gLoadedBlocks[i];
                 if (block != NULL) {
                     block_debug(block, gLoadedBlockIds[i], i);
                 }
@@ -266,7 +261,7 @@ RECOMP_CALLBACK(".", my_dbgui_event) void blocks_debug_dbgui_callback() {
 
     if (showInWorld) {
         for (s32 i = 0; i < gLoadedBlockCount; i++) {
-            BlocksModel *block = gLoadedBlocks[i];
+            Block *block = gLoadedBlocks[i];
             if (block != NULL) {
                 block_debug_3d(block, gLoadedBlockIds[i], i);
             }

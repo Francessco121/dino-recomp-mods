@@ -15,7 +15,6 @@
 #include "sys/objtype.h"
 #include "sys/print.h"
 #include "dll.h"
-#include "functions.h"
 
 typedef struct {
 /*00*/ Vec3f unk0;

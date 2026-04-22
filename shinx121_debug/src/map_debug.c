@@ -9,7 +9,6 @@
 #include "sys/map.h"
 #include "sys/objects.h"
 #include "common.h"
-#include "functions.h"
 #include "dll.h"
 
 extern MapHeader* gLoadedMapsDataTable[120];

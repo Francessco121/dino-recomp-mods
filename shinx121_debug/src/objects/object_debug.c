@@ -8,11 +8,16 @@
 #include "../3d.h"
 
 #include "game/objects/object.h"
+#include "game/objects/object_def.h"
 #include "sys/dll.h"
 #include "sys/gfx/model.h"
 #include "sys/objanim.h"
 
 extern DLLTab *gFile_DLLS_TAB;
+
+extern s32* gTextureCache;
+extern s32 gNumCachedTextures;
+extern u16* gFile_TEXTABLE;
 
 static const DbgUiInputIntOptions hexInput = {
     .step = 0,
@@ -45,7 +50,23 @@ static void object_show_def(ObjDef *def) {
     dbgui_textf("pTextures: %p", def->pTextures);
     dbgui_textf("pSequenceBones: %p", def->pSequenceBones);
     dbgui_textf("unk14: %p", def->unk14);
-    dbgui_textf("unk18: %p", def->unk18);
+    if (def->collectableDef != NULL) {
+        if (dbgui_tree_node("collectableDef")) {
+            CollectableDef *coldef = def->collectableDef;
+            dbgui_textf("unk0: %d", coldef->unk0);
+            dbgui_textf("type: %d", coldef->type);
+            dbgui_textf("unk4: %d", coldef->unk4);
+            dbgui_textf("seqObjectID: %d", coldef->seqObjectID);
+            dbgui_textf("interactionRadius: %d", coldef->interactionRadius);
+            dbgui_textf("collectMessage: %d", coldef->collectMessage);
+            dbgui_textf("unkA: %d", coldef->unkA);
+            dbgui_textf("amountRestored: %d", coldef->amountRestored);
+
+            dbgui_tree_pop();
+        }
+    } else {
+        dbgui_textf("collectableDef: (null)");
+    }
     if (def->pSeq != NULL) {
         if (dbgui_tree_node("pSeq")) {
             for (int i = 0; i < def->numSequences; i++) {
@@ -65,7 +86,39 @@ static void object_show_def(ObjDef *def) {
     dbgui_textf("pIntersectPoints: %p", def->pIntersectPoints);
     dbgui_textf("nextIntersectPoint: %p", def->nextIntersectPoint);
     dbgui_textf("nextIntersectLine: %p", def->nextIntersectLine);
-    dbgui_textf("unk40: %p", def->unk40);
+    if (def->lockdata != NULL) {
+        if (dbgui_tree_node("lockdata")) {
+            for (int i = 0; i < def->numLockdata; i++) {
+                if (dbgui_tree_node(recomp_sprintf_helper("[%d]", i))) {
+                    ObjDefLockData *lockData = &def->lockdata[i];
+                    dbgui_textf("unk00: %d", lockData->unk00);
+                    dbgui_textf("unk02: %d", lockData->unk02);
+                    dbgui_textf("unk04: %d", lockData->unk04);
+                    dbgui_textf("unk06: %d", lockData->unk06);
+                    dbgui_textf("unk08: %d", lockData->unk08);
+                    dbgui_textf("unk0a: %d", lockData->unk0a);
+                    dbgui_textf("interactRadius: %d", lockData->interactRadius);
+                    dbgui_textf("lockExitRadius: %d", lockData->lockExitRadius);
+                    dbgui_textf("hlRadius: %d", lockData->hlRadius);
+                    dbgui_textf("hlAngularRange: %d", lockData->hlAngularRange);
+                    dbgui_textf("flags: 0x%X", lockData->flags);
+                    dbgui_textf("unk11[0]: %d", lockData->unk11[0]);
+                    dbgui_textf("unk11[1]: %d", lockData->unk11[1]);
+                    dbgui_textf("unk11[2]: %d", lockData->unk11[2]);
+                    dbgui_textf("unk11[3]: %d", lockData->unk11[3]);
+                    dbgui_textf("unk15: %d", lockData->unk15);
+                    dbgui_textf("unk16: %d", lockData->unk16);
+                    dbgui_textf("unk17: %d", lockData->unk17);
+
+                    dbgui_tree_pop();
+                }
+            }
+
+            dbgui_tree_pop();
+        }
+    } else {
+        dbgui_textf("lockdata: (null)");
+    }
     dbgui_textf("flags: 0x%X", def->flags);
     if (def->shadowType != 0) {
         s32 type = def->shadowType;
@@ -151,10 +204,45 @@ static void object_show_def(ObjDef *def) {
     dbgui_textf("unk9A: %d", def->_unk98[2]);
 }
 
+static s32 get_texture_id(Texture *ptr) {
+    for (int i = 0; i < gNumCachedTextures; i++) {
+        if (ptr == (Texture*)gTextureCache[ASSETCACHE_PTR(i)]) {
+            s32 id = gTextureCache[ASSETCACHE_ID(i)];
+            if (id < 0) {
+                id = -id;
+            } else {
+                id = gFile_TEXTABLE[id];
+            }
+
+            return id;
+        }
+    }
+
+    return -1;
+}
+
 static void object_edit_model(Model *model) {
     dbgui_textf("(model address): %p", model);
 
-    dbgui_textf("materials: %p", model->materials);
+    if (model->materials != NULL) {
+        if (dbgui_tree_node("materials")) {
+            for (int i = 0; i < model->textureCount; i++) {
+                if (dbgui_tree_node(recomp_sprintf_helper("[%d]", i))) {
+                    ModelTexture *mat = &model->materials[i];
+                    dbgui_textf("texture: 0x%X", get_texture_id(mat->texture));
+                    dbgui_textf("unk4: %d", mat->unk4);
+                    dbgui_textf("unk6: %d", mat->pad6);
+                    dbgui_textf("unk7: %d", mat->unk7);
+
+                    dbgui_tree_pop();
+                }
+            }
+
+            dbgui_tree_pop();
+        }
+    } else {
+        dbgui_textf("materials: (null)");
+    }
     dbgui_textf("vertices: %p", model->vertices);
     dbgui_textf("faces: %p", model->faces);
     dbgui_textf("displayList: %p", model->displayList);
@@ -396,9 +484,9 @@ void object_edit_contents(Object *obj) {
             ObjSetup *objsetup = obj->setup;
             dbgui_textf("objId: %d", objsetup->objId);
             dbgui_textf("quarterSize: 0x%X (full size: 0x%X)", objsetup->quarterSize, objsetup->quarterSize << 2);
-            dbgui_textf("setupExclusions1: 0x%X", objsetup->setupExclusions1);
+            dbgui_textf("actExclusions1: 0x%X", objsetup->actExclusions1);
             dbgui_textf("loadFlags: 0x%X", objsetup->loadFlags);
-            dbgui_textf("setupExclusions2: 0x%X", objsetup->setupExclusions2 & 0xF0);
+            dbgui_textf("actExclusions2: 0x%X", objsetup->actExclusions2 & 0xF0);
             dbgui_textf("fadeFlags: 0x%X", objsetup->fadeFlags & 0x0F);
             if (objsetup->loadFlags & 0x10) {
                 dbgui_textf("mapObjGroup: %d", objsetup->mapObjGroup);
@@ -519,12 +607,12 @@ void object_edit_contents(Object *obj) {
             dbgui_textf("unk61: %d", objhitInfo->unk61);
             dbgui_textf("unk62: %d", objhitInfo->unk62);
             dbgui_textf("unk63: %d,%d,%d", objhitInfo->unk63[0], objhitInfo->unk63[1], objhitInfo->unk63[2]);
-            dbgui_textf("unk66: %d,%d,%d", objhitInfo->unk66[0], objhitInfo->unk66[1], objhitInfo->unk66[2]);
-            dbgui_textf("unk69: %d,%d,%d", objhitInfo->unk69[0], objhitInfo->unk69[1], objhitInfo->unk69[2]);
-            dbgui_textf("unk6C: %d,%d,%d", objhitInfo->unk6C[0], objhitInfo->unk6C[1], objhitInfo->unk6C[2]);
-            dbgui_textf("unk78: %f,%f,%f", objhitInfo->unk78[0], objhitInfo->unk78[1], objhitInfo->unk78[2]);
-            dbgui_textf("unk84: %f,%f,%f", objhitInfo->unk84[0], objhitInfo->unk84[1], objhitInfo->unk84[2]);
-            dbgui_textf("unk90: %f,%f,%f", objhitInfo->unk90[0], objhitInfo->unk90[1], objhitInfo->unk90[2]);
+            dbgui_textf("hitTypeList: %d,%d,%d", objhitInfo->hitTypeList[0], objhitInfo->hitTypeList[1], objhitInfo->hitTypeList[2]);
+            dbgui_textf("hitDamageList: %d,%d,%d", objhitInfo->hitDamageList[0], objhitInfo->hitDamageList[1], objhitInfo->hitDamageList[2]);
+            dbgui_textf("hitByList: %d,%d,%d", objhitInfo->hitByList[0], objhitInfo->hitByList[1], objhitInfo->hitByList[2]);
+            dbgui_textf("hitXList: %f,%f,%f", objhitInfo->hitXList[0], objhitInfo->hitXList[1], objhitInfo->hitXList[2]);
+            dbgui_textf("hitYList: %f,%f,%f", objhitInfo->hitYList[0], objhitInfo->hitYList[1], objhitInfo->hitYList[2]);
+            dbgui_textf("hitZList: %f,%f,%f", objhitInfo->hitZList[0], objhitInfo->hitZList[1], objhitInfo->hitZList[2]);
             dbgui_textf("unk9C: %d", objhitInfo->unk9C);
             dbgui_textf("unk9D: %d", objhitInfo->unk9D);
             dbgui_textf("unk9E: %d", objhitInfo->unk9E);
@@ -536,7 +624,7 @@ void object_edit_contents(Object *obj) {
     } else {
         dbgui_textf("objhitInfo: null");
     }
-    dbgui_textf("unk58: %p", obj->unk58);
+    dbgui_textf("polyhits: %p", obj->polyhits);
     dbgui_textf("unk5C: %p", obj->unk5C);
     dbgui_textf("curEvent: %p", obj->curEvent);
      if (obj->shadow != NULL) {
@@ -619,11 +707,11 @@ void object_edit_contents(Object *obj) {
     if (obj->unk78 != NULL) {
         if (dbgui_tree_node("unk78")) {
             ObjectStruct78 *unk78 = obj->unk78;
-            dbgui_textf("unk0: %u", unk78->unk0);
-            dbgui_textf("unk1: %u", unk78->unk1);
-            dbgui_textf("unk2: %u", unk78->unk2);
-            dbgui_textf("unk3: %u", unk78->unk3);
-            dbgui_textf("colourIndex: %u", unk78->colourIndex);
+            dbgui_textf("interactRadius: %u", unk78->interactRadius);
+            dbgui_textf("lockExitRadius: %u", unk78->lockExitRadius);
+            dbgui_textf("hlRadius: %u", unk78->hlRadius);
+            dbgui_textf("hlAngularRange: %u", unk78->hlAngularRange);
+            dbgui_textf("flags: %u", unk78->flags);
             dbgui_tree_pop();
         }
     } else {

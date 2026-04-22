@@ -8,7 +8,7 @@
 #include "../3d.h"
 
 #include "dlls/engine/18_objfsa.h"
-#include "dlls/engine/33.h"
+#include "dlls/engine/33_BaddieControl.h"
 #include "game/objects/object.h"
 #include "game/objects/object_id.h"
 #include "sys/generic_stack.h"
@@ -123,7 +123,7 @@ typedef struct {
 } KTrex_Data;
 
 typedef struct {
-/*00*/ DLL33_ObjSetup base;
+/*00*/ Baddie_Setup base;
 /*38*/ f32 speeds[3]; // Movement speed, per "anger" level.
 /*44*/ u16 roarTime[3]; // How long a roar lasts.
 /*4A*/ u16 vulnerableTime[4]; // How long the boss is vulnerable for.
@@ -186,9 +186,9 @@ enum KTFxFlags {
 };
 
 void kt_rex_debug_tab(Object *obj) {
-    DLL33_Data *dll33Data = obj->data;
-    ObjFSA_Data *fsa = &dll33Data->fsa;
-    KTrex_Data *ktdata = dll33Data->unk3F4;
+    Baddie *baddie = obj->data;
+    ObjFSA_Data *fsa = &baddie->fsa;
+    KTrex_Data *ktdata = baddie->objdata;
     if (ktdata == NULL) {
         return;
     }

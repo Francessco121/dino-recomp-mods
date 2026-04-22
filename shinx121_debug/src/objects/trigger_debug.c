@@ -23,9 +23,9 @@ void trigger_debug_tab(Object *obj) {
                 Trigger_Setup *objsetup = (Trigger_Setup*)obj->setup;
                 dbgui_textf("objId: %d", objsetup->base.objId);
                 dbgui_textf("quarterSize: 0x%X", objsetup->base.quarterSize);
-                dbgui_textf("setupExclusions1: 0x%X", objsetup->base.setupExclusions1);
+                dbgui_textf("actExclusions1: 0x%X", objsetup->base.actExclusions1);
                 dbgui_textf("loadFlags: 0x%X", objsetup->base.loadFlags);
-                dbgui_textf("setupExclusions2: 0x%X", objsetup->base.setupExclusions2 & 0xF0);
+                dbgui_textf("actExclusions2: 0x%X", objsetup->base.actExclusions2 & 0xF0);
                 dbgui_textf("fadeFlags: 0x%X", objsetup->base.fadeFlags & 0x0F);
                 if (objsetup->base.loadFlags & 0x10) {
                     dbgui_textf("mapObjGroup: %d", objsetup->base.mapObjGroup);

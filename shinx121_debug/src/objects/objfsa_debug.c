@@ -44,11 +44,11 @@ void objfsa_debug_tab(Object *obj, ObjFSA_Data *fsa) {
     dbgui_textf("unk278: %f", fsa->unk278);
     dbgui_textf("unk27C: %f", fsa->unk27C);
     dbgui_textf("unk280: %f", fsa->unk280);
-    dbgui_textf("unk284: %f", fsa->unk284);
-    dbgui_textf("unk288: %f", fsa->unk288);
+    dbgui_textf("yAnalogInput: %f", fsa->yAnalogInput);
+    dbgui_textf("xAnalogInput: %f", fsa->xAnalogInput);
     dbgui_textf("speed: %f", fsa->speed);
-    dbgui_textf("unk290: %f", fsa->unk290);
-    dbgui_textf("unk294: %f", fsa->unk294);
+    dbgui_textf("analogInputPower: %f", fsa->analogInputPower);
+    dbgui_textf("prevAnalogInputPower: %f", fsa->prevAnalogInputPower);
     dbgui_textf("animTickDelta: %f", fsa->animTickDelta);
     dbgui_textf("unk29C: %f", fsa->unk29C);
     dbgui_textf("unk2A0: %f", fsa->unk2A0);
@@ -93,7 +93,7 @@ void objfsa_debug_tab(Object *obj, ObjFSA_Data *fsa) {
     dbgui_textf("unk340: %d", fsa->unk340);
     dbgui_textf("unk341: %d", fsa->unk341);
     dbgui_textf("unk342: %d", fsa->unk342);
-    dbgui_textf("unk343: %d", fsa->unk343);
-    dbgui_textf("unk348: %d", fsa->unk348);
+    dbgui_textf("lastHitType: %d", fsa->lastHitType);
+    dbgui_textf("hitpoints: %d", fsa->hitpoints);
     dbgui_textf("unk34A: %d", fsa->unk34A);
 }

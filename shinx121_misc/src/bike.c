@@ -13,7 +13,6 @@
 #include "sys/objects.h"
 #include "sys/objtype.h"
 #include "common.h"
-#include "functions.h"
 #include "dll.h"
 
 static s32 windowOpen = 0;
@@ -39,7 +38,7 @@ static s32 is_player_on_bike(void) {
     Object *player = get_player();
     Player_Data *playerdata = (Player_Data*)player->data;
 
-    return bike != NULL && playerdata->unk858 == bike;
+    return bike != NULL && playerdata->vehicle == bike;
 }
 
 static void destroy_bike(void) {
@@ -58,7 +57,7 @@ static void spawn_bike(void) {
 
     Object *player = get_player();
     
-    ObjSetup *setup = obj_alloc_create_info(0x24, OBJ_CRSnowBike);
+    ObjSetup *setup = obj_alloc_setup(0x24, OBJ_CRSnowBike);
     setup->loadFlags = 0x10;
     setup->fadeFlags = 4;
     setup->loadDistance = 1;
@@ -110,6 +109,6 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void test_game_tick() {
 
     if (bike != NULL) {
         void *objdata = bike->data;
-        *((s32*)((u32)objdata + 0x3C8)) = 10000;
+        *((s32*)((u32)objdata + 0x3C8)) = 14000;
     }
 }

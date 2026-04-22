@@ -8,7 +8,7 @@
 static s32 windowOpen = FALSE;
 static s32 textID;
 
-extern s16 SHORT_8008c528;
+extern s16 gLetterboxTarget;
 
 RECOMP_CALLBACK(".", my_debug_menu_event) void subtitle_debug_menu_callback() {
     dbgui_menu_item("Subtitles", &windowOpen);
@@ -18,10 +18,10 @@ RECOMP_CALLBACK(".", my_dbgui_event) void subtitle_debug_dbgui_callback() {
     if (windowOpen) {
         if (dbgui_begin("Subtitle Debug", &windowOpen)) {
 
-            s32 letterbox = SHORT_8008c528;
+            s32 letterbox = gLetterboxTarget;
             if (dbgui_input_int("Letterbox", &letterbox)) {
                 if (letterbox < 0) letterbox = 0;
-                SHORT_8008c528 = letterbox;
+                gLetterboxTarget = letterbox;
             }
 
             dbgui_set_next_item_width(100);

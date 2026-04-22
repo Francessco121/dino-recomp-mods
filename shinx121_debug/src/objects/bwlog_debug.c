@@ -12,7 +12,6 @@
 #include "sys/objtype.h"
 #include "sys/print.h"
 #include "dll.h"
-#include "functions.h"
 
 typedef struct {
     DLL27_Data unk0;

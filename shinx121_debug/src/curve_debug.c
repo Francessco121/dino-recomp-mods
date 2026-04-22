@@ -66,7 +66,7 @@ static void debug_draw_curves() {
             CurveNode *node = &_bss_8[i];
             CurveSetup *setup = node->setup;
 
-            if (filterByType && setup->unk19 != curveTypeFilter) {
+            if (filterByType && setup->curveType != curveTypeFilter) {
                 continue;
             }
 
@@ -77,7 +77,7 @@ static void debug_draw_curves() {
                 }
             }
 
-            if (dbgui_tree_node(recomp_sprintf_helper("[%d] Curve (0x%X) 0x%X###%X", i, setup->unk19, node->uID, node->uID))) {
+            if (dbgui_tree_node(recomp_sprintf_helper("[%d] Curve (0x%X) 0x%X###%X", i, setup->curveType, node->uID, node->uID))) {
                 if (dbgui_is_item_hovered()) {
                     hoveredIdx = i;
                 }
@@ -85,11 +85,11 @@ static void debug_draw_curves() {
                 dbgui_textf("objId: 0x%X", setup->objId);
                 dbgui_textf("quarterSize: 0x%X", setup->quarterSize);
                 dbgui_textf("unk3: 0x%X", setup->unk3);
-                if (setup->unk19 == 0x22) {
+                if (setup->curveType == 0x22) {
                     dbgui_textf("unk4: 0x%X", setup->base_type22.unk4);
                     dbgui_textf("unk6: 0x%X", setup->base_type22.unk6);
                     dbgui_textf("unk7: 0x%X", setup->base_type22.unk7);
-                } else if (setup->unk19 == 0x26) {
+                } else if (setup->curveType == 0x26) {
                     dbgui_textf("unk4: 0x%X", setup->base_type26.unk4);
                     dbgui_textf("unk5: 0x%X", setup->base_type26.unk5);
                     dbgui_textf("unk6: 0x%X", setup->base_type26.unk6);
@@ -101,26 +101,26 @@ static void debug_draw_curves() {
                 dbgui_textf("uID: 0x%X", setup->uID);
 
                 dbgui_textf("unk18: 0x%X", setup->unk18);
-                dbgui_textf("unk19: 0x%X", setup->unk19);
+                dbgui_textf("curveType: 0x%X", setup->curveType);
                 dbgui_textf("unk1A: 0x%X", setup->unk1A);
                 dbgui_textf("unk1B: 0x%X", setup->unk1B);
                 for (s32 k = 0; k < 4; k++) {
-                    dbgui_textf("unk1C[%d]: 0x%X", k, setup->unk1C[k]);
+                    dbgui_textf("unk1C[%d]: 0x%X", k, setup->links[k]);
                 }
                 dbgui_textf("unk2C: 0x%X", setup->unk2C);
                 dbgui_textf("unk2D: 0x%X", setup->unk2D);
                 dbgui_textf("unk2E: 0x%X", setup->unk2E);
                 dbgui_textf("unk2F: 0x%X", setup->unk2F);
-                if (setup->unk19 == 0x15) {
+                if (setup->curveType == 0x15) {
                     dbgui_textf("unk30: 0x%X", setup->type15.pad30);
                     dbgui_textf("unk34: 0x%X", setup->type15.unk34);
-                } else if (setup->unk19 == 0x22) {
+                } else if (setup->curveType == 0x22) {
                     dbgui_textf("unk30: 0x%X", setup->type22.unk30);
                     dbgui_textf("usedBit: 0x%X", setup->type22.usedBit);
-                } else if (setup->unk19 == 0x24) {
+                } else if (setup->curveType == 0x24) {
                     dbgui_textf("unk30: 0x%X", setup->type24.unk30);
                     dbgui_textf("unk32: 0x%X", setup->type24.unk32);
-                } else if (setup->unk19 == 0x26) {
+                } else if (setup->curveType == 0x26) {
                     dbgui_textf("unk30: 0x%X", setup->type26.unk30);
                     dbgui_textf("unk31: 0x%X", setup->type26.unk31);
                     dbgui_textf("unk32: 0x%X", setup->type26.unk32);
@@ -147,7 +147,7 @@ static void debug_draw_curves() {
         CurveNode *node = &_bss_8[i];
         CurveSetup *setup = node->setup;
 
-        if (filterByType && setup->unk19 != curveTypeFilter) {
+        if (filterByType && setup->curveType != curveTypeFilter) {
             continue;
         }
 
@@ -157,7 +157,7 @@ static void debug_draw_curves() {
         }
 
         for (s32 k = 0; k < 4; k++) {
-            CurveSetup *other = gDLL_26_Curves->vtbl->func_39C(node->setup->unk1C[k]);
+            CurveSetup *other = gDLL_26_Curves->vtbl->func_39C(node->setup->links[k]);
             if (other == NULL) {
                 continue;
             }
@@ -169,7 +169,7 @@ static void debug_draw_curves() {
         }
         
         draw_3d_text(node->setup->pos.x, node->setup->pos.y, node->setup->pos.z, 
-            recomp_sprintf_helper("[%d] Curve (0x%X) 0x%X", i, setup->unk19, node->uID),
+            recomp_sprintf_helper("[%d] Curve (0x%X) 0x%X", i, setup->curveType, node->uID),
             hoveredIdx == i ? 0xFFFFFFFF : 0xFF00FFFF);
     }
 }

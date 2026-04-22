@@ -9,8 +9,6 @@ extern f32 gWorldX;
 extern f32 gWorldZ;
 extern f32 gAspect;
 
-extern u32 func_800038DC(f32 x, f32 y, f32 z, f32 *ox, f32 *oy, u8 param_6);
-
 static f32 vec2_length(f32 x, f32 y) {
     return sqrtf(x * x + y * y);
 }
@@ -34,7 +32,7 @@ static void draw_line(f32 x1, f32 y1, f32 x2, f32 y2, u32 color) {
 static s32 world_to_dbgui_coords(f32 x, f32 y, f32 z, f32 *o_sx, f32 *o_sy) {
     // World -> screen position
     f32 sx, sy;
-    if (!func_800038DC(x - gWorldX, y, z - gWorldZ, &sx, &sy, 1)) {
+    if (!camera_world_to_screen(x - gWorldX, y, z - gWorldZ, &sx, &sy, 1)) {
         // Offscreen
         return FALSE;
     }
