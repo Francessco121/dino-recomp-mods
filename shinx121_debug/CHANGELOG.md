@@ -6,6 +6,7 @@
 - Fixed DLL ID display.
 - Fixed incorrect ImGui calls.
 - Fixed crash when inspecting an object that has no setup.
+- Fixed subtitle debug letterbox override.
 
 ## v0.4.0
 - Added error prints for invalid attempts at starting an object sequence.
