@@ -1,6 +1,7 @@
 ## v0.5.0
 - Added inspector for object shadow data.
 - Added inspector for object model and model instances.
+- Added option to log trigger object activations to stdout.
 - Improved sound test menu.
 - Updated object properties from the decomp.
 - Fixed DLL ID display.
