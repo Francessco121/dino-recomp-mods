@@ -23,7 +23,7 @@ version = "0.5.0"
 authors = [ "Shinx121" ]
 
 game_id = "dino-planet"
-minimum_recomp_version = "0.1.2"
+minimum_recomp_version = "0.3.0"
 
 dependencies = [
 
@@ -47,10 +47,10 @@ additional_files = [
     "thumb.png"
 ]
 
-# [[manifest.config_options]]
-# id = "trigger_logging"
-# name = "Trigger Logging"
-# description = "Whether to enable stdout debug logging for trigger objects."
-# type = "Enum"
-# options = [ "On", "Off" ]
-# default = "Off"
+[[manifest.config_options]]
+id = "trigger_logging"
+name = "Trigger Logging"
+description = "Whether to enable stdout debug logging for trigger objects."
+type = "Enum"
+options = [ "On", "Off" ]
+default = "Off"
