@@ -454,11 +454,11 @@ void object_edit_contents(Object *obj) {
     dbgui_input_float_ext("Scale", &obj->srt.scale, &scaleInputOptions);
     dbgui_input_short("Flags", &obj->srt.flags);
 
-    dbgui_textf("positionMirror: %f,%f,%f",
-        obj->positionMirror.x, obj->positionMirror.y, obj->positionMirror.z);
+    dbgui_textf("globalPosition: %f,%f,%f",
+        obj->globalPosition.x, obj->globalPosition.y, obj->globalPosition.z);
 
-    dbgui_textf("speed: %f,%f,%f", 
-        obj->speed.x, obj->speed.y, obj->speed.z);
+    dbgui_textf("velocity: %f,%f,%f", 
+        obj->velocity.x, obj->velocity.y, obj->velocity.z);
 
     if (obj->parent != NULL) {
         if (dbgui_tree_node("parent")) {
@@ -787,10 +787,10 @@ void object_edit_contents(Object *obj) {
     } else {
         dbgui_textf("modelInsts: null");
     }
-    dbgui_textf("positionMirror2: %f,%f,%f",
-        obj->positionMirror2.x, obj->positionMirror2.y, obj->positionMirror2.z);
-    dbgui_textf("positionMirror3: %f,%f,%f",
-        obj->positionMirror3.x, obj->positionMirror3.y, obj->positionMirror3.z);
+    dbgui_textf("prevLocalPosition: %f,%f,%f",
+        obj->prevLocalPosition.x, obj->prevLocalPosition.y, obj->prevLocalPosition.z);
+    dbgui_textf("prevGlobalPosition: %f,%f,%f",
+        obj->prevGlobalPosition.x, obj->prevGlobalPosition.y, obj->prevGlobalPosition.z);
     dbgui_textf("animProgress: %f", obj->animProgress);
     dbgui_textf("animProgressLayered: %f", obj->animProgressLayered);
     dbgui_textf("curModAnimId: %d", obj->curModAnimId);

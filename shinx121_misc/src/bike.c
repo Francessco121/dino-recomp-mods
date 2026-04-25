@@ -62,9 +62,9 @@ static void spawn_bike(void) {
     setup->fadeFlags = 4;
     setup->loadDistance = 1;
     setup->fadeDistance = 99;
-    setup->x = player->positionMirror.x;
-    setup->y = player->positionMirror.y;
-    setup->z = player->positionMirror.z;
+    setup->x = player->globalPosition.x;
+    setup->y = player->globalPosition.y;
+    setup->z = player->globalPosition.z;
     *((u32*)((u32)setup + 0x18)) = 0xB800FFFF;
     *((u32*)((u32)setup + 0x1C)) = 0x0001FFFF;
     *((u32*)((u32)setup + 0x20)) = 0x1C000000;

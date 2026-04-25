@@ -118,9 +118,9 @@ void dbgui_input_obj_position(const char *label, Object *value) {
 
     if (changed) {
         value->srt.transl = value_;
-        value->positionMirror = value_;
-        value->positionMirror2 = value_;
-        value->positionMirror3 = value_;
+        value->globalPosition = value_;
+        value->prevLocalPosition = value_;
+        value->prevGlobalPosition = value_;
     }
 
     dbgui_pop_id();

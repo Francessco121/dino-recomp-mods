@@ -33,7 +33,7 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick() {
             !(player->unkB0 & 0x1000); // Don't allow while a sequence has control over the player
         if ((buttons & L_TRIG) && recomp_get_config_u32("noclip") == ALLOW_NOCLIP_ON && allowFlight) {
             if (flying_cooldown != FLY_COOLDOWN) {
-                fly_position = player->positionMirror;
+                fly_position = player->globalPosition;
             }
 
             const float SPEED = 5.0f;
@@ -79,9 +79,9 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick() {
 
             player->parent = NULL;
             player->srt.transl = fly_position;
-            player->positionMirror = fly_position;
-            player->positionMirror2 = fly_position;
-            player->positionMirror3 = fly_position;
+            player->globalPosition = fly_position;
+            player->prevLocalPosition = fly_position;
+            player->prevGlobalPosition = fly_position;
 
             playerdata->unk0.animState = 28;
             player->opacity = 0x80;

@@ -24,7 +24,7 @@ typedef struct {
 } EffectBox_Setup;
 
 void draw_effectbox(Object *obj, u32 color) {
-    Vec3f position = obj->positionMirror3;
+    Vec3f position = obj->prevGlobalPosition;
     EffectBox_Setup *setup = (EffectBox_Setup*)obj->setup;
 
     f32 width = setup->unk1A * 2;

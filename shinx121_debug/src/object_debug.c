@@ -395,8 +395,7 @@ RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback() {
 
             Object *obj = objects[i];
 
-            // position 3 is the absolute world pos including parent positions
-            Vec3f position = obj->positionMirror3;
+            Vec3f position = obj->prevGlobalPosition;
 
             SRT srt = obj->srt;
             srt.scale = 1.0f;

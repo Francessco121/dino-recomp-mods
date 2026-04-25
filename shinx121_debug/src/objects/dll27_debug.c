@@ -44,12 +44,12 @@ static void draw_bounds(Object *obj, DLL27_Data *data, u32 color) {
         draw_3d_text(data->unkE0[i].x, data->unkE0[i].y, data->unkE0[i].z, recomp_sprintf_helper("unkE0[%d]", i), 0xFF00FFFF);
     }
 
-    f32 tx = obj->positionMirror.x + (data->floorNormalX * 5);
-    f32 ty = obj->positionMirror.y + (data->floorNormalY * 5);
-    f32 tz = obj->positionMirror.z + (data->floorNormalZ * 5);
+    f32 tx = obj->globalPosition.x + (data->floorNormalX * 5);
+    f32 ty = obj->globalPosition.y + (data->floorNormalY * 5);
+    f32 tz = obj->globalPosition.z + (data->floorNormalZ * 5);
 
     draw_3d_line(
-        obj->positionMirror.x, obj->positionMirror.y, obj->positionMirror.z, 
+        obj->globalPosition.x, obj->globalPosition.y, obj->globalPosition.z, 
         tx, ty, tz, 
         color);
 }

@@ -158,7 +158,7 @@ static void draw_trigger_plane(Object *obj, u32 color) {
 }
 
 void draw_trigger(Object *obj, u32 color) {
-    Vec3f position = obj->positionMirror3;
+    Vec3f position = obj->prevGlobalPosition;
 
     switch (obj->id) {
     case OBJ_TriggerPoint: {
