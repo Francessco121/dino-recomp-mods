@@ -452,7 +452,7 @@ void object_edit_contents(Object *obj) {
         .stepFast = 0.1f
     };
     dbgui_input_float_ext("Scale", &obj->srt.scale, &scaleInputOptions);
-    dbgui_input_short("Flags", &obj->srt.flags);
+    dbgui_input_short_ext("Flags", &obj->srt.flags, &hexInput);
 
     dbgui_textf("globalPosition: %f,%f,%f",
         obj->globalPosition.x, obj->globalPosition.y, obj->globalPosition.z);
@@ -469,8 +469,8 @@ void object_edit_contents(Object *obj) {
         dbgui_textf("parent: null");
     }
     
-    dbgui_input_byte("unk34", &obj->unk34);
-    dbgui_input_sbyte("matrixIdx", &obj->matrixIdx);
+    dbgui_textf("unk34: %d", obj->unk34);
+    dbgui_textf("matrixIdx: %d", obj->matrixIdx);
     dbgui_input_byte("opacity", &obj->opacity);
     dbgui_textf("opacityWithFade: %d", obj->opacityWithFade);
     dbgui_textf("next: %p", &obj->next);
