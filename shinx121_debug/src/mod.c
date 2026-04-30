@@ -9,6 +9,7 @@ RECOMP_CALLBACK("*", recomp_on_dbgui) void my_dbgui_callback() {
 
     if (dbgui_begin_main_menu_bar()) {
         if (dbgui_begin_menu("Debug")) {
+            dbgui_separator_text("Debug Tools");
             my_debug_menu_event();
             dbgui_end_menu();
         }

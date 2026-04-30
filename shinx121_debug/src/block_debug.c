@@ -62,6 +62,8 @@ RECOMP_HOOK("block_add_to_render_list") void block_add_to_render_list(Block *blo
     blockPositions[idx].set = TRUE;
 }
 
+extern u8 *gBlockRefCounts;
+
 static void block_debug(Block *block, s16 id, s32 idx) {
     if (dbgui_tree_node(recomp_sprintf_helper("Block %d###%d", id, id))) {
         if (dbgui_is_item_hovered()) {
@@ -233,6 +235,29 @@ static void block_debug_3d(Block *block, s16 id, s32 idx) {
     }
 }
 
+static void refcount_list(void) {
+    for (s32 i = 0; i < gLoadedBlockCount; i++) {
+        if (gLoadedBlockIds[i] == -1) {
+            continue;
+        }
+        dbgui_textf("Block %d: %d\n", gLoadedBlockIds[i], gBlockRefCounts[i]);
+    }
+}
+
+static void loaded_blocks_list(void) {
+    dbgui_checkbox("Show in world", &showInWorld);
+    if (showInWorld) {
+        dbgui_checkbox("Show 3D hits", &show3DHits);
+    }
+
+    for (s32 i = 0; i < gLoadedBlockCount; i++) {
+        Block *block = gLoadedBlocks[i];
+        if (block != NULL) {
+            block_debug(block, gLoadedBlockIds[i], i);
+        }
+    }
+}
+
 RECOMP_CALLBACK(".", my_debug_menu_event) void blocks_debug_menu_callback() {
     dbgui_menu_item("Blocks", &blockDebugWindowOpen);
 }
@@ -244,16 +269,16 @@ RECOMP_CALLBACK(".", my_dbgui_event) void blocks_debug_dbgui_callback() {
 
     if (blockDebugWindowOpen) {
         if (dbgui_begin("Blocks Debug", &blockDebugWindowOpen)) {
-            dbgui_checkbox("Show in world", &showInWorld);
-            if (showInWorld) {
-                dbgui_checkbox("Show 3D hits", &show3DHits);
-            }
-
-            for (s32 i = 0; i < gLoadedBlockCount; i++) {
-                Block *block = gLoadedBlocks[i];
-                if (block != NULL) {
-                    block_debug(block, gLoadedBlockIds[i], i);
+            if (dbgui_begin_tab_bar("tabs")) {
+                if (dbgui_begin_tab_item("Loaded Blocks", NULL)) {
+                    loaded_blocks_list();
+                    dbgui_end_tab_item();
                 }
+                if (dbgui_begin_tab_item("Ref Counts", NULL)) {
+                    refcount_list();
+                    dbgui_end_tab_item();
+                }
+                dbgui_end_tab_bar();
             }
         }
         dbgui_end();

@@ -2,7 +2,12 @@
 - Added inspector for object shadow data.
 - Added inspector for object model and model instances.
 - Added option to log trigger object activations to stdout.
+- Added tab for viewing block ref counts.
+- Added debug window for inspecting global lighting state.
+- Added debug window for toggling screens.
 - Improved sound test menu.
+- Objdef flags can now be edited.
+- Object state flags can now be edited.
 - Updated object properties from the decomp.
 - Fixed DLL ID display.
 - Fixed incorrect ImGui calls.

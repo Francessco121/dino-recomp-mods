@@ -119,7 +119,7 @@ static void object_show_def(ObjDef *def) {
     } else {
         dbgui_textf("lockdata: (null)");
     }
-    dbgui_textf("flags: 0x%X", def->flags);
+    dbgui_input_uint_ext("flags", &def->flags, &hexInput);
     if (def->shadowType != 0) {
         s32 type = def->shadowType;
         if (dbgui_input_int("shadowType", &type)) {
@@ -808,7 +808,7 @@ void object_edit_contents(Object *obj) {
     }
     dbgui_textf("updatePriority: %d", obj->updatePriority);
     dbgui_input_byte_ext("unkAF", &obj->unkAF, &hexInput);
-    dbgui_textf("unkB0: 0x%X", obj->unkB0);
+    dbgui_input_ushort_ext("unkB0", &obj->unkB0, &hexInput);
     dbgui_textf("unkB2: 0x%X", obj->unkB2);
     dbgui_textf("unkB4: 0x%X", obj->unkB4);
     dbgui_textf("data: %p", obj->data);
