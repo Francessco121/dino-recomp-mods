@@ -22,10 +22,15 @@ typedef struct {
 static s32 blockDebugWindowOpen = FALSE;
 static BlockPosition blockPositions[40];
 static s32 showInWorld = FALSE;
-static s32 show3DHits = TRUE;
+static s32 show3DHits = FALSE;
+static s32 show3DShapes = TRUE;
 static s32 hoveredBlock = -1;
 static s32 hoveredBlockLabel = FALSE;
 static s32 hoveredHit = -1;
+static s32 hoveredShape = -1;
+static s32 filterEnabled = FALSE;
+static s32 blockIDFilter = -1;
+static u32 shapeFlagsFilter = 0;
 
 static const DbgUiInputIntOptions defaultInput = {
     .step = 1,
@@ -73,7 +78,7 @@ static void block_debug(Block *block, s16 id, s32 idx) {
 
         if (dbgui_tree_node("Details")) {
             dbgui_textf("unk1C: %d", block->unk1C);
-            dbgui_textf("unk28: %p", block->unk28);
+            dbgui_textf("texAnims: %p", block->texAnims);
             dbgui_textf("vtxFlags: %x", block->vtxFlags);
             dbgui_textf("vtxCount: %d", block->vtxCount);
             dbgui_textf("unk34: %d", block->unk34);
@@ -87,8 +92,8 @@ static void block_debug(Block *block, s16 id, s32 idx) {
             dbgui_textf("maxY: %d", block->maxY);
             dbgui_textf("modelSize: %d", block->modelSize);
             dbgui_textf("textureLoadCount: %d", block->textureLoadCount);
-            dbgui_textf("unk48: %u", block->unk48);
-            dbgui_textf("unk49: %d", block->unk49);
+            dbgui_textf("numTexAnims: %u", block->numTexAnims);
+            dbgui_textf("numSphereMappedShapes: %d", block->numSphereMappedShapes);
             dbgui_textf("materialCount: %u", block->materialCount);
             dbgui_textf("unk4B: %d", block->unk4B);
             dbgui_textf("unk4E: %d", block->unk4E);
@@ -169,6 +174,51 @@ static void block_debug(Block *block, s16 id, s32 idx) {
 
             dbgui_tree_pop();
         }
+
+        if (dbgui_tree_node("Shapes")) {
+            for (s32 i = 0; i < block->shapeCount; i++) {
+                BlockShape *shape = &block->shapes[i];
+
+                if (shapeFlagsFilter != 0 && !(shape->flags & shapeFlagsFilter)) {
+                    continue;
+                }
+    
+                if (dbgui_tree_node(recomp_sprintf_helper("%d", i))) {
+                    if (dbgui_is_item_hovered()) {
+                        hoveredBlock = idx;
+                        hoveredShape = i;
+                    }
+
+                    dbgui_textf("flags: 0x%X", shape->flags);
+                    dbgui_textf("vtxBase: %d", shape->vtxBase);
+                    dbgui_textf("triBase: %d", shape->triBase);
+                    dbgui_textf("Ymin: %d", shape->Ymin);
+                    dbgui_textf("Ymax: %d", shape->Ymax);
+                    dbgui_textf("Xmin: %d", shape->Xmin);
+                    dbgui_textf("Xmax: %d", shape->Xmax);
+                    dbgui_textf("Zmin: %d", shape->Zmin);
+                    dbgui_textf("Zmax: %d", shape->Zmax);
+                    dbgui_textf("unk10: %d", shape->unk10);
+                    dbgui_textf("unk11: %d", shape->unk11);
+                    dbgui_textf("materialIndex: %d", shape->materialIndex);
+                    dbgui_textf("envColourMode: %d", shape->envColourMode);
+                    dbgui_textf("animatorID: %d", shape->animatorID);
+                    dbgui_textf("blendMaterialIndex: %d", shape->blendMaterialIndex);
+                    dbgui_textf("texScrollerID: %d", shape->texScrollerID);
+                    dbgui_textf("boundsRemainder: %d", shape->boundsRemainder);
+    
+                    dbgui_tree_pop();
+                } else {
+                    if (dbgui_is_item_hovered()) {
+                        hoveredBlock = idx;
+                        hoveredShape = i;
+                    }
+                }
+            }
+
+            dbgui_tree_pop();
+        }
+
         dbgui_tree_pop();
     } else {
         if (dbgui_is_item_hovered()) {
@@ -232,6 +282,67 @@ static void block_debug_3d(Block *block, s16 id, s32 idx) {
 
         draw_3d_text(pos->x, block->minY, pos->z, recomp_sprintf_helper("Block %d", id), 
             _hoveredBlock ? 0xFFFFFFFF : 0xFF00FFFF);
+
+        if (show3DShapes) {
+            for (s32 i = 0; i < block->shapeCount; i++) {
+                BlockShape *shape = &block->shapes[i];
+
+                if (!(shape->flags & 0x10000000)) {
+                    continue;
+                }
+                if (shapeFlagsFilter != 0 && !(shape->flags & shapeFlagsFilter)) {
+                    continue;
+                }
+
+                s32 _hoveredShape = _hoveredBlock && (hoveredShape == i || (hoveredBlockLabel && hoveredShape == -1));
+
+                Vtx_t *verts = &block->vertices2[block->vtxFlags & 1][shape->vtxBase];
+                Vtx_t *tri[3];
+                f32 center[3];
+                s32 totalVerts = 0;
+
+                for (s32 triIdx = shape->triBase; triIdx < shape[1].triBase; triIdx++) {
+                    tri[0] = &verts[(block->encodedTris[triIdx].d0 >> 13) & 0x1F];
+                    tri[1] = &verts[(block->encodedTris[triIdx].d0 >> 7) & 0x1F];
+                    tri[2] = &verts[(block->encodedTris[triIdx].d0 >> 1) & 0x1F];
+                    f32 vx[3];
+                    f32 vy[3];
+                    f32 vz[3];
+                    for (s32 j = 0; j < 3; j++) {
+                        s32 x = tri[j]->ob[0];
+                        s32 y = tri[j]->ob[1];
+                        s32 z = tri[j]->ob[2];
+                        if (shape->flags & 0x20000000) {
+                            x *= 1.0f;
+                            y *= 0.05f;
+                            z *= 1.0f;
+                            y += block->minY;
+                        }
+
+                        vx[j] = x + pos->x;
+                        vy[j] = y;
+                        vz[j] = z + pos->z;
+
+                        center[0] += vx[j];
+                        center[1] += vy[j];
+                        center[2] += vz[j];
+                        totalVerts++;
+                    }
+
+                    draw_3d_line(vx[0], vy[0], vz[0], vx[1], vy[1], vz[1], _hoveredShape ? 0xFFFFFFFF : 0xFFFF00FF);
+                    draw_3d_line(vx[1], vy[1], vz[1], vx[2], vy[2], vz[2], _hoveredShape ? 0xFFFFFFFF : 0xFFFF00FF);
+                    draw_3d_line(vx[2], vy[2], vz[2], vx[0], vy[0], vz[0], _hoveredShape ? 0xFFFFFFFF : 0xFFFF00FF);
+                }
+
+                // TODO: average sucks, do (min + max) / 2
+                center[0] /= totalVerts;
+                center[1] /= totalVerts;
+                center[2] /= totalVerts;
+
+                draw_3d_text(center[0], center[1], center[2], recomp_sprintf_helper("Shape %d/%d", id, i), 
+                    _hoveredShape ? 0xFFFFFFFF : 0xFF00FFFF);
+            }
+        }
     }
 }
 
@@ -248,11 +359,24 @@ static void loaded_blocks_list(void) {
     dbgui_checkbox("Show in world", &showInWorld);
     if (showInWorld) {
         dbgui_checkbox("Show 3D hits", &show3DHits);
+        dbgui_checkbox("Show 3D shapes", &show3DShapes);
+    }
+    dbgui_checkbox("Enable filters", &filterEnabled);
+    if (filterEnabled) {
+        dbgui_push_item_width(120);
+        dbgui_input_int("Block ID Filter", &blockIDFilter);
+        dbgui_pop_item_width();
+        dbgui_push_item_width(180);
+        dbgui_input_uint_ext("Shape Flag Filter", &shapeFlagsFilter, &hexInput);
+        dbgui_pop_item_width();
+    } else {
+        blockIDFilter = -1;
+        shapeFlagsFilter = 0;
     }
 
     for (s32 i = 0; i < gLoadedBlockCount; i++) {
         Block *block = gLoadedBlocks[i];
-        if (block != NULL) {
+        if (block != NULL && (blockIDFilter == -1 || blockIDFilter == gLoadedBlockIds[i])) {
             block_debug(block, gLoadedBlockIds[i], i);
         }
     }
@@ -265,6 +389,7 @@ RECOMP_CALLBACK(".", my_debug_menu_event) void blocks_debug_menu_callback() {
 RECOMP_CALLBACK(".", my_dbgui_event) void blocks_debug_dbgui_callback() {
     hoveredBlock = -1;
     hoveredHit = -1;
+    hoveredShape = -1;
     hoveredBlockLabel = FALSE;
 
     if (blockDebugWindowOpen) {
@@ -287,7 +412,7 @@ RECOMP_CALLBACK(".", my_dbgui_event) void blocks_debug_dbgui_callback() {
     if (showInWorld) {
         for (s32 i = 0; i < gLoadedBlockCount; i++) {
             Block *block = gLoadedBlocks[i];
-            if (block != NULL) {
+            if (block != NULL && (blockIDFilter == -1 || blockIDFilter == gLoadedBlockIds[i])) {
                 block_debug_3d(block, gLoadedBlockIds[i], i);
             }
         }

@@ -3,12 +3,13 @@
 #include "recomputils.h"
 
 #include "sys/main.h"
+#include "sys/fs.h"
 
 extern BitTableEntry *gFile_BITTABLE;
-extern s16 gSizeBittable;
 
-s32 bittableDebugWindowOpen = FALSE;
-s32 entry = 0;
+static s32 bittableDebugWindowOpen = FALSE;
+static s32 entry = 0;
+static s32 bittableSize = -1;
 
 RECOMP_CALLBACK(".", my_debug_menu_event) void bittable_debug_menu_callback() {
     dbgui_menu_item("Bit Table", &bittableDebugWindowOpen);
@@ -16,6 +17,10 @@ RECOMP_CALLBACK(".", my_debug_menu_event) void bittable_debug_menu_callback() {
 
 RECOMP_CALLBACK(".", my_dbgui_event) void bittable_debug_dbgui_callback() {
     if (bittableDebugWindowOpen) {
+        if (bittableSize == -1) {
+            bittableSize = get_file_size(BITTABLE_BIN) / sizeof(BitTableEntry);
+        }
+
         if (dbgui_begin("Bit Table Debug", &bittableDebugWindowOpen)) {
             const static DbgUiInputIntOptions inputOptions = {
                 .step = 1,
@@ -37,7 +42,7 @@ RECOMP_CALLBACK(".", my_dbgui_event) void bittable_debug_dbgui_callback() {
             }
 
             dbgui_new_line();
-            if (entry >= 0 && entry < gSizeBittable) {
+            if (entry >= 0 && entry < bittableSize) {
                 BitTableEntry *entryInfo = &gFile_BITTABLE[entry];
                 dbgui_textf("Start: %d", entryInfo->start);
                 dbgui_textf("Length: %d", (entryInfo->field_0x2 & 0x1f) + 1);

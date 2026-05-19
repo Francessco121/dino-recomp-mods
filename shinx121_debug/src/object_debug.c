@@ -90,7 +90,11 @@ static void remove_freed_edit_objects() {
 static void object_editor(Object *obj, ObjEditorData *editorData, s32 index) {
     s32 open = TRUE;
     s32 destroy = FALSE;
-    if (dbgui_begin(recomp_sprintf_helper("%s###object_edit_%p", obj->def->name, obj), &open)) {
+    const char *windowTitle = (obj->setup == NULL || obj->setup->uID == -1)
+        ? recomp_sprintf_helper("%s###object_edit_%p", obj->def->name, obj)
+        : recomp_sprintf_helper("%s (0x%X)###object_edit_%p", obj->def->name, obj->setup->uID, obj);
+
+    if (dbgui_begin(windowTitle, &open)) {
         if (dbgui_begin_tab_bar(recomp_sprintf_helper("%s###object_edit_%p_tabbar", obj->def->name, obj))) {
             // Main tab
             if (dbgui_begin_tab_item("Object", NULL)) {

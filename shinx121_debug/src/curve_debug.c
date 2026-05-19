@@ -1,13 +1,14 @@
-#include "dll.h"
 #include "modding.h"
 #include "dbgui.h"
 #include "recomputils.h"
 #include "3d.h"
+#include "debug_common.h"
 
 #include "PR/ultratypes.h"
 #include "dlls/engine/26_curves.h"
 #include "sys/curves.h"
 #include "sys/math.h"
+#include "dll.h"
 
 extern SRT gCameraSRT;
 extern f32 gWorldX;
@@ -47,7 +48,7 @@ extern CurveSetup *_bss_4;
 extern CurveNode _bss_8[1300];
 extern s32 _bss_28A8;
 
-static void debug_draw_curves() {
+static void debug_draw_curves(void) {
     s32 hoveredIdx = -1;
     Vec3f camPos = {gCameraSRT.transl.x + gWorldX, gCameraSRT.transl.y, gCameraSRT.transl.z + gWorldZ};
 
@@ -82,55 +83,57 @@ static void debug_draw_curves() {
                     hoveredIdx = i;
                 }
 
+                dbgui_push_item_width(140);
                 dbgui_textf("objId: 0x%X", setup->objId);
                 dbgui_textf("quarterSize: 0x%X", setup->quarterSize);
-                dbgui_textf("unk3: 0x%X", setup->unk3);
+                dbgui_input_byte_ext("unk3", &setup->unk3, &hexInput);
                 if (setup->curveType == 0x22) {
-                    dbgui_textf("unk4: 0x%X", setup->base_type22.unk4);
-                    dbgui_textf("unk6: 0x%X", setup->base_type22.unk6);
-                    dbgui_textf("unk7: 0x%X", setup->base_type22.unk7);
+                    dbgui_input_ushort_ext("unk4", &setup->base_type22.unk4, &hexInput);
+                    dbgui_input_sbyte_ext("unk6", &setup->base_type22.unk6, &hexInput);
+                    dbgui_input_sbyte_ext("unk7", &setup->base_type22.unk7, &hexInput);
                 } else if (setup->curveType == 0x26) {
-                    dbgui_textf("unk4: 0x%X", setup->base_type26.unk4);
-                    dbgui_textf("unk5: 0x%X", setup->base_type26.unk5);
-                    dbgui_textf("unk6: 0x%X", setup->base_type26.unk6);
-                    dbgui_textf("unk7: 0x%X", setup->base_type26.unk7);
+                    dbgui_input_sbyte_ext("unk4", &setup->base_type26.unk4, &hexInput);
+                    dbgui_input_sbyte_ext("unk5", &setup->base_type26.unk5, &hexInput);
+                    dbgui_input_sbyte_ext("unk6", &setup->base_type26.unk6, &hexInput);
+                    dbgui_input_sbyte_ext("unk7", &setup->base_type26.unk7, &hexInput);
                 }
-                dbgui_textf("x: %f", setup->pos.x);
-                dbgui_textf("y: %f", setup->pos.y);
-                dbgui_textf("z: %f", setup->pos.z);
+                dbgui_input_float("x", &setup->pos.x);
+                dbgui_input_float("y", &setup->pos.y);
+                dbgui_input_float("z", &setup->pos.z);
                 dbgui_textf("uID: 0x%X", setup->uID);
 
-                dbgui_textf("unk18: 0x%X", setup->unk18);
+                dbgui_input_sbyte_ext("unk18", &setup->unk18, &hexInput);
                 dbgui_textf("curveType: 0x%X", setup->curveType);
-                dbgui_textf("unk1A: 0x%X", setup->unk1A);
-                dbgui_textf("unk1B: 0x%X", setup->unk1B);
+                dbgui_input_sbyte_ext("unk1A", &setup->unk1A, &hexInput);
+                dbgui_input_sbyte_ext("unk1B", &setup->unk1B, &hexInput);
                 for (s32 k = 0; k < 4; k++) {
-                    dbgui_textf("unk1C[%d]: 0x%X", k, setup->links[k]);
+                    dbgui_input_int_ext(recomp_sprintf_helper("links[%d]", k), &setup->links[k], &hexInput);
                 }
-                dbgui_textf("unk2C: 0x%X", setup->unk2C);
-                dbgui_textf("unk2D: 0x%X", setup->unk2D);
-                dbgui_textf("unk2E: 0x%X", setup->unk2E);
-                dbgui_textf("unk2F: 0x%X", setup->unk2F);
+                dbgui_input_sbyte_ext("unk2C", &setup->unk2C, &hexInput);
+                dbgui_input_sbyte_ext("unk2D", &setup->unk2D, &hexInput);
+                dbgui_input_byte_ext("unk2E", &setup->unk2E, &hexInput);
+                dbgui_input_sbyte_ext("unk2F", &setup->unk2F, &hexInput);
                 if (setup->curveType == 0x15) {
-                    dbgui_textf("unk30: 0x%X", setup->type15.pad30);
-                    dbgui_textf("unk34: 0x%X", setup->type15.unk34);
+                    dbgui_input_int_ext("unk30", &setup->type15.pad30, &hexInput);
+                    dbgui_input_short_ext("unk34", &setup->type15.unk34, &hexInput);
                 } else if (setup->curveType == 0x22) {
-                    dbgui_textf("unk30: 0x%X", setup->type22.unk30);
-                    dbgui_textf("usedBit: 0x%X", setup->type22.usedBit);
+                    dbgui_input_short_ext("unk30", &setup->type22.unk30, &hexInput);
+                    dbgui_input_short_ext("usedBit", &setup->type22.usedBit, &hexInput);
                 } else if (setup->curveType == 0x24) {
-                    dbgui_textf("unk30: 0x%X", setup->type24.unk30);
-                    dbgui_textf("unk32: 0x%X", setup->type24.unk32);
+                    dbgui_input_short_ext("unk30", &setup->type24.unk30, &hexInput);
+                    dbgui_input_short_ext("unk32", &setup->type24.unk32, &hexInput);
                 } else if (setup->curveType == 0x26) {
-                    dbgui_textf("unk30: 0x%X", setup->type26.unk30);
-                    dbgui_textf("unk31: 0x%X", setup->type26.unk31);
-                    dbgui_textf("unk32: 0x%X", setup->type26.unk32);
-                    dbgui_textf("unk33: 0x%X", setup->type26.unk33);
+                    dbgui_input_sbyte_ext("unk30", &setup->type26.unk30, &hexInput);
+                    dbgui_input_sbyte_ext("unk31", &setup->type26.unk31, &hexInput);
+                    dbgui_input_sbyte_ext("unk32", &setup->type26.unk32, &hexInput);
+                    dbgui_input_sbyte_ext("unk33", &setup->type26.unk33, &hexInput);
                     for (s32 k = 0; k < 4; k++) {
                         for (s32 j = 0; j < 4; j++) {
-                            dbgui_textf("unk34[%d][%d]: %d", k, j, setup->type26.unk34[k][j]);
+                            dbgui_input_sbyte(recomp_sprintf_helper("unk34[%d][%d]: %d", k, j), &setup->type26.unk34[k][j]);
                         }
                     }
                 }
+                dbgui_pop_item_width();
                 
                 dbgui_tree_pop();
             } else {

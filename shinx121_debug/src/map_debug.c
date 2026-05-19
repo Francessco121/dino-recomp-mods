@@ -18,7 +18,7 @@ static char mapNames[120][28];
 static s32 loadedMapNames = FALSE;
 
 static s32 mapID;
-static s32 setupID;
+static s32 actID;
 
 RECOMP_CALLBACK(".", my_debug_menu_event) void map_debug_menu_callback() {
     dbgui_menu_item("Maps", &map_debug_window_open);
@@ -39,7 +39,7 @@ RECOMP_CALLBACK(".", my_dbgui_event) void map_debug_dbgui_callback() {
         if (dbgui_begin("Map Debug", &map_debug_window_open)) {
             Object *player = get_player();
             if (player != NULL) {
-                s32 inMap = map_get_map_id_from_xz_ws(player->srt.transl.x, player->srt.transl.z);
+                s32 inMap = map_world_xz_to_map_id(player->srt.transl.x, player->srt.transl.z);
                 if (inMap >= 0 && inMap < 120) {
                     dbgui_textf("Player is currently in:\n[%d] %s", inMap, mapNames[inMap]);
                 }
@@ -55,27 +55,27 @@ RECOMP_CALLBACK(".", my_dbgui_event) void map_debug_dbgui_callback() {
                     dbgui_end_tab_item();
                 }
 
-                if (dbgui_begin_tab_item("Map Setups", NULL)) {
-                    dbgui_text("Setup Editor");
+                if (dbgui_begin_tab_item("Map States", NULL)) {
+                    dbgui_text("State Editor");
                     if (dbgui_input_int("Map ID", &mapID)) {
                         if (mapID < 0) mapID = 0;
                         if (mapID >= 120) mapID = 120 - 1;
                     }
-                    if (dbgui_input_int("Setup ID", &setupID)) {
-                        if (setupID < 0) setupID = 0;
+                    if (dbgui_input_int("Act ID", &actID)) {
+                        if (actID < 0) actID = 0;
                     }
                     if (dbgui_button("Set")) {
-                        gDLL_29_Gplay->vtbl->set_map_setup(mapID, setupID);
+                        gDLL_29_Gplay->vtbl->set_map_setup(mapID, actID);
                     }
                     dbgui_same_line();
-                    dbgui_textf("%d -> %d (%s)", gDLL_29_Gplay->vtbl->get_map_setup(mapID), setupID, mapNames[mapID]);
+                    dbgui_textf("%d -> %d (%s)", gDLL_29_Gplay->vtbl->get_map_setup(mapID), actID, mapNames[mapID]);
 
                     dbgui_separator();
 
-                    dbgui_text("Current Setup IDs");
-                    if (dbgui_begin_child("setup_id_list")) {
+                    dbgui_text("Current States");
+                    if (dbgui_begin_child("obj_group_status_list")) {
                         for (s32 i = 0; i < 120; i++) {
-                            if (dbgui_tree_node(recomp_sprintf_helper("[%d] %s: %d", i, mapNames[i], gDLL_29_Gplay->vtbl->get_map_setup(i)))) {
+                            if (dbgui_tree_node(recomp_sprintf_helper("[%d] %s: %d###%d", i, mapNames[i], gDLL_29_Gplay->vtbl->get_map_setup(i), i))) {
                                 dbgui_text("Object Group Status");
                                 for (s32 k = 0; k < 32; k++) {
                                     s32 status = gDLL_29_Gplay->vtbl->get_obj_group_status(i, k);

@@ -7,6 +7,7 @@
 #include "PR/gu.h"
 #include "dlls/objects/common/sidekick.h"
 #include "dlls/objects/210_player.h"
+#include "dlls/objects/325_trigger.h"
 #include "game/objects/object.h"
 #include "game/objects/object_id.h"
 #include "sys/asset_thread.h"
@@ -21,8 +22,6 @@
 #include "sys/map.h"
 #include "dll.h"
 #include "types.h"
-
-#include "trigger.h"
 
 typedef enum {
     TRIGGER_DEBUG_LOGGING_ON,
@@ -182,7 +181,7 @@ RECOMP_HOOK_DLL(trigger_process_commands) void trigger_process_commands_print_ho
         case TRG_CMD_LOD_MODEL:
             trigger_printf(self, "Trigger [%d], LOD Model [%d]\n", i, cmd->param1);
             break;
-        case TRG_CMD_F:
+        case TRG_CMD_SETUP_POINT:
             trigger_printf(self, "Trigger [%d], Setup Point,        Level      [%d], SetupPoint [%d]\n", i, cmd->param1, cmd->param2);
             break;
         case TRG_CMD_FLAG: {
@@ -251,8 +250,8 @@ RECOMP_HOOK_DLL(trigger_process_commands) void trigger_process_commands_print_ho
         case TRG_CMD_WORLD_SET_MAP_SETUP:
             trigger_printf(self, "Trigger [%d], WorldSetMapSetup [%d, %d]\n", i, cmd->param2, cmd->param1);
             break;
-        case TRG_CMD_11:
-            trigger_printf(self, "Trigger [%d], Tricky Bit 0x4E2 = [%d]\n", i, cmd->param2 | (cmd->param1 << 8));
+        case TRG_CMD_TRICKY_TALK_SEQ:
+            trigger_printf(self, "Trigger [%d], TrickyTalkSeq Bit 0x4E2 = [%d]\n", i, cmd->param2 | (cmd->param1 << 8));
             break;
         case TRG_CMD_SAVE_GAME:
             trigger_printf(self, "Trigger [%d], SaveGame [%d]\n", i, cmd->param2);

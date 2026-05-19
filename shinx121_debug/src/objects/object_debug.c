@@ -11,6 +11,7 @@
 #include "game/objects/object_def.h"
 #include "sys/dll.h"
 #include "sys/gfx/model.h"
+#include "sys/map.h"
 #include "sys/objanim.h"
 
 extern DLLTab *gFile_DLLS_TAB;
@@ -18,6 +19,8 @@ extern DLLTab *gFile_DLLS_TAB;
 extern s32* gTextureCache;
 extern s32 gNumCachedTextures;
 extern u16* gFile_TEXTABLE;
+
+extern Struct_D_800B9768 D_800B9768;
 
 static const DbgUiInputIntOptions hexInput = {
     .step = 0,
@@ -440,8 +443,90 @@ static void object_draw_skeleton_hits(ModelInstance *modelInst, _Bool drawBoxes,
     }
 }
 
+static _Bool map_get_world_xz(s32 mapID, f32 *x, f32 *z) {
+    MapHeader **mapsDataTable = map_get_loaded_maps_table();
+    if (mapsDataTable[mapID] == NULL) {
+        return FALSE;
+    }
+
+    MapHeader *map = mapsDataTable[mapID];
+
+    if (x != NULL) {
+        *x = (D_800B9768.unk4[mapID].xMin + map->originOffsetX) * BLOCKS_GRID_UNIT_F;
+    }
+    if (z != NULL) {
+        *z = (D_800B9768.unk4[mapID].zMin + map->originOffsetZ) * BLOCKS_GRID_UNIT_F;
+    }
+
+    return TRUE;
+}
+
+static _Bool object_get_map_relative_xz(Object *obj, f32 *x, f32 *z, s32 *mapID) {
+    s32 inMapID = map_world_xz_to_map_id(obj->globalPosition.x, obj->globalPosition.z);
+    if (inMapID == -1) {
+        return FALSE;
+    }
+
+    f32 mapX, mapZ;
+    if (!map_get_world_xz(inMapID, &mapX, &mapZ)) {
+        return FALSE;
+    }
+
+    if (x != NULL) {
+        *x = obj->globalPosition.x - mapX;
+    }
+    if (z != NULL) {
+        *z = obj->globalPosition.z - mapZ;
+    }
+    if (mapID != NULL) {
+        *mapID = inMapID;
+    }
+
+    return TRUE;
+}
+
 void object_edit_contents(Object *obj) {
     dbgui_textf("(obj address): %p", obj);
+
+    if (dbgui_tree_node("Transform Editor")) {
+        _Bool positionChanged = FALSE;
+        if (dbgui_input_float("X", &obj->srt.transl.x)) positionChanged = TRUE;
+        if (dbgui_input_float("Y", &obj->srt.transl.y)) positionChanged = TRUE;
+        if (dbgui_input_float("Z", &obj->srt.transl.z)) positionChanged = TRUE;
+        if (positionChanged) {
+            if (obj->parent != NULL) {
+                transform_point_by_object(
+                    obj->srt.transl.x, obj->srt.transl.y, obj->srt.transl.z,
+                    &obj->globalPosition.x, &obj->globalPosition.y, &obj->globalPosition.z,
+                    obj->parent
+                );
+            } else {
+                obj->globalPosition.x = obj->srt.transl.x;
+                obj->globalPosition.y = obj->srt.transl.y;
+                obj->globalPosition.z = obj->srt.transl.z;
+            }
+
+            obj->prevLocalPosition.x = obj->srt.transl.x;
+            obj->prevLocalPosition.y = obj->srt.transl.y;
+            obj->prevLocalPosition.z = obj->srt.transl.z;
+
+            obj->prevGlobalPosition.x = obj->globalPosition.x;
+            obj->prevGlobalPosition.y = obj->globalPosition.y;
+            obj->prevGlobalPosition.z = obj->globalPosition.z;
+        }
+
+        dbgui_input_short("Yaw", &obj->srt.yaw);
+        dbgui_input_short("Pitch", &obj->srt.pitch);
+        dbgui_input_short("Roll", &obj->srt.roll);
+
+        const static DbgUiInputFloatOptions scaleInputOptions = {
+            .step = 0.01f,
+            .stepFast = 0.1f
+        };
+        dbgui_input_float_ext("Scale", &obj->srt.scale, &scaleInputOptions);
+
+        dbgui_tree_pop();
+    }
 
     dbgui_textf("Position: %f,%f,%f",
         obj->srt.transl.x, obj->srt.transl.y, obj->srt.transl.z);
@@ -451,8 +536,16 @@ void object_edit_contents(Object *obj) {
         .step = 0.01f,
         .stepFast = 0.1f
     };
-    dbgui_input_float_ext("Scale", &obj->srt.scale, &scaleInputOptions);
+    dbgui_textf("Scale: %f", &obj->srt.scale);
     dbgui_input_short_ext("Flags", &obj->srt.flags, &hexInput);
+
+    f32 mapRelativeX, mapRelativeZ;
+    s32 inMapID;
+    if (object_get_map_relative_xz(obj, &mapRelativeX, &mapRelativeZ, &inMapID)) {
+        dbgui_textf("Local Map Position: %f,%f,%f",
+            mapRelativeX, obj->globalPosition.y, mapRelativeZ);
+        dbgui_textf("Local Map ID: %d", inMapID);
+    }
 
     dbgui_textf("globalPosition: %f,%f,%f",
         obj->globalPosition.x, obj->globalPosition.y, obj->globalPosition.z);
@@ -469,7 +562,7 @@ void object_edit_contents(Object *obj) {
         dbgui_textf("parent: null");
     }
     
-    dbgui_textf("unk34: %d", obj->unk34);
+    dbgui_textf("mobileMapID: %d", obj->mobileMapID);
     dbgui_textf("matrixIdx: %d", obj->matrixIdx);
     dbgui_input_byte("opacity", &obj->opacity);
     dbgui_textf("opacityWithFade: %d", obj->opacityWithFade);
@@ -795,8 +888,8 @@ void object_edit_contents(Object *obj) {
     dbgui_textf("animProgressLayered: %f", obj->animProgressLayered);
     dbgui_textf("curModAnimId: %d", obj->curModAnimId);
     dbgui_textf("curModAnimIdLayered: %d", obj->curModAnimIdLayered);
-    dbgui_textf("unkA4: %f", obj->unkA4);
-    dbgui_textf("unkA8: %f", obj->unkA8);
+    dbgui_textf("depthSortVal: %f", obj->depthSortVal);
+    dbgui_textf("visRadius: %f", obj->visRadius);
     dbgui_textf("mapID: %d", obj->mapID);
     if (dbgui_input_sbyte("modelInstIdx", &obj->modelInstIdx)) {
         // Game will crash if this goes out of bounds
@@ -808,18 +901,18 @@ void object_edit_contents(Object *obj) {
     }
     dbgui_textf("updatePriority: %d", obj->updatePriority);
     dbgui_input_byte_ext("unkAF", &obj->unkAF, &hexInput);
-    dbgui_input_ushort_ext("unkB0", &obj->unkB0, &hexInput);
+    dbgui_input_ushort_ext("stateFlags", &obj->stateFlags, &hexInput);
     dbgui_textf("unkB2: 0x%X", obj->unkB2);
-    dbgui_textf("unkB4: 0x%X", obj->unkB4);
+    dbgui_textf("seqSlot: 0x%X", obj->seqSlot);
     dbgui_textf("data: %p", obj->data);
     dbgui_textf("animCallback: %p", obj->animCallback);
-    if (obj->unkC0 != NULL) {
-        if (dbgui_tree_node("unkC0")) {
-            object_edit_contents(obj->unkC0);
+    if (obj->animObj != NULL) {
+        if (dbgui_tree_node("animObj")) {
+            object_edit_contents(obj->animObj);
             dbgui_tree_pop();
         }
     } else {
-        dbgui_textf("unkC0: null");
+        dbgui_textf("animObj: null");
     }
     dbgui_textf("unkC4: %u", obj->unkC4);
     if (obj->linkedObject != NULL) {
@@ -844,7 +937,7 @@ void object_edit_contents(Object *obj) {
     dbgui_textf("unkD6: %u", obj->unkD6);
     dbgui_textf("unkD8: %u", obj->unkD8);
     dbgui_textf("unkD9: %u", obj->unkD9);
-    dbgui_textf("unkDA: %u", obj->unkDA);
+    dbgui_textf("freeLock: %u", obj->freeLock);
     dbgui_input_int("unkDC", &obj->unkDC);
 }
 
@@ -882,7 +975,7 @@ void object_seq_debug(Object *obj, ObjEditorData *editorData) {
     }
 
     if (dbgui_button("Play")) {
-        editorData->seqPlayLastRet = gDLL_3_Animation->vtbl->func17(editorData->seqIdx, obj, editorData->seqActorBits);
+        editorData->seqPlayLastRet = gDLL_3_Animation->vtbl->start_obj_sequence(editorData->seqIdx, obj, editorData->seqActorBits);
     }
     
     dbgui_textf("Last play return value: %d", editorData->seqPlayLastRet);

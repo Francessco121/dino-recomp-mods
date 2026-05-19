@@ -59,14 +59,14 @@ RECOMP_CALLBACK(".", my_dbgui_event) void sound_test_dbgui_callback() {
 
                     if (dbgui_button("Play")) {
                         if (lastSfxID != -1) {
-                            gDLL_6_AMSFX->vtbl->func_A1C(lastSfxID);
+                            gDLL_6_AMSFX->vtbl->stop(lastSfxID);
                         }
-                        lastSfxID = gDLL_6_AMSFX->vtbl->play_sound(NULL, sfxID, volume, NULL, 0, 0, 0);
+                        lastSfxID = gDLL_6_AMSFX->vtbl->play(NULL, sfxID, volume, NULL, 0, 0, 0);
                     }
                     dbgui_same_line();
                     if (dbgui_button("Stop")) {
                         if (lastSfxID != -1) {
-                            gDLL_6_AMSFX->vtbl->func_A1C(lastSfxID);
+                            gDLL_6_AMSFX->vtbl->stop(lastSfxID);
                         }
                     }
 

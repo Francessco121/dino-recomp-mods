@@ -2,19 +2,206 @@
 
 #include "modding.h"
 #include "dbgui.h"
+#include "recomputils.h"
 #include "../3d.h"
+#include "../debug_common.h"
 
 #include "game/objects/object.h"
 #include "game/objects/object_id.h"
-#include "recomputils.h"
+#include "dlls/objects/325_trigger.h"
 #include "sys/gfx/model.h"
 #include "sys/math.h"
-
-#include "trigger.h"
 
 #include "recomp/dlls/objects/325_trigger_recomp.h"
 
 extern ModelInstance *sPlaneModel;
+
+static const DbgUiInputIntOptions hexInput = {
+    .step = 0,
+    .stepFast = 0,
+    .flags = DBGUI_INPUT_TEXT_FLAGS_CharsHexadecimal
+};
+
+const char* get_trigger_name(s32 id) {
+    switch (id) {
+        case TRG_CMD_HAZARD:
+            return "HAZARD";
+        case TRG_CMD_2:
+            return "2";
+        case TRG_CMD_MUSIC_ACTION:
+            return "MUSIC_ACTION";
+        case TRG_CMD_SOUND:
+            return "SOUND";
+        case TRG_CMD_5:
+            return "5";
+        case TRG_CMD_CAMERA_ACTION:
+            return "CAMERA_ACTION";
+        case TRG_CMD_7:
+            return "7";
+        case TRG_CMD_TRACK:
+            return "TRACK";
+        case TRG_CMD_9:
+            return "9";
+        case TRG_CMD_ENV_FX:
+            return "ENV_FX";
+        case TRG_CMD_ANIM_SEQ:
+            return "ANIM_SEQ";
+        case TRG_CMD_TRIGGER:
+            return "TRIGGER";
+        case TRG_CMD_LIGHTING:
+            return "LIGHTING";
+        case TRG_CMD_STORYBOARD:
+            return "STORYBOARD";
+        case TRG_CMD_SETUP_POINT:
+            return "SETUP_POINT";
+        case TRG_CMD_LOD_MODEL:
+            return "LOD_MODEL";
+        case TRG_CMD_TRICKY_TALK_SEQ:
+            return "TRICKY_TALK_SEQ";
+        case TRG_CMD_FLAG:
+            return "BITS";
+        case TRG_CMD_ENABLE_OBJ_GROUP:
+            return "ENABLE_OBJ_GROUP";
+        case TRG_CMD_DISABLE_OBJ_GROUP:
+            return "DISABLE_OBJ_GROUP";
+        case TRG_CMD_TEXTURE_LOAD:
+            return "TEXTURE_LOAD";
+        case TRG_CMD_TEXTURE_FREE:
+            return "TEXTURE_FREE";
+        case TRG_CMD_17:
+            return "17";
+        case TRG_CMD_SET_MAP_SETUP:
+            return "SET_MAP_ACT";
+        case TRG_CMD_SCRIPT:
+            return "SCRIPT";
+        case TRG_CMD_WORLD_ENABLE_OBJ_GROUP:
+            return "WORLD_ENABLE_OBJ_GROUP";
+        case TRG_CMD_WORLD_DISABLE_OBJ_GROUP:
+            return "WORLD_DISABLE_OBJ_GROUP";
+        case TRG_CMD_KYTE_FLIGHT_GROUP:
+            return "KYTE_FLIGHT_GROUP";
+        case TRG_CMD_KYTE_TALK_SEQ:
+            return "KYTE_TALK_SEQ";
+        case TRG_CMD_WORLD_SET_MAP_SETUP:
+            return "WORLD_SET_MAP_ACT";
+        case TRG_CMD_SAVE_GAME:
+            return "SAVE_GAME";
+        case TRG_CMD_MAP_LAYER:
+            return "MAP_LAYER";
+        case TRG_CMD_FLAG_TOGGLE:
+            return "BITS_TOGGLE";
+        case TRG_CMD_TOGGLE_OBJ_GROUP:
+            return "TOGGLE_OBJ_GROUP";
+        case TRG_CMD_RESTART:
+            return "RESTART";
+        case TRG_CMD_WATER_FALLS_FLAGS:
+            return "WATER_FALLS_FLAGS";
+        case TRG_CMD_WATER_FALLS_FLAGS2:
+            return "WATER_FALLS_FLAGS2";
+        case TRG_CMD_SIDEKICK:
+            return "SIDEKICK";
+        default:
+            return "<unknown>";
+    }
+}
+
+const char* get_trigger_cond_name(s32 cond) {
+    static char buffer[100];
+    s32 offset = 0;
+    if (cond & CMD_COND_IN) {
+        offset += recomp_sprintf(buffer + offset, "%s, ", "In");
+    }
+    if (cond & CMD_COND_OUT) {
+        offset += recomp_sprintf(buffer + offset, "%s, ", "Out");
+    }
+    if (cond & CMD_COND_RE_ENTER) {
+        offset += recomp_sprintf(buffer + offset, "%s, ", "Re-enter");
+    }
+    if (cond & CMD_COND_RE_EXIT) {
+        offset += recomp_sprintf(buffer + offset, "%s, ", "Re-exit");
+    }
+    if (cond & CMD_COND_CONTINUOUS) {
+        offset += recomp_sprintf(buffer + offset, "%s, ", "Continuous");
+    }
+    if (cond & CMD_COND_RESTORE) {
+        offset += recomp_sprintf(buffer + offset, "%s, ", "Restore");
+    }
+
+    offset = MAX(0, offset - 2);
+    buffer[offset] = '\0';
+
+    return buffer;
+}
+
+const char* get_trigger_param(TriggerCommand *cmd) {
+    static char buffer[100];
+    s32 offset = 0;
+    
+    switch (cmd->id) {
+        case TRG_CMD_CAMERA_ACTION:
+        case TRG_CMD_TRACK:
+        case TRG_CMD_ANIM_SEQ:
+        case TRG_CMD_SETUP_POINT:
+            offset += recomp_sprintf(buffer + offset, "0x%X, 0x%X", cmd->param1, cmd->param2);
+            break;
+        case TRG_CMD_LOD_MODEL:
+        case TRG_CMD_RESTART:
+        case TRG_CMD_MAP_LAYER:
+        case TRG_CMD_SIDEKICK:
+        case TRG_CMD_WATER_FALLS_FLAGS:
+        case TRG_CMD_WATER_FALLS_FLAGS2:
+            offset += recomp_sprintf(buffer + offset, "0x%X", cmd->param1);
+            break;
+        case TRG_CMD_SCRIPT:
+        case TRG_CMD_SAVE_GAME:
+            offset += recomp_sprintf(buffer + offset, "0x%X", cmd->param2);
+            break;
+        case TRG_CMD_WORLD_ENABLE_OBJ_GROUP:
+        case TRG_CMD_WORLD_DISABLE_OBJ_GROUP:
+        case TRG_CMD_WORLD_SET_MAP_SETUP:
+            offset += recomp_sprintf(buffer + offset, "0x%X, 0x%X", cmd->param2, cmd->param1);
+            break;
+        case TRG_CMD_FLAG: {
+            s32 param = cmd->param2 | (cmd->param1 << 8);
+            s32 entry;
+            u32 value;
+
+            entry = param & 0x3FFF;
+            param >>= 14;
+            offset += recomp_sprintf(buffer + offset, "Bit 0x%X", entry);
+
+            if (param == 0) {
+                offset += recomp_sprintf(buffer + offset, ", 0");
+            } else if (param == 1) {
+                offset += recomp_sprintf(buffer + offset, ", -1");
+            } else if (param == 2) {
+                offset += recomp_sprintf(buffer + offset, ", ~");
+            }
+            break;
+        }
+        case TRG_CMD_FLAG_TOGGLE: {
+            s32 param = cmd->param2 | (cmd->param1 << 8);
+            s32 entry;
+            u32 value;
+
+            entry = param & 0x1FFF;
+            param >>= 13;
+            offset += recomp_sprintf(buffer + offset, "Bit 0x%X, Flip %d", entry, param);
+            break;
+        }
+        default:
+            offset += recomp_sprintf(buffer + offset, "0x%X", cmd->param2 | (cmd->param1 << 8));
+            break;
+    }
+
+    if (offset >= (s32)sizeof(buffer)) {
+        recomp_eprintf("[shinx121_debug] get_trigger_param overflow! %d/%d", offset, sizeof(buffer));
+        offset = sizeof(buffer);
+    }
+    buffer[offset] = '\0';
+
+    return buffer;
+}
 
 void trigger_debug_tab(Object *obj) {
     if (dbgui_begin_tab_bar("##edit")) {
@@ -40,32 +227,36 @@ void trigger_debug_tab(Object *obj) {
 
                 dbgui_text("commands:");
                 for (s32 i = 0; i < 8; i++) {
-                    static DbgUiInputIntOptions inputOptions = {
-                        .flags = DBGUI_INPUT_TEXT_FLAGS_CharsHexadecimal | DBGUI_INPUT_TEXT_FLAGS_AlwaysOverwrite,
-                        .step = 0,
-                        .stepFast = 0
-                    };
-                    dbgui_textf("[%d]: %02X %02X %02X %02X", i,
-                        objsetup->commands[i].condition, objsetup->commands[i].id, 
-                        objsetup->commands[i].param1, objsetup->commands[i].param2);
-                    s32 word = *((s32*)&objsetup->commands[i]);
-                    if (dbgui_input_int_ext(recomp_sprintf_helper("##commands[%d]", i), &word, &inputOptions)) {
-                        *((s32*)&objsetup->commands[i]) = word;
+                    TriggerCommand *cmd = &objsetup->commands[i];
+                    const char *label = cmd->id == 0
+                        ? recomp_sprintf_helper("[%d] <none>###%d", i, i)
+                        : recomp_sprintf_helper("[%d] %s (%s) %s###%d", i, 
+                            get_trigger_name(cmd->id),
+                            get_trigger_cond_name(cmd->condition),
+                            get_trigger_param(cmd),
+                            i);
+                    if (dbgui_tree_node(label)) {
+                        dbgui_input_byte_ext("Condition", &cmd->condition, &hexInput);
+                        dbgui_input_byte_ext("ID", &cmd->condition, &hexInput);
+                        dbgui_input_byte_ext("Param 1", &cmd->param1, &hexInput);
+                        dbgui_input_byte_ext("Param 2", &cmd->param2, &hexInput);
+                        dbgui_tree_pop();
                     }
                 }
 
                 dbgui_textf("localID: %d", objsetup->localID);
-                dbgui_textf("sizeX: %d", objsetup->sizeX);
-                dbgui_textf("sizeY: %d", objsetup->sizeY);
-                dbgui_textf("sizeZ: %d", objsetup->sizeZ);
+                dbgui_input_byte("sizeX", &objsetup->sizeX);
+                dbgui_input_byte("sizeY", &objsetup->sizeY);
+                dbgui_input_byte("sizeZ", &objsetup->sizeZ);
                 dbgui_textf("rotationY: %d", objsetup->rotationY);
                 dbgui_textf("rotationX: %d", objsetup->rotationX);
                 dbgui_textf("activatorObjType: %d", objsetup->activatorObjType);
                 dbgui_textf("bitFlagID: %x", objsetup->bitFlagID);
                 dbgui_textf("timerDuration: %d", objsetup->timerDuration);
-                dbgui_textf("conditionBitFlagIDs: [%x, %x, %x, %x]", 
-                    objsetup->conditionBitFlagIDs[0], objsetup->conditionBitFlagIDs[1],
-                    objsetup->conditionBitFlagIDs[2], objsetup->conditionBitFlagIDs[3]);
+                dbgui_textf("conditionBitFlagIDs[0]: %x", objsetup->conditionBitFlagIDs[0]);
+                dbgui_textf("conditionBitFlagIDs[1]: %x", objsetup->conditionBitFlagIDs[1]);
+                dbgui_textf("conditionBitFlagIDs[2]: %x", objsetup->conditionBitFlagIDs[2]);
+                dbgui_textf("conditionBitFlagIDs[3]: %x", objsetup->conditionBitFlagIDs[3]);
             }
 
             dbgui_end_tab_item();
