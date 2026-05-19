@@ -23,7 +23,7 @@ static s32 blockDebugWindowOpen = FALSE;
 static BlockPosition blockPositions[40];
 static s32 showInWorld = FALSE;
 static s32 show3DHits = FALSE;
-static s32 show3DShapes = TRUE;
+static s32 show3DShapes = FALSE;
 static s32 hoveredBlock = -1;
 static s32 hoveredBlockLabel = FALSE;
 static s32 hoveredHit = -1;

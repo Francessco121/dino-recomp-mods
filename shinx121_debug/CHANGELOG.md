@@ -1,18 +1,24 @@
 ## v0.5.0
+- Added editor for object transforms.
 - Added inspector for object shadow data.
 - Added inspector for object model and model instances.
 - Added option to log trigger object activations to stdout.
 - Added tab for viewing block ref counts.
 - Added debug window for inspecting global lighting state.
 - Added debug window for toggling screens.
+- Added 3D visualization and inspector for block shapes.
+- An object's local position within a map is now displayed in the object editor.
 - Improved sound test menu.
+- Improved SeqObj menu.
 - Objdef flags can now be edited.
 - Object state flags can now be edited.
+- Curves can now be edited.
 - Updated object properties from the decomp.
 - Fixed DLL ID display.
 - Fixed incorrect ImGui calls.
 - Fixed crash when inspecting an object that has no setup.
 - Fixed subtitle debug letterbox override.
+- Other small miscellaneous improvements/bug fixes.
 
 ## v0.4.0
 - Added error prints for invalid attempts at starting an object sequence.
