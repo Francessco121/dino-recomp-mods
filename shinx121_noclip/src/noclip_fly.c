@@ -12,15 +12,21 @@ extern MtxF gViewMtx;
 
 const s32 FLY_COOLDOWN = 1;
 
-s32 flying_cooldown = 0;
-Vec3f fly_position;
+static s32 flying_cooldown = 0;
+static Vec3f fly_position;
+static _Bool fly_toggle = FALSE;
 
 typedef enum {
     ALLOW_NOCLIP_ON,
     ALLOW_NOCLIP_OFF,
 } AllowNoclip;
 
-RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick() {
+typedef enum {
+    NOCLIP_MODE_HOLD,
+    NOCLIP_MODE_TOGGLE,
+} NoclipMode;
+
+RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick(void) {
     Object *player = get_player();
 
     if (player != NULL) {
@@ -28,10 +34,22 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick() {
 
         // Noclip fly
         u16 buttons = gContPads[gVirtualContPortMap[0]].button;
+        
         s32 allowFlight = 
             playerdata->vehicle == NULL && // Don't allow while on vehicle
-            !(player->unkB0 & 0x1000); // Don't allow while a sequence has control over the player
-        if ((buttons & L_TRIG) && recomp_get_config_u32("noclip") == ALLOW_NOCLIP_ON && allowFlight) {
+            !(player->stateFlags & OBJSTATE_IN_SEQ); // Don't allow while a sequence has control over the player
+        
+        s32 flyActive = FALSE;
+        if (recomp_get_config_u32("mode") == NOCLIP_MODE_TOGGLE) {
+            if (joy_get_pressed_raw(0) & L_TRIG) {
+                fly_toggle = !fly_toggle;
+            }
+            flyActive = fly_toggle;
+        } else {
+            flyActive = (buttons & L_TRIG) ? 1 : 0;
+        }
+        
+        if (flyActive && recomp_get_config_u32("noclip") == ALLOW_NOCLIP_ON && allowFlight) {
             if (flying_cooldown != FLY_COOLDOWN) {
                 fly_position = player->globalPosition;
             }

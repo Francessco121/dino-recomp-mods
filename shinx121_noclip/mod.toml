@@ -45,3 +45,11 @@ description = "Allow the use of noclip while holding the L Button. Turn off if y
 type = "Enum"
 options = [ "On", "Off" ]
 default = "On"
+
+[[manifest.config_options]]
+id = "mode"
+name = "Mode"
+description = "Whether the L Button needs to be held to noclip or if it just needs to be pressed to toggle noclip on or off."
+type = "Enum"
+options = [ "Hold", "Toggle" ]
+default = "Hold"
