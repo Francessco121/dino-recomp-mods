@@ -6,6 +6,7 @@
 #include "sys/joypad.h"
 #include "sys/objects.h"
 #include "sys/math.h"
+#include "dll.h"
 
 extern SRT gCameraSRT;
 extern MtxF gViewMtx;
@@ -15,6 +16,7 @@ const s32 FLY_COOLDOWN = 1;
 static s32 flying_cooldown = 0;
 static Vec3f fly_position;
 static _Bool fly_toggle = FALSE;
+static _Bool flying = FALSE;
 
 typedef enum {
     ALLOW_NOCLIP_ON,
@@ -26,7 +28,14 @@ typedef enum {
     NOCLIP_MODE_TOGGLE,
 } NoclipMode;
 
+typedef enum {
+    NOCLIP_TURN_ON,
+    NOCLIP_TURN_OFF,
+} TurnMode;
+
 RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick(void) {
+    flying = FALSE;
+    
     Object *player = get_player();
 
     if (player != NULL) {
@@ -35,21 +44,23 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick(void)
         // Noclip fly
         u16 buttons = gContPads[gVirtualContPortMap[0]].button;
         
-        s32 allowFlight = 
+        s32 allow_flight = 
             playerdata->vehicle == NULL && // Don't allow while on vehicle
             !(player->stateFlags & OBJSTATE_IN_SEQ); // Don't allow while a sequence has control over the player
         
-        s32 flyActive = FALSE;
+        s32 fly_active = FALSE;
         if (recomp_get_config_u32("mode") == NOCLIP_MODE_TOGGLE) {
             if (joy_get_pressed_raw(0) & L_TRIG) {
                 fly_toggle = !fly_toggle;
             }
-            flyActive = fly_toggle;
+            fly_active = fly_toggle;
         } else {
-            flyActive = (buttons & L_TRIG) ? 1 : 0;
+            fly_active = (buttons & L_TRIG) ? 1 : 0;
         }
         
-        if (flyActive && recomp_get_config_u32("noclip") == ALLOW_NOCLIP_ON && allowFlight) {
+        if (fly_active && recomp_get_config_u32("noclip") == ALLOW_NOCLIP_ON && allow_flight) {
+            flying = TRUE;
+
             if (flying_cooldown != FLY_COOLDOWN) {
                 fly_position = player->globalPosition;
             }
@@ -63,6 +74,9 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick(void)
 
             fly_dir.x = (jx / 127.0f);
             fly_dir.z = -(jy / 127.0f);
+            fly_dir.y = 0.0f;
+
+            f32 xz_power = MIN(1.0f, VECTOR_MAGNITUDE(fly_dir) * (127.0f / 65.0f));
 
             if (buttons & U_JPAD) {
                 fly_dir.y = 1;
@@ -70,11 +84,13 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick(void)
                 fly_dir.y = -1;
             }
 
+            f32 power = MIN(1.0f, VECTOR_MAGNITUDE(fly_dir) * (127.0f / 65.0f));
+
             vec3_normalize(&fly_dir);
             
-            fly_dir.x *= SPEED * gUpdateRateF;
-            fly_dir.y *= SPEED * gUpdateRateF;
-            fly_dir.z *= SPEED * gUpdateRateF;
+            fly_dir.x *= SPEED * power * gUpdateRateF;
+            fly_dir.y *= SPEED * power * gUpdateRateF;
+            fly_dir.z *= SPEED * power * gUpdateRateF;
 
             SRT cam_srt = {
                 .transl.x = 0,
@@ -101,6 +117,10 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick(void)
             player->prevLocalPosition = fly_position;
             player->prevGlobalPosition = fly_position;
 
+            if (recomp_get_config_u32("turn") == NOCLIP_TURN_ON && xz_power > 0.1f) {
+                player->srt.yaw = arctan2_f(-fly_dir_transformed.x, -fly_dir_transformed.z);
+            }
+
             playerdata->unk0.animState = 28;
             player->opacity = 0x80;
             player->animProgress = 0.0f;
@@ -112,5 +132,13 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick(void)
             player->animProgress = 0.0f;
             player->opacity = 0xFF;
         }
+    }
+}
+
+RECOMP_HOOK("__dll1_cmdmenu_update1") void noclip_cmdmenu_hook(void) {
+    // Disable buttons used by noclip while active
+    if (flying) {
+        gDLL_1_cmdmenu->vtbl->disable_buttons(
+            L_TRIG | U_JPAD | L_JPAD | R_JPAD | D_JPAD | U_CBUTTONS | L_CBUTTONS | R_CBUTTONS | D_CBUTTONS);
     }
 }

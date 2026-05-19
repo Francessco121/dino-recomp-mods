@@ -1,3 +1,9 @@
+## v1.1.0
+- New mod option to allow the L Button to toggle noclip rather than requiring the button to be held the whole time.
+- Noclip speed is now determined by how far the analog stick is pushed.
+- By default, the player will now turn to face the direction that you are moving during noclip.
+- The command menu is now disabled during noclip.
+
 ## v1.0.3
 - Noclip is now disabled while a sequence (cutscene) has control over the player character.
 

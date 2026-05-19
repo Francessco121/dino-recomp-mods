@@ -10,7 +10,7 @@ While holding the L Button you can:
 """
 short_description = "Allows the player to noclip!"
 
-version = "1.0.3"
+version = "1.1.0"
 authors = [ "Shinx121" ]
 
 game_id = "dino-planet"
@@ -48,8 +48,16 @@ default = "On"
 
 [[manifest.config_options]]
 id = "mode"
-name = "Mode"
+name = "L Button Mode"
 description = "Whether the L Button needs to be held to noclip or if it just needs to be pressed to toggle noclip on or off."
 type = "Enum"
 options = [ "Hold", "Toggle" ]
 default = "Hold"
+
+[[manifest.config_options]]
+id = "turn"
+name = "Turn Player"
+description = "Whether the player will turn to face the direction that you are moving with noclip."
+type = "Enum"
+options = [ "On", "Off" ]
+default = "On"
