@@ -10,6 +10,7 @@
 
 extern SRT gCameraSRT;
 extern MtxF gViewMtx;
+extern s8 gMainDoMapChange;
 
 const s32 FLY_COOLDOWN = 1;
 
@@ -140,5 +141,17 @@ RECOMP_HOOK("__dll1_cmdmenu_update1") void noclip_cmdmenu_hook(void) {
     if (flying) {
         gDLL_1_cmdmenu->vtbl->disable_buttons(
             L_TRIG | U_JPAD | L_JPAD | R_JPAD | D_JPAD | U_CBUTTONS | L_CBUTTONS | R_CBUTTONS | D_CBUTTONS);
+    }
+}
+
+RECOMP_HOOK("__dll210_dll_210_free") void noclip_player_free_hook(void) {
+    // Disable noclip toggle if the player is unloading
+    fly_toggle = FALSE;
+}
+
+RECOMP_HOOK("main_handle_map_change") void noclip_main_handle_map_change_hook(void) {
+    // Disable noclip toggle on map change
+    if (gMainDoMapChange) {
+        fly_toggle = FALSE;
     }
 }
