@@ -51,7 +51,7 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick(void)
         
         s32 fly_active = FALSE;
         if (recomp_get_config_u32("mode") == NOCLIP_MODE_TOGGLE) {
-            if (joy_get_pressed_raw(0) & L_TRIG) {
+            if ((joy_get_pressed_raw(0) & L_TRIG) && allow_flight) {
                 fly_toggle = !fly_toggle;
             }
             fly_active = fly_toggle;
