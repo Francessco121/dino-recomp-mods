@@ -7,4 +7,6 @@ typedef struct {
     u16 seqActorBits;
     s32 seqPlayLastRet;
     s32 modAnimIdx;
+    u8 modAnimBank;
+    u8 modAnimAutoplay;
 } ObjEditorData;

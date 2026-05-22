@@ -33,14 +33,14 @@ typedef struct{
 /*12*/    u8 _pad[2];
 } HitsLineCustom;
 
-void dbgui_input_byte(const char *label, u8 *value);
+s32 dbgui_input_byte(const char *label, u8 *value);
 s32 dbgui_input_byte_ext(const char *label, u8 *value, const DbgUiInputIntOptions *options);
 s32 dbgui_input_sbyte(const char *label, s8 *value);
 s32 dbgui_input_sbyte_ext(const char *label, s8 *value, const DbgUiInputIntOptions *options);
-void dbgui_input_short(const char *label, s16 *value);
-void dbgui_input_short_ext(const char *label, s16 *value, const DbgUiInputIntOptions *options);
-void dbgui_input_ushort_ext(const char *label, u16 *value, const DbgUiInputIntOptions *options);
-void dbgui_input_uint(const char *label, u32 *value);
-void dbgui_input_uint_ext(const char *label, u32 *value, const DbgUiInputIntOptions *options);
+s32 dbgui_input_short(const char *label, s16 *value);
+s32 dbgui_input_short_ext(const char *label, s16 *value, const DbgUiInputIntOptions *options);
+s32 dbgui_input_ushort_ext(const char *label, u16 *value, const DbgUiInputIntOptions *options);
+s32 dbgui_input_uint(const char *label, u32 *value);
+s32 dbgui_input_uint_ext(const char *label, u32 *value, const DbgUiInputIntOptions *options);
 void dbgui_input_vec3f(const char *label, Vec3f *value);
 void dbgui_input_obj_position(const char *label, Object *value);

@@ -262,7 +262,7 @@ static void object_edit_model(Model *model) {
     dbgui_textf("drawModes: %p", model->drawModes);
     dbgui_textf("textureAnimations: %p", model->textureAnimations);
     for (s32 i = 0; i < 8; i++) {
-        dbgui_textf("modAnimBankBases[%d]: %d", model->modAnimBankBases[i]);
+        dbgui_textf("modAnimBankBases[%d]: %d", i, model->modAnimBankBases[i]);
     }
     dbgui_textf("collisionA: %p", model->collisionA);
     dbgui_textf("collisionB: %p", model->collisionB);
@@ -462,7 +462,7 @@ static _Bool map_get_world_xz(s32 mapID, f32 *x, f32 *z) {
 }
 
 static _Bool object_get_map_relative_xz(Object *obj, f32 *x, f32 *z, s32 *mapID) {
-    s32 inMapID = map_world_xz_to_map_id(obj->globalPosition.x, obj->globalPosition.z);
+    s32 inMapID = obj->mapID == -1 ? map_world_xz_to_map_id(obj->globalPosition.x, obj->globalPosition.z) : obj->mapID;
     if (inMapID == -1) {
         return FALSE;
     }
@@ -992,13 +992,75 @@ void object_anim_debug(Object *obj, ObjEditorData *editorData) {
         return;
     }
 
+    dbgui_textf("Model inst index: %d\n", obj->modelInstIdx);
     dbgui_textf("Num model animations: %d", model->animCount);
-
-    dbgui_input_int("Model anim index", &editorData->modAnimIdx);
-    if (editorData->modAnimIdx < 0) editorData->modAnimIdx = 0;
-    if (editorData->modAnimIdx >= model->animCount) editorData->modAnimIdx = model->animCount - 1;
-
-    if (dbgui_button("Play")) {
-        func_80023D30(obj, editorData->modAnimIdx, 0.0f, 0);
+    if (dbgui_tree_node("Model anim banks")) {
+        for (s32 i = 0; i < 8; i++) {
+            dbgui_textf("modAnimBankBases[%d]: %d", i, model->modAnimBankBases[i]);
+        }
+        dbgui_tree_pop();
     }
+
+    dbgui_separator();
+
+    s32 changed = FALSE;
+
+    dbgui_push_item_width(110);
+
+    if (dbgui_input_byte("Model anim bank", &editorData->modAnimBank)) {
+        if (editorData->modAnimBank < 0) editorData->modAnimBank = 0;
+        if (editorData->modAnimBank >= 8) editorData->modAnimBank = 7;
+        editorData->modAnimIdx = 0;
+        changed = TRUE;
+    }
+
+    if (dbgui_input_int("Model anim index", &editorData->modAnimIdx)) {
+        if (editorData->modAnimIdx < 0) editorData->modAnimIdx = 0;
+        if (editorData->modAnimIdx > 255) editorData->modAnimIdx = 255;
+        changed = TRUE;
+    }
+
+    s32 index = (editorData->modAnimBank << 8) | editorData->modAnimIdx;
+    s32 absIndex = model->modAnimBankBases[index >> 8] + (index & 0xFF);
+
+    if (absIndex >= model->animCount) {
+        editorData->modAnimIdx -= (absIndex - model->animCount + 1);
+
+        index = (editorData->modAnimBank << 8) | editorData->modAnimIdx;
+        absIndex = model->modAnimBankBases[index >> 8] + (index & 0xFF);
+    }
+
+    dbgui_pop_item_width();
+
+    dbgui_textf("Absolute index: %d\n", absIndex);
+
+    s32 animIndex = model->modAnim[absIndex];
+    _Bool validAnim = animIndex >= 0;
+    if (!validAnim) {
+        if (animIndex == -1) {
+            dbgui_text_wrapped("Selected mod anim has invalid ANIM.tab index (-1, end of bank).");
+        } else {
+            dbgui_text_wrappedf("Selected mod anim has invalid ANIM.tab index (%d).", animIndex);
+        }
+        dbgui_begin_disabled(TRUE);
+    }
+    
+    _Bool play = FALSE;
+    if (dbgui_button("Play")) {
+        play = TRUE;
+    }
+    dbgui_same_line();
+    s32 autoplay = editorData->modAnimAutoplay;
+    if (dbgui_checkbox("Autoplay", &autoplay)) {
+        editorData->modAnimAutoplay = autoplay;
+    }
+    if (autoplay && changed) {
+        play = TRUE;
+    }
+
+    if (play && validAnim) {
+        func_80023D30(obj, index, 0.0f, 0);
+    }
+
+    dbgui_end_disabled();
 }

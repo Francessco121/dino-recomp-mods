@@ -10,6 +10,7 @@
 - An object's local position within a map is now displayed in the object editor.
 - Improved sound test menu.
 - Improved SeqObj menu.
+- Improved object animation tab.
 - Objdef flags can now be edited.
 - Object state flags can now be edited.
 - Curves can now be edited.
