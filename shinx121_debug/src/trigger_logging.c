@@ -119,6 +119,17 @@ RECOMP_HOOK_DLL(trigger_process_commands) void trigger_process_commands_print_ho
         switch (cmd->id) {                  /* switch 1 */
         case TRG_CMD_HAZARD: 
             trigger_printf(self, "Trigger [%d], Gamplay Vulnerable [%d]\n", i, cmd->param1);
+            switch (cmd->param1) {
+                case 8:
+                    trigger_printf(self, "Trigger [%d], Death drop\n", i, cmd->param1);
+                    break;
+                case 9:
+                    trigger_printf(self, "Trigger [%d], Dangerous Water\n", i, cmd->param1);
+                    break;
+                case 10:
+                    trigger_printf(self, "Trigger [%d], Safe Water\n", i, cmd->param1);
+                    break;
+            }
             break;
         case TRG_CMD_MUSIC_ACTION: 
             if ((dir < 0) && (gDLL_5_AMSEQ->vtbl->is_set(self, (cmd->param2 | (cmd->param1 << 8))) != 0)) {
@@ -136,17 +147,63 @@ RECOMP_HOOK_DLL(trigger_process_commands) void trigger_process_commands_print_ho
                 i, cmd->param1, cmd->param2, dir);
             break;
         case TRG_CMD_TRACK: 
-            // "Trigger [%d], Track Sky On"
-            // "Trigger [%d], Track Sky Off"
-            // "Trigger [%d], Track AntiAlias On"
-            // "Trigger [%d], Track AntiAlias Off"
-            // "Trigger [%d], Track SkyObjects On"
-            // "Trigger [%d], Track SkyObjects Off"
-            // "Trigger [%d], Track Dome On"
-            // "Trigger [%d], Track Dome Off"
-            // "Trigger [%d], Track MrSheen On %d"
-            // "Trigger [%d], Track MrSheen Off"
-            trigger_printf(self, "Trigger [%d], Track [%d, %d]\n", i, cmd->param1, cmd->param2);
+            switch (cmd->param1) {
+                case 0:
+                    if (cmd->param2 != 0) {
+                        trigger_printf(self, "Trigger [%d], Track Sky On\n", i);
+                    } else {
+                        trigger_printf(self, "Trigger [%d], Track Sky Off\n", i);
+                    }
+                    break;
+                case 1:
+                    if (cmd->param2 != 0) {
+                        trigger_printf(self, "Trigger [%d], Track AntiAlias On\n", i);
+                    } else {
+                        trigger_printf(self, "Trigger [%d], Track AntiAlias Off\n", i);
+                    }
+                    break;
+                case 2:
+                    if (cmd->param2 != 0) {
+                        trigger_printf(self, "Trigger [%d], Track SkyObjects On\n", i);
+                    } else {
+                        trigger_printf(self, "Trigger [%d], Track SkyObjects Off\n", i);
+                    }
+                    break;
+                case 3:
+                    if (cmd->param2 != 0) {
+                        trigger_printf(self, "Trigger [%d], Track Dome On\n", i);
+                    } else {
+                        trigger_printf(self, "Trigger [%d], Track Dome Off\n", i);
+                    }
+                    break;
+                case 4:
+                    if (cmd->param2 != 0) {
+                        trigger_printf(self, "Trigger [%d], Track MrSheen On\n", i);
+                    } else {
+                        trigger_printf(self, "Trigger [%d], Track MrSheen Off\n", i);
+                    }
+                    break;
+                case 5:
+                    trigger_printf(self, "Trigger [%d], footstepsTurnOn %d\n", i, cmd->param2);
+                    break;
+                case 6:
+                    if (cmd->param2 > 0) {
+                        trigger_printf(self, "Trigger [%d], newlightInside(1)\n", i);
+                    } else {
+                        trigger_printf(self, "Trigger [%d], newlightInside(0)\n", i);
+                    }
+                    break;
+                case 7:
+                    if (cmd->param2 > 0) {
+                        trigger_printf(self, "Trigger [%d], trackSetSunGlareOn(1)\n", i);
+                    } else {
+                        trigger_printf(self, "Trigger [%d], trackSetSunGlareOn(0)\n", i);
+                    }
+                    break;
+                default:
+                    trigger_printf(self, "Trigger [%d], Track [%d, %d]\n", i, cmd->param1, cmd->param2);
+                    break;
+            }
             break;
         case TRG_CMD_5: 
             trigger_printf(self, "Trigger [%d], CMD_5\n", i);
@@ -184,7 +241,7 @@ RECOMP_HOOK_DLL(trigger_process_commands) void trigger_process_commands_print_ho
         case TRG_CMD_SETUP_POINT:
             trigger_printf(self, "Trigger [%d], Setup Point,        Level      [%d], SetupPoint [%d]\n", i, cmd->param1, cmd->param2);
             break;
-        case TRG_CMD_FLAG: {
+        case TRG_CMD_BITS: {
             u16 param = cmd->param2 | (cmd->param1 << 8);
             s32 entry = param & 0x3FFF;
             param >>= 14;
@@ -202,7 +259,7 @@ RECOMP_HOOK_DLL(trigger_process_commands) void trigger_process_commands_print_ho
             trigger_printf(self, "Trigger [%d], Bits [0x%x] %d -> %d \n", i, entry, prevValue, value);
             break;
         }
-        case TRG_CMD_FLAG_TOGGLE: {
+        case TRG_CMD_BITS_TOGGLE: {
             u16 param = cmd->param2 | (cmd->param1 << 8);
             s32 entry = param & 0x1FFF;
             param >>= 13;
@@ -228,33 +285,32 @@ RECOMP_HOOK_DLL(trigger_process_commands) void trigger_process_commands_print_ho
         case TRG_CMD_TEXTURE_FREE:
             trigger_printf(self, "Trigger [%d], Tex Free\n", i, cmd->param2 | (cmd->param1 << 8));
             break;
-        case TRG_CMD_SET_MAP_SETUP:
-            trigger_printf(self, "Trigger [%d], SetMapSetup [%d]\n", i, cmd->param2 | (cmd->param1 << 8));
+        case TRG_CMD_SET_ACT:
+            trigger_printf(self, "Trigger [%d], act changed to %d\n", i, cmd->param2 | (cmd->param1 << 8));
             break;
         case TRG_CMD_SCRIPT:
             trigger_printf(self, "Script [%d], Subscript [%d]\n", cmd->param1, cmd->param2);
             break;
         case TRG_CMD_WORLD_ENABLE_OBJ_GROUP:
-            trigger_printf(self, "Trigger [%d], WorldObjectLoad [%d, %d]\n", i, cmd->param2, cmd->param1);
+            trigger_printf(self, "Trigger [%d], Object Load [%d, %d]\n", i, cmd->param2, cmd->param1);
             break;
         case TRG_CMD_WORLD_DISABLE_OBJ_GROUP:
-            // "Trigger [%d], Object Free\n"
-            trigger_printf(self, "Trigger [%d], WorldObjectFree [%d, %d]\n", i, cmd->param2, cmd->param1);
+            trigger_printf(self, "Trigger [%d], Object Free [%d, %d]\n", i, cmd->param2, cmd->param1);
             break;
         case TRG_CMD_KYTE_FLIGHT_GROUP:
-            trigger_printf(self, "Trigger [%d], KyteFlightGroup [%d]\n", i, cmd->param2 | (cmd->param1 << 8));
+            trigger_printf(self, "Trigger [%d], kyte flight group change [%d]\n", i, cmd->param2 | (cmd->param1 << 8));
             break;
         case TRG_CMD_KYTE_TALK_SEQ:
-            trigger_printf(self, "Trigger [%d], KyteTalkSeq [%d]\n", i, cmd->param2 | (cmd->param1 << 8));
+            trigger_printf(self, "Trigger [%d], kyte flight talk sequence set [%d]\n", i, cmd->param2 | (cmd->param1 << 8));
             break;
-        case TRG_CMD_WORLD_SET_MAP_SETUP:
-            trigger_printf(self, "Trigger [%d], WorldSetMapSetup [%d, %d]\n", i, cmd->param2, cmd->param1);
+        case TRG_CMD_WORLD_SET_ACT:
+            trigger_printf(self, "Trigger [%d], Act change on map %d to act %d\n", i, cmd->param2, cmd->param1);
             break;
         case TRG_CMD_TRICKY_TALK_SEQ:
-            trigger_printf(self, "Trigger [%d], TrickyTalkSeq Bit 0x4E2 = [%d]\n", i, cmd->param2 | (cmd->param1 << 8));
+            trigger_printf(self, "Trigger [%d], Tricky talk sequence set to %d\n", i, cmd->param2 | (cmd->param1 << 8));
             break;
-        case TRG_CMD_SAVE_GAME:
-            trigger_printf(self, "Trigger [%d], SaveGame [%d]\n", i, cmd->param2);
+        case TRG_CMD_SAVE_POINT:
+            trigger_printf(self, "Trigger [%d], Save Point [%d]\n", i, cmd->param2);
             break;
         case TRG_CMD_MAP_LAYER:
             if ((s8)cmd->param2 == -1) {
@@ -289,13 +345,20 @@ RECOMP_HOOK_DLL(trigger_process_commands) void trigger_process_commands_print_ho
             if (sidekick != NULL) {
                 switch (cmd->param1) {       /* switch 5; irregular */
                 case 0:                     /* switch 5 */
-                    trigger_printf(self, "Trigger [%d], sidekick func23\n", i);
+                    trigger_printf(self, "Trigger [%d], Sidekick Auto Heel\n", i);
                     break;
                 case 1:                     /* switch 5 */
-                    trigger_printf(self, "killing sidekick\n");
+                    trigger_printf(self, "Trigger [%d], Unloading Sidekick\n", i);
                     break;
-                case 2:                     /* switch 5 */
-                    trigger_printf(self, "Trigger [%d], sidekick findobj\n", i);
+                case 2: {                    /* switch 5 */
+                        Object* findTarget = obj_get_nearest_type_to(OBJTYPE_DBlevelcontrol, sidekick, NULL);
+                        if (findTarget == NULL) {
+                            findTarget = obj_get_nearest_type_to(OBJTYPE_TrickyTarget, sidekick, NULL);
+                        }
+                        if (findTarget != NULL) {
+                            trigger_printf(self, "Trigger [%d], Sidekick Find On Object %d\n", i, findTarget->id);
+                        }
+                    }
                     break;
                 }
             }

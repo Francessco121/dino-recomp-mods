@@ -58,7 +58,7 @@ const char* get_trigger_name(s32 id) {
             return "LOD_MODEL";
         case TRG_CMD_TRICKY_TALK_SEQ:
             return "TRICKY_TALK_SEQ";
-        case TRG_CMD_FLAG:
+        case TRG_CMD_BITS:
             return "BITS";
         case TRG_CMD_ENABLE_OBJ_GROUP:
             return "ENABLE_OBJ_GROUP";
@@ -70,7 +70,7 @@ const char* get_trigger_name(s32 id) {
             return "TEXTURE_FREE";
         case TRG_CMD_17:
             return "17";
-        case TRG_CMD_SET_MAP_SETUP:
+        case TRG_CMD_SET_ACT:
             return "SET_MAP_ACT";
         case TRG_CMD_SCRIPT:
             return "SCRIPT";
@@ -82,13 +82,13 @@ const char* get_trigger_name(s32 id) {
             return "KYTE_FLIGHT_GROUP";
         case TRG_CMD_KYTE_TALK_SEQ:
             return "KYTE_TALK_SEQ";
-        case TRG_CMD_WORLD_SET_MAP_SETUP:
+        case TRG_CMD_WORLD_SET_ACT:
             return "WORLD_SET_MAP_ACT";
-        case TRG_CMD_SAVE_GAME:
-            return "SAVE_GAME";
+        case TRG_CMD_SAVE_POINT:
+            return "SAVE_POINT";
         case TRG_CMD_MAP_LAYER:
             return "MAP_LAYER";
-        case TRG_CMD_FLAG_TOGGLE:
+        case TRG_CMD_BITS_TOGGLE:
             return "BITS_TOGGLE";
         case TRG_CMD_TOGGLE_OBJ_GROUP:
             return "TOGGLE_OBJ_GROUP";
@@ -153,15 +153,15 @@ const char* get_trigger_param(TriggerCommand *cmd) {
             offset += recomp_sprintf(buffer + offset, "0x%X", cmd->param1);
             break;
         case TRG_CMD_SCRIPT:
-        case TRG_CMD_SAVE_GAME:
+        case TRG_CMD_SAVE_POINT:
             offset += recomp_sprintf(buffer + offset, "0x%X", cmd->param2);
             break;
         case TRG_CMD_WORLD_ENABLE_OBJ_GROUP:
         case TRG_CMD_WORLD_DISABLE_OBJ_GROUP:
-        case TRG_CMD_WORLD_SET_MAP_SETUP:
+        case TRG_CMD_WORLD_SET_ACT:
             offset += recomp_sprintf(buffer + offset, "0x%X, 0x%X", cmd->param2, cmd->param1);
             break;
-        case TRG_CMD_FLAG: {
+        case TRG_CMD_BITS: {
             s32 param = cmd->param2 | (cmd->param1 << 8);
             s32 entry;
             u32 value;
@@ -179,7 +179,7 @@ const char* get_trigger_param(TriggerCommand *cmd) {
             }
             break;
         }
-        case TRG_CMD_FLAG_TOGGLE: {
+        case TRG_CMD_BITS_TOGGLE: {
             s32 param = cmd->param2 | (cmd->param1 << 8);
             s32 entry;
             u32 value;

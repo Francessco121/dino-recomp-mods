@@ -65,17 +65,17 @@ RECOMP_CALLBACK(".", my_dbgui_event) void map_debug_dbgui_callback() {
                         if (actID < 0) actID = 0;
                     }
                     if (dbgui_button("Set")) {
-                        gDLL_29_Gplay->vtbl->set_map_setup(mapID, actID);
+                        gDLL_29_Gplay->vtbl->set_act(mapID, actID);
                     }
                     dbgui_same_line();
-                    dbgui_textf("%d -> %d (%s)", gDLL_29_Gplay->vtbl->get_map_setup(mapID), actID, mapNames[mapID]);
+                    dbgui_textf("%d -> %d (%s)", gDLL_29_Gplay->vtbl->get_act(mapID), actID, mapNames[mapID]);
 
                     dbgui_separator();
 
                     dbgui_text("Current States");
                     if (dbgui_begin_child("obj_group_status_list")) {
                         for (s32 i = 0; i < 120; i++) {
-                            if (dbgui_tree_node(recomp_sprintf_helper("[%d] %s: %d###%d", i, mapNames[i], gDLL_29_Gplay->vtbl->get_map_setup(i), i))) {
+                            if (dbgui_tree_node(recomp_sprintf_helper("[%d] %s: %d###%d", i, mapNames[i], gDLL_29_Gplay->vtbl->get_act(i), i))) {
                                 dbgui_text("Object Group Status");
                                 for (s32 k = 0; k < 32; k++) {
                                     s32 status = gDLL_29_Gplay->vtbl->get_obj_group_status(i, k);

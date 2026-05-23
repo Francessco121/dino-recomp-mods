@@ -144,7 +144,7 @@ static void object_show_def(ObjDef *def) {
     dbgui_textf("unk55: %d", def->unk55);
     dbgui_textf("numPlayerObjs: %d", def->numPlayerObjs);
     dbgui_textf("unk57: %d", def->unk57);
-    dbgui_textf("group: %d", def->group);
+    dbgui_textf("controlNo: %d", def->controlNo);
     dbgui_textf("modLinesSize: %d", def->modLinesSize);
     dbgui_textf("numModels: %d", def->numModels);
     dbgui_textf("unk5e: %d", def->unk5e);
@@ -569,7 +569,7 @@ void object_edit_contents(Object *obj) {
     dbgui_textf("next: %p", &obj->next);
     dbgui_textf("loadDistance: %f", obj->loadDistance);
     dbgui_textf("fadeDistance: %f", obj->fadeDistance);
-    dbgui_textf("group: %u", obj->group);
+    dbgui_textf("controlNo: %u", obj->controlNo);
     dbgui_textf("id: %u", obj->id);
     dbgui_textf("tabIdx: %u", obj->tabIdx);
     if (obj->setup != NULL) {
