@@ -60,6 +60,7 @@ static void add_edit_object(Object *obj) {
             edit_objects[i] = obj;
             bzero(&edit_objects_data[i], sizeof(edit_objects_data[i]));
             edit_objects_data[i].seqActorBits = -1;
+            edit_objects_data[i].modAnimDelta = 0.005f;
             break;
         }
     }

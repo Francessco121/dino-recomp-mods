@@ -13,6 +13,7 @@
 #include "sys/gfx/model.h"
 #include "sys/map.h"
 #include "sys/objanim.h"
+#include "sys/main.h"
 
 extern DLLTab *gFile_DLLS_TAB;
 
@@ -1060,6 +1061,36 @@ void object_anim_debug(Object *obj, ObjEditorData *editorData) {
 
     if (play && validAnim) {
         func_80023D30(obj, index, 0.0f, 0);
+    }
+
+    dbgui_separator();
+
+    s32 override = editorData->modAnimOverride;
+    if (dbgui_checkbox("Override Playback", &override)) {
+        editorData->modAnimOverride = override;
+        if (override) {
+            editorData->modAnimOverrideDisabledControl = (obj->stateFlags & OBJSTATE_CONTROL_DISABLED) ? 0 : 1;
+            obj->stateFlags |= OBJSTATE_CONTROL_DISABLED;
+        } else if (editorData->modAnimOverrideDisabledControl) {
+            obj->stateFlags &= ~OBJSTATE_CONTROL_DISABLED;
+        }
+    }
+
+    if (override) {
+        dbgui_push_item_width(140);
+
+        if (dbgui_input_float("Playback Speed", &editorData->modAnimDelta)) {
+            if (editorData->modAnimDelta < 0.0f) {
+                editorData->modAnimDelta = 0.0f;
+            }
+            if (editorData->modAnimDelta > 1.0f) {
+                editorData->modAnimDelta = 1.0f;
+            }
+        }
+
+        dbgui_pop_item_width();
+
+        func_80024108(obj, editorData->modAnimDelta, gUpdateRateF, NULL);
     }
 
     dbgui_end_disabled();

@@ -9,4 +9,7 @@ typedef struct {
     s32 modAnimIdx;
     u8 modAnimBank;
     u8 modAnimAutoplay;
+    u8 modAnimOverride;
+    u8 modAnimOverrideDisabledControl;
+    f32 modAnimDelta;
 } ObjEditorData;
