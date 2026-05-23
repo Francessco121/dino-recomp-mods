@@ -116,6 +116,12 @@ static void debug_draw_curves(void) {
                 if (setup->curveType == 0x15) {
                     dbgui_input_int_ext("unk30", &setup->type15.pad30, &hexInput);
                     dbgui_input_short_ext("unk34", &setup->type15.unk34, &hexInput);
+} else if (setup->curveType == 0x1D) {
+                    dbgui_input_byte_ext("_unk30", &setup->type1D._unk30[0], &hexInput);
+                    dbgui_input_byte_ext("_unk31", &setup->type1D._unk30[1], &hexInput);
+                    dbgui_input_byte_ext("_unk32", &setup->type1D._unk30[2], &hexInput);
+                    dbgui_input_byte_ext("_unk33", &setup->type1D._unk30[3], &hexInput);
+                    dbgui_input_byte_ext("unk34", &setup->type1D.unk34, &hexInput);
                 } else if (setup->curveType == 0x22) {
                     dbgui_input_short_ext("unk30", &setup->type22.unk30, &hexInput);
                     dbgui_input_short_ext("usedBit", &setup->type22.usedBit, &hexInput);
