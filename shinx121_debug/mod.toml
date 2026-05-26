@@ -54,3 +54,12 @@ description = "Whether to enable stdout debug logging for trigger objects."
 type = "Enum"
 options = [ "On", "Off" ]
 default = "Off"
+
+[[manifest.config_options]]
+id = "seq_logging"
+name = "Object Sequence Logging"
+description = "Whether to enable stdout debug logging for object sequences."
+type = "Enum"
+options = [ "On", "Off" ]
+default = "Off"
+
