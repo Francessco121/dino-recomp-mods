@@ -12,4 +12,6 @@ typedef struct {
     u8 modAnimOverride;
     u8 modAnimOverrideDisabledControl;
     f32 modAnimDelta;
+    s16 fsaAnimState;
+    s16 fsaLogicState;
 } ObjEditorData;

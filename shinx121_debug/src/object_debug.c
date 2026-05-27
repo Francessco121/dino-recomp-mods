@@ -133,7 +133,7 @@ static void object_editor(Object *obj, ObjEditorData *editorData, s32 index) {
             ObjFSA_Data *fsa = objfsa_debug_get_data(obj);
             if (fsa != NULL) {
                 if (dbgui_begin_tab_item("Obj FSA Data", NULL)) {
-                    objfsa_debug_tab(obj, fsa);
+                    objfsa_debug_tab(obj, fsa, editorData);
                     dbgui_end_tab_item();
                 }
             }

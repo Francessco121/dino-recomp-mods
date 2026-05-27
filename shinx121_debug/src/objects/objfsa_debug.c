@@ -1,5 +1,6 @@
 #include "objfsa_debug.h"
 
+#include "dll.h"
 #include "modding.h"
 #include "dbgui.h"
 #include "recomputils.h"
@@ -7,6 +8,7 @@
 #include "object_dll_ids.h"
 #include "object_debug.h"
 #include "../3d.h"
+#include "../debug_common.h"
 
 #include "game/objects/object.h"
 #include "game/objects/object_id.h"
@@ -25,7 +27,30 @@ ObjFSA_Data *objfsa_debug_get_data(Object *obj) {
     }
 }
 
-void objfsa_debug_tab(Object *obj, ObjFSA_Data *fsa) {
+void objfsa_debug_tab(Object *obj, ObjFSA_Data *fsa, ObjEditorData *editorData) {
+    if (dbgui_tree_node("State Editor")) {
+        dbgui_push_item_width(110);
+        dbgui_input_short("Anim State", &editorData->fsaAnimState);
+        dbgui_pop_item_width();
+        dbgui_same_line();
+        if (dbgui_button("Set")) {
+            gDLL_18_objfsa->vtbl->set_anim_state(obj, fsa, editorData->fsaAnimState);
+        }
+
+        dbgui_push_item_width(110);
+        dbgui_input_short("Logic State", &editorData->fsaLogicState);
+        dbgui_pop_item_width();
+        dbgui_same_line();
+        if (dbgui_button("Set")) {
+            fsa->prevLogicState = fsa->logicState;
+            fsa->logicState = editorData->fsaLogicState;
+            fsa->logicStateTime = 0;
+            fsa->enteredLogicState = TRUE;
+        }
+
+        dbgui_tree_pop();
+    }
+
     dbgui_textf("flags: 0x%X", fsa->flags);
     dbgui_textf("unk264: %d", fsa->unk264);
     dbgui_textf("unk266: %d", fsa->unk266);
