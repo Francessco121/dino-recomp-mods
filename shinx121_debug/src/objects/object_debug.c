@@ -1004,6 +1004,11 @@ void object_anim_debug(Object *obj, ObjEditorData *editorData) {
 
     dbgui_separator();
 
+    if (model->modAnim == NULL) {
+        dbgui_text("! model->modAnim is null");
+        return;
+    }
+
     s32 changed = FALSE;
 
     dbgui_push_item_width(110);
