@@ -3,6 +3,7 @@
 #include "recomputils.h"
 
 #include "objects/object_debug.h"
+#include "debug_menus.h"
 
 #include "PR/ultratypes.h"
 #include "sys/gfx/animseq.h"
@@ -111,11 +112,11 @@ typedef struct {
 
 static s32 windowOpen = FALSE;
 
-RECOMP_CALLBACK(".", my_debug_menu_event) void anim_debug_menu_callback() {
+void anim_debug_menu_callback(void) {
     dbgui_menu_item("Anim", &windowOpen);
 }
 
-RECOMP_CALLBACK(".", my_dbgui_event) void anim_debug_dbgui_callback() {
+RECOMP_CALLBACK(".", my_dbgui_event) void anim_debug_dbgui_callback(void) {
     if (windowOpen) {
         if (dbgui_begin("Anim Debug", &windowOpen)) {
             dbgui_textf("sPreemptTimeListCount: %d", sPreemptTimeListCount);

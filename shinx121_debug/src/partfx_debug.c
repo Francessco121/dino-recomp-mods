@@ -1,7 +1,8 @@
-#include "dll.h"
 #include "modding.h"
 #include "recomputils.h"
 #include "dbgui.h"
+
+#include "debug_menus.h"
 
 #include "PR/os.h"
 #include "dlls/objects/210_player.h"
@@ -10,6 +11,7 @@
 #include "sys/objects.h"
 #include "sys/main.h"
 #include "macros.h"
+#include "dll.h"
 
 extern void bzero_recomp(void *, int);
 #define bzero bzero_recomp
@@ -39,11 +41,11 @@ static s32 timer = 0;
 static s32 looping = 0;
 static s32 useSRT = TRUE;
 
-RECOMP_CALLBACK(".", my_debug_menu_event) void partfx_debug_menu_callback() {
+void partfx_debug_menu_callback(void) {
     dbgui_menu_item("Particles", &windowOpen);
 }
 
-RECOMP_CALLBACK(".", my_dbgui_event) void partfx_debug_dbgui_callback() {
+RECOMP_CALLBACK(".", my_dbgui_event) void partfx_debug_dbgui_callback(void) {
     if (windowOpen) {
         if (dbgui_begin("Particle Debug", &windowOpen)) {
             Object *player = get_player();

@@ -2,6 +2,8 @@
 #include "dbgui.h"
 #include "recomputils.h"
 
+#include "debug_menus.h"
+
 #include "sys/main.h"
 #include "sys/fs.h"
 
@@ -11,11 +13,11 @@ static s32 bittableDebugWindowOpen = FALSE;
 static s32 entry = 0;
 static s32 bittableSize = -1;
 
-RECOMP_CALLBACK(".", my_debug_menu_event) void bittable_debug_menu_callback() {
+void bittable_debug_menu_callback(void) {
     dbgui_menu_item("Bit Table", &bittableDebugWindowOpen);
 }
 
-RECOMP_CALLBACK(".", my_dbgui_event) void bittable_debug_dbgui_callback() {
+RECOMP_CALLBACK(".", my_dbgui_event) void bittable_debug_dbgui_callback(void) {
     if (bittableDebugWindowOpen) {
         if (bittableSize == -1) {
             bittableSize = get_file_size(BITTABLE_BIN) / sizeof(BitTableEntry);

@@ -4,6 +4,7 @@
 
 #include "3d.h"
 #include "debug_common.h"
+#include "debug_menus.h"
 #include "object_editor.h"
 #include "object_dll_ids.h"
 #include "objects/bwlog_debug.h"
@@ -335,11 +336,11 @@ static void type_list_tab() {
     dbgui_end_child();
 }
 
-RECOMP_CALLBACK(".", my_debug_menu_event) void object_debug_menu_callback() {
+void object_debug_menu_callback(void) {
     dbgui_menu_item("Objects", &object_debug_window_open);
 }
 
-RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback() {
+RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback(void) {
     s32 hovered_object_idx = -1;
 
     s32 _, count;

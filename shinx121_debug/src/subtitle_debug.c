@@ -1,6 +1,8 @@
 #include "modding.h"
 #include "dbgui.h"
 
+#include "debug_menus.h"
+
 #include "PR/ultratypes.h"
 #include "PR/gbi.h"
 #include "dll.h"
@@ -10,11 +12,11 @@ static s32 textID;
 static s32 overrideLetterbox = FALSE;
 static s32 letterboxOverride = 0;
 
-RECOMP_CALLBACK(".", my_debug_menu_event) void subtitle_debug_menu_callback() {
+void subtitle_debug_menu_callback(void) {
     dbgui_menu_item("Subtitles", &windowOpen);
 }
 
-RECOMP_CALLBACK(".", my_dbgui_event) void subtitle_debug_dbgui_callback() {
+RECOMP_CALLBACK(".", my_dbgui_event) void subtitle_debug_dbgui_callback(void) {
     if (windowOpen) {
         if (dbgui_begin("Subtitle Debug", &windowOpen)) {
             dbgui_checkbox("Override Letterbox", &overrideLetterbox);

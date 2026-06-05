@@ -1,0 +1,19 @@
+#pragma once
+
+void anim_debug_menu_callback(void);
+void bittable_debug_menu_callback(void);
+void blocks_debug_menu_callback(void);
+void curve_debug_menu_callback(void);
+void gplay_debug_menu_callback(void);
+void lighting_debug_menu_callback(void);
+void map_debug_menu_callback(void);
+void menu_debug_menu_callback(void);
+void object_debug_menu_callback(void);
+void partfx_debug_menu_callback(void);
+void race_debug_menu_callback(void);
+void screen_debug_menu_callback(void);
+void shadow_debug_menu_callback(void);
+void sound_test_menu_callback(void);
+void subtitle_debug_menu_callback(void);
+void task_debug_menu_callback(void);
+void time_debug_menu_callback(void);

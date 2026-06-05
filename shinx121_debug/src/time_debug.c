@@ -2,6 +2,8 @@
 #include "modding.h"
 #include "dbgui.h"
 
+#include "debug_menus.h"
+
 #include "PR/ultratypes.h"
 #include "dlls/engine/7_newday.h"
 
@@ -32,11 +34,11 @@ static s32 windowOpen = FALSE;
 
 static void recomp_time_debug(void);
 
-RECOMP_CALLBACK(".", my_debug_menu_event) void time_debug_menu_callback() {
+void time_debug_menu_callback(void) {
     dbgui_menu_item("Time", &windowOpen);
 }
 
-RECOMP_CALLBACK(".", my_dbgui_event) void time_debug_dbgui_callback() {
+RECOMP_CALLBACK(".", my_dbgui_event) void time_debug_dbgui_callback(void) {
     if (windowOpen) {
         if (dbgui_begin("Time Debug", &windowOpen)) {
             recomp_time_debug();

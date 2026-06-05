@@ -1,8 +1,10 @@
 #include "modding.h"
 #include "dbgui.h"
 #include "recomputils.h"
+
 #include "3d.h"
 #include "debug_common.h"
+#include "debug_menus.h"
 
 #include "PR/ultratypes.h"
 #include "dlls/engine/26_curves.h"
@@ -25,13 +27,14 @@ static f32 curveRenderDist = 800;
 static s32 filterByType = FALSE;
 static s32 filterByDist = FALSE;
 static s32 curveTypeFilter = 0;
-static void debug_draw_curves();
 
-RECOMP_CALLBACK(".", my_debug_menu_event) void curve_debug_menu_callback() {
+static void debug_draw_curves(void);
+
+void curve_debug_menu_callback(void) {
     dbgui_menu_item("Curves", &curveDebugWindowOpen);
 }
 
-RECOMP_CALLBACK(".", my_dbgui_event) void curve_debug_dbgui_callback() {
+RECOMP_CALLBACK(".", my_dbgui_event) void curve_debug_dbgui_callback(void) {
     if (curveDebugWindowOpen) {
         if (dbgui_begin("Curve Debug", &curveDebugWindowOpen)) {
             debug_draw_curves();

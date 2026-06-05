@@ -2,6 +2,8 @@
 #include "recomputils.h"
 #include "dbgui.h"
 
+#include "debug_menus.h"
+
 #include "dlls/objects/210_player.h"
 #include "game/objects/object.h"
 #include "sys/fs.h"
@@ -20,11 +22,11 @@ static s32 loadedMapNames = FALSE;
 static s32 mapID;
 static s32 actID;
 
-RECOMP_CALLBACK(".", my_debug_menu_event) void map_debug_menu_callback() {
+void map_debug_menu_callback(void) {
     dbgui_menu_item("Maps", &map_debug_window_open);
 }
 
-RECOMP_CALLBACK(".", my_dbgui_event) void map_debug_dbgui_callback() {
+RECOMP_CALLBACK(".", my_dbgui_event) void map_debug_dbgui_callback(void) {
     if (map_debug_window_open) {
         if (!loadedMapNames) {
             void * mapInfo = read_alloc_file(MAPINFO_BIN, 0);

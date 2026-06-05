@@ -2,6 +2,8 @@
 #include "dbgui.h"
 #include "recomputils.h"
 
+#include "debug_menus.h"
+
 #include "PR/ultratypes.h"
 #include "PR/gbi.h"
 #include "dll.h"
@@ -65,11 +67,11 @@ static void time_saves_tab(GameState* state) {
     dbgui_end_child();
 }
 
-RECOMP_CALLBACK(".", my_debug_menu_event) void gplay_debug_menu_callback() {
+void gplay_debug_menu_callback(void) {
     dbgui_menu_item("Gplay", &windowOpen);
 }
 
-RECOMP_CALLBACK(".", my_dbgui_event) void gplay_debug_dbgui_callback() {
+RECOMP_CALLBACK(".", my_dbgui_event) void gplay_debug_dbgui_callback(void) {
     if (windowOpen) {
         if (dbgui_begin("Gplay Debug", &windowOpen)) {
             GameState* state = gDLL_29_Gplay->vtbl->get_state();

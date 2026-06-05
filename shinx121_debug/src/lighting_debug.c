@@ -2,6 +2,7 @@
 #include "dbgui.h"
 
 #include "debug_common.h"
+#include "debug_menus.h"
 
 #include "PR/ultratypes.h"
 #include "PR/gbi.h"
@@ -57,7 +58,7 @@ extern s16 D_800B1854;
 
 static s32 windowOpen = FALSE;
 
-RECOMP_CALLBACK(".", my_debug_menu_event) void lighting_debug_menu_callback() {
+void lighting_debug_menu_callback(void) {
     dbgui_menu_item("Lighting", &windowOpen);
 }
 

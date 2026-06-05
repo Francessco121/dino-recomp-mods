@@ -6,6 +6,7 @@
 
 #include "object_dll_ids.h"
 #include "object_debug.h"
+#include "objfsa_debug.h"
 #include "../3d.h"
 
 #include "game/objects/object.h"
@@ -13,12 +14,11 @@
 #include "dlls/engine/27.h"
 
 DLL27_Data *dll27_debug_get_data(Object *obj) {
+    if (objfsa_debug_get_data(obj)) {
+        return (DLL27_Data*)((u32)obj->data + 0x4);
+    }
+
     switch (obj->def->dllID) {
-        case DLL_ID_Player:
-        case DLL_ID_KT_Rex:
-        case DLL_ID_BossDrakor:
-        case DLL_ID_BassaltWeavel:
-            return (DLL27_Data*)((u32)obj->data + 0x4);
         case DLL_ID_snowhorn:
             return (DLL27_Data*)((u32)obj->data + 0x170);
         case DLL_ID_IMSnowBike:

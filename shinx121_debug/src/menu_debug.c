@@ -1,17 +1,19 @@
 #include "modding.h"
 #include "dbgui.h"
 
+#include "debug_menus.h"
+
 #include "PR/ultratypes.h"
 #include "sys/menu.h"
 
 static s32 menu_debug_window_open = FALSE;
 static s32 menu = -1;
 
-RECOMP_CALLBACK(".", my_debug_menu_event) void menu_debug_menu_callback() {
+void menu_debug_menu_callback(void) {
     dbgui_menu_item("Menu", &menu_debug_window_open);
 }
 
-RECOMP_CALLBACK(".", my_dbgui_event) void menu_debug_dbgui_callback() {
+RECOMP_CALLBACK(".", my_dbgui_event) void menu_debug_dbgui_callback(void) {
     if (menu_debug_window_open) {
         if (dbgui_begin("Menu Debug", &menu_debug_window_open)) {
             if (menu == -1) {

@@ -1,8 +1,10 @@
 #include "modding.h"
 #include "dbgui.h"
 #include "recomputils.h"
+
 #include "3d.h"
 #include "debug_common.h"
+#include "debug_menus.h"
 
 #include "sys/fs.h"
 #include "sys/memory.h"
@@ -382,11 +384,11 @@ static void loaded_blocks_list(void) {
     }
 }
 
-RECOMP_CALLBACK(".", my_debug_menu_event) void blocks_debug_menu_callback() {
+void blocks_debug_menu_callback(void) {
     dbgui_menu_item("Blocks", &blockDebugWindowOpen);
 }
 
-RECOMP_CALLBACK(".", my_dbgui_event) void blocks_debug_dbgui_callback() {
+RECOMP_CALLBACK(".", my_dbgui_event) void blocks_debug_dbgui_callback(void) {
     hoveredBlock = -1;
     hoveredHit = -1;
     hoveredShape = -1;

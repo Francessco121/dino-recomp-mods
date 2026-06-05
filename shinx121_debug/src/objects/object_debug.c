@@ -1004,11 +1004,6 @@ void object_anim_debug(Object *obj, ObjEditorData *editorData) {
 
     dbgui_separator();
 
-    if (model->modAnim == NULL) {
-        dbgui_text("! model->modAnim is null");
-        return;
-    }
-
     s32 changed = FALSE;
 
     dbgui_push_item_width(110);
@@ -1040,7 +1035,9 @@ void object_anim_debug(Object *obj, ObjEditorData *editorData) {
 
     dbgui_textf("Absolute index: %d\n", absIndex);
 
-    s32 animIndex = model->modAnim[absIndex];
+    s32 animIndex = (model->unk71 & 0x40) && model->modAnim != NULL
+        ? model->modAnim[absIndex]
+        : absIndex;
     _Bool validAnim = animIndex >= 0;
     if (!validAnim) {
         if (animIndex == -1) {

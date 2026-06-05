@@ -2,6 +2,8 @@
 #include "recomputils.h"
 #include "dbgui.h"
 
+#include "debug_menus.h"
+
 #include "common.h"
 #include "sys/asset_thread.h"
 #include "sys/fs.h"
@@ -30,11 +32,11 @@ static s32 mpegID;
 static s32 numMPEGEntries = -1;
 static s32 numMusicActionEntries = -1;
 
-RECOMP_CALLBACK(".", my_debug_menu_event) void sound_test_menu_callback() {
+void sound_test_menu_callback(void) {
     dbgui_menu_item("Sound Test", &sound_test_window_open);
 }
 
-RECOMP_CALLBACK(".", my_dbgui_event) void sound_test_dbgui_callback() {
+RECOMP_CALLBACK(".", my_dbgui_event) void sound_test_dbgui_callback(void) {
     if (numMPEGEntries < 0) {
         numMPEGEntries = (get_file_size(MPEG_TAB) / 4) - 1;
     }

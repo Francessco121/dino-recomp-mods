@@ -1,12 +1,14 @@
-#include "dll.h"
 #include "modding.h"
 #include "dbgui.h"
 #include "recomputils.h"
+
 #include "3d.h"
+#include "debug_menus.h"
 
 #include "PR/ultratypes.h"
 #include "dlls/engine/4_race.h"
 #include "sys/math.h"
+#include "dll.h"
 
 extern SRT gCameraSRT;
 extern f32 gWorldX;
@@ -26,11 +28,11 @@ static void debug_draw_checkpoints(void);
 static void debug_racers(void);
 static s32 hoveredIdx = -1;
 
-RECOMP_CALLBACK(".", my_debug_menu_event) void race_debug_menu_callback() {
+void race_debug_menu_callback(void) {
     dbgui_menu_item("Race", &raceDebugWindowOpen);
 }
 
-RECOMP_CALLBACK(".", my_dbgui_event) void race_debug_dbgui_callback() {
+RECOMP_CALLBACK(".", my_dbgui_event) void race_debug_dbgui_callback(void) {
     if (raceDebugWindowOpen) {
         if (dbgui_begin("Race Debug", &raceDebugWindowOpen)) {
             if (dbgui_begin_tab_bar("race_tabs")) {

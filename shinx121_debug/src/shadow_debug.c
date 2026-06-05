@@ -1,6 +1,8 @@
 #include "modding.h"
 #include "dbgui.h"
 
+#include "debug_menus.h"
+
 #include "PR/ultratypes.h"
 #include "sys/newshadows.h"
 
@@ -35,7 +37,7 @@ static u32 D_800BB158_count;
 static u32 D_800BB160_count;
 static u32 D_800BB168_count;
 
-RECOMP_CALLBACK(".", my_debug_menu_event) void shadow_debug_menu_callback() {
+void shadow_debug_menu_callback(void) {
     dbgui_menu_item("Shadow", &windowOpen);
 }
 
@@ -43,7 +45,7 @@ static void buffer_text(const char *name, u32 count, u32 capacity) {
     dbgui_textf("%s: %d/%d (%.2f%%)", name, count, capacity, ((f32)count / (f32)capacity) * 100.0f);
 }
 
-RECOMP_CALLBACK(".", my_dbgui_event) void shadow_debug_dbgui_callback() {
+RECOMP_CALLBACK(".", my_dbgui_event) void shadow_debug_dbgui_callback(void) {
     if (windowOpen) {
         if (dbgui_begin("Shadow Debug", &windowOpen)) {
             dbgui_text("Buffers 1:");
