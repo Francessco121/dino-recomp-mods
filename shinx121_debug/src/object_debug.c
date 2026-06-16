@@ -43,7 +43,8 @@ static s32 hovered_object_idx = -1;
 static s32 show_in_world = FALSE;
 static s32 show_hitboxes = TRUE;
 static s32 show_modlines = FALSE;
-static char search_buffer[256] = {0};
+static char search_buffer[16] = {0};
+static s32 search_buffer_len = 0;
 static s32 type_filter = 0;
 static s32 filter_types = FALSE;
 static Object *edit_objects[256] = {NULL};
@@ -67,7 +68,7 @@ static void add_edit_object(Object *obj) {
     }
 }
 
-static void remove_freed_edit_objects() {
+static void remove_freed_edit_objects(void) {
     s32 _, count;
     Object** objects = get_world_objects(&_, &count);
 
@@ -193,6 +194,35 @@ static void object_editor(Object *obj, ObjEditorData *editorData, s32 index) {
     }
 }
 
+static _Bool object_matches_search_filter(Object* obj) {
+    if (search_buffer_len == 0) {
+        return TRUE;
+    }
+    if (obj->def == NULL) {
+        return FALSE;
+    }
+    char *name = obj->def->name;
+
+    for (s32 k = 0; k < search_buffer_len && k < 16; k++) {
+        char c1 = name[k];
+        char c2 = search_buffer[k];
+
+        // Case-insensitive comparison
+        if (c1 >= 'A' && c1 <= 'Z') {
+            c1 += ('a' - 'A');
+        }
+        if (c2 >= 'A' && c2 <= 'Z') {
+            c2 += ('a' - 'A');
+        }
+
+        if (c1 != c2) {
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
+
 static void objects_list_tab(Object** objects, s32 count, s32 *hovered_object_idx) {
     dbgui_checkbox("Show in world", &show_in_world);
 
@@ -209,7 +239,7 @@ static void objects_list_tab(Object** objects, s32 count, s32 *hovered_object_id
     }
 
     dbgui_input_text("Search", search_buffer, sizeof(search_buffer) / sizeof(char));
-    s32 search_len = strlen(search_buffer);
+    search_buffer_len = strlen(search_buffer);
 
     dbgui_textf("Objects (%d):", count);
     if (dbgui_begin_child("object_list")) {
@@ -217,18 +247,8 @@ static void objects_list_tab(Object** objects, s32 count, s32 *hovered_object_id
             Object *obj = objects[i];
             char *name = obj->def->name;
 
-            if (search_len != 0) {
-                s32 skip = FALSE;
-                for (s32 k = 0; k < search_len && k < 13; k++) {
-                    if (name[k] != search_buffer[k]) {
-                        skip = TRUE;
-                        break;
-                    }
-                }
-
-                if (skip) {
-                    continue;
-                }
+            if (!object_matches_search_filter(obj)) {
+                continue;
             }
 
             dbgui_push_str_id(recomp_sprintf_helper("%p", obj));
@@ -255,7 +275,7 @@ static void objects_list_tab(Object** objects, s32 count, s32 *hovered_object_id
     dbgui_end_child();
 }
 
-static void priority_list_tab() {
+static void priority_list_tab(void) {
     dbgui_text("Object Priority/Update List:");
     if (dbgui_begin_child("object_priority_list")) {
         s32 i = 0;
@@ -283,7 +303,7 @@ static void priority_list_tab() {
     dbgui_end_child();
 }
 
-static void type_list_tab() {
+static void type_list_tab(void) {
     dbgui_text("Object Type List:");
     if (dbgui_begin_child("object_type_list")) {
         s32 first = TRUE;
@@ -400,6 +420,10 @@ RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback(void) {
             s32 hovered = hovered_object_idx == i;
 
             Object *obj = objects[i];
+
+            if (!object_matches_search_filter(obj)) {
+                continue;
+            }
 
             Vec3f position = obj->prevGlobalPosition;
 
