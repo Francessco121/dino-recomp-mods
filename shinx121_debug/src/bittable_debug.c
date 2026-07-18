@@ -5,7 +5,7 @@
 #include "debug_menus.h"
 
 #include "sys/main.h"
-#include "sys/fs.h"
+#include "sys/pi.h"
 
 extern BitTableEntry *gFile_BITTABLE;
 
@@ -20,7 +20,7 @@ void bittable_debug_menu_callback(void) {
 RECOMP_CALLBACK(".", my_dbgui_event) void bittable_debug_dbgui_callback(void) {
     if (bittableDebugWindowOpen) {
         if (bittableSize == -1) {
-            bittableSize = get_file_size(BITTABLE_BIN) / sizeof(BitTableEntry);
+            bittableSize = piRomGetFileSize(BITTABLE_BIN) / sizeof(BitTableEntry);
         }
 
         if (dbgui_begin("Bit Table Debug", &bittableDebugWindowOpen)) {
@@ -31,16 +31,16 @@ RECOMP_CALLBACK(".", my_dbgui_event) void bittable_debug_dbgui_callback(void) {
             };
             dbgui_input_int_ext("Entry", &entry, &inputOptions);
             
-            s32 value = (s32)main_get_bits(entry);
+            s32 value = (s32)mainGetBits(entry);
             if (dbgui_input_int("Value", &value)) {
-                main_set_bits(entry, value);
+                mainSetBits(entry, value);
             }
             if (dbgui_button("Decrement")) {
-                main_decrement_bits(entry);
+                mainDecrementBits(entry);
             }
             dbgui_same_line();
             if (dbgui_button("Increment")) {
-                main_increment_bits(entry);
+                mainIncrementBits(entry);
             }
 
             dbgui_new_line();

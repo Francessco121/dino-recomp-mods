@@ -28,7 +28,7 @@ RECOMP_CALLBACK(".", my_dbgui_event) void subtitle_debug_dbgui_callback(void) {
 
                 gDLL_2_Camera->vtbl->set_letterbox_goal(letterboxOverride, TRUE);
             }
-            dbgui_textf("Current letterbox: %d", camera_get_letterbox());
+            dbgui_textf("Current letterbox: %d", camGetLetterbox());
 
             dbgui_set_next_item_width(100);
             if (dbgui_input_int("Gametext ID", &textID)) {

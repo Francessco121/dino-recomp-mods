@@ -32,7 +32,7 @@ static void draw_line(f32 x1, f32 y1, f32 x2, f32 y2, u32 color) {
 static s32 world_to_dbgui_coords(f32 x, f32 y, f32 z, f32 *o_sx, f32 *o_sy) {
     // World -> screen position
     f32 sx, sy;
-    if (!camera_world_to_screen(x - gWorldX, y, z - gWorldZ, &sx, &sy, 1)) {
+    if (!camWorldToScreen(x - gWorldX, y, z - gWorldZ, &sx, &sy, 1)) {
         // Offscreen
         return FALSE;
     }
@@ -41,7 +41,7 @@ static s32 world_to_dbgui_coords(f32 x, f32 y, f32 z, f32 *o_sx, f32 *o_sy) {
     f32 screen_width, screen_height;
     dbgui_get_display_size(&screen_width, &screen_height);
 
-    u32 wh = vi_get_current_size();
+    u32 wh = viGetCurrentSize();
     u32 fb_width = GET_VIDEO_WIDTH(wh);
     u32 fb_height = GET_VIDEO_HEIGHT(wh);
 
@@ -201,7 +201,7 @@ void draw_3d_box(MtxF *mtx, f32 width, f32 height, f32 depth, u32 color) {
 
     for (u32 i = 0; i < 8; i++) {
         f32 tx, ty, tz;
-        vec3_transform(mtx, cube_points[i].x, cube_points[i].y, cube_points[i].z, &tx, &ty, &tz);
+        mathMtxXFMF(mtx, cube_points[i].x, cube_points[i].y, cube_points[i].z, &tx, &ty, &tz);
         
         cube_points[i].x = tx;
         cube_points[i].y = ty + height;
@@ -240,10 +240,10 @@ void draw_3d_sphere(f32 x, f32 y, f32 z, f32 radius, u32 color) {
     cam_srt.pitch = -gCameraSRT.pitch;
     cam_srt.roll = gCameraSRT.roll;
     MtxF cam_inv_mtx;
-    matrix_from_srt_reversed(&cam_inv_mtx, &cam_srt);
+    mathRpyXyzMtx(&cam_inv_mtx, &cam_srt);
 
     Vec3f transformed;
-    vec3_transform_no_translate(&cam_inv_mtx, &offset, &transformed);
+    mathMtxFastXFMF(&cam_inv_mtx, &offset, &transformed);
 
     f32 center_x, center_y;
     if (!world_to_dbgui_coords(x, y, z, &center_x, &center_y)) {

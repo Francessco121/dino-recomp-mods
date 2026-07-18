@@ -10,7 +10,7 @@
 #include "game/gamebits.h"
 #include "sys/main.h"
 #include "sys/memory.h"
-#include "sys/fs.h"
+#include "sys/pi.h"
 #include "dll.h"
 
 extern BitTableEntry *gFile_BITTABLE;
@@ -54,7 +54,7 @@ static void load_tasks(void) {
         taskGamebits[i] = -1;
     }
 
-    s32 numGamebits = get_file_size(BITTABLE_BIN) / sizeof(BitTableEntry);
+    s32 numGamebits = piRomGetFileSize(BITTABLE_BIN) / sizeof(BitTableEntry);
     for (s32 i = 0; i < numGamebits; i++) {
         BitTableEntry* entry = &gFile_BITTABLE[i];
         if (entry->field_0x2 & (1 << 5)) {
@@ -83,7 +83,7 @@ static void task_list(void) {
             s32 bsEntry = i / 32;
             s32 bit = i % 32;
 
-            u32 bsValue = main_get_bits(BIT_Task_Bits_1 + bsEntry);
+            u32 bsValue = mainGetBits(BIT_Task_Bits_1 + bsEntry);
             s32 value = (bsValue >> bit) & 1;
 
             s32 pct = (s32)(((i + 1) / (f32)numTasks) * 100.0f);

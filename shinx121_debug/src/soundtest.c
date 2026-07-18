@@ -5,8 +5,8 @@
 #include "debug_menus.h"
 
 #include "common.h"
-#include "sys/asset_thread.h"
-#include "sys/fs.h"
+#include "sys/asset.h"
+#include "sys/pi.h"
 #include "dlls/engine/5_amseq.h"
 #include "dll.h"
 
@@ -19,7 +19,7 @@ static const DbgUiInputIntOptions hexInput = {
 };
 
 extern s32 *gFile_MPEG_TAB;
-extern void mpeg_play(s32 id);
+extern void mpegPlay(s32 id);
 
 static s32 sound_test_window_open = FALSE;
 static s32 sfxID;
@@ -38,10 +38,10 @@ void sound_test_menu_callback(void) {
 
 RECOMP_CALLBACK(".", my_dbgui_event) void sound_test_dbgui_callback(void) {
     if (numMPEGEntries < 0) {
-        numMPEGEntries = (get_file_size(MPEG_TAB) / 4) - 1;
+        numMPEGEntries = (piRomGetFileSize(MPEG_TAB) / 4) - 1;
     }
     if (numMusicActionEntries < 0) {
-        numMusicActionEntries = get_file_size(MUSICACTIONS_BIN) / sizeof(MusicAction);
+        numMusicActionEntries = piRomGetFileSize(MUSICACTIONS_BIN) / sizeof(MusicAction);
     }
 
     if (sound_test_window_open) {
@@ -61,14 +61,14 @@ RECOMP_CALLBACK(".", my_dbgui_event) void sound_test_dbgui_callback(void) {
 
                     if (dbgui_button("Play")) {
                         if (lastSfxID != -1) {
-                            gDLL_6_AMSFX->vtbl->stop(lastSfxID);
+                            gDLL_6_AMSFX->vtbl->Stop(lastSfxID);
                         }
-                        lastSfxID = gDLL_6_AMSFX->vtbl->play(NULL, sfxID, volume, NULL, 0, 0, 0);
+                        lastSfxID = gDLL_6_AMSFX->vtbl->Play(NULL, sfxID, volume, NULL, 0, 0, 0);
                     }
                     dbgui_same_line();
                     if (dbgui_button("Stop")) {
                         if (lastSfxID != -1) {
-                            gDLL_6_AMSFX->vtbl->stop(lastSfxID);
+                            gDLL_6_AMSFX->vtbl->Stop(lastSfxID);
                         }
                     }
 
@@ -109,7 +109,7 @@ RECOMP_CALLBACK(".", my_dbgui_event) void sound_test_dbgui_callback(void) {
                             if (musicAction > numMusicActionEntries) musicAction = numMusicActionEntries;
 
                             if (musicAction > 0) {
-                                queue_load_file_region_to_ptr(
+                                assetRomLoadSection(
                                     (void**)&selectedAction, MUSICACTIONS_BIN, 
                                     (musicAction - 1) * sizeof(MusicAction), sizeof(MusicAction));
                             }
@@ -299,7 +299,7 @@ RECOMP_CALLBACK(".", my_dbgui_event) void sound_test_dbgui_callback(void) {
                     }
 
                     if (dbgui_button("Play")) {
-                        mpeg_play(mpegID);
+                        mpegPlay(mpegID);
                     }
 
                     dbgui_end_tab_item();

@@ -295,15 +295,15 @@ void trigger_debug_tab(Object *obj) {
 }
 
 static void draw_plane_line(MtxF *mtx, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2, u32 color) {
-    vec3_transform(mtx, x1, y1, z1, &x1, &y1, &z1);
-    vec3_transform(mtx, x2, y2, z2, &x2, &y2, &z2);
+    mathMtxXFMF(mtx, x1, y1, z1, &x1, &y1, &z1);
+    mathMtxXFMF(mtx, x2, y2, z2, &x2, &y2, &z2);
 
     draw_3d_line(x1, y1, z1, x2, y2, z2, color);
 }
 
 static void draw_trigger_plane(Object *obj, u32 color) {
     MtxF mtx;
-    matrix_from_srt(&mtx, &obj->srt);
+    mathYprXyzMtx(&mtx, &obj->srt);
 
     Vtx *vertex = &sPlaneModel->model->vertices[1];
     f32 minX, minY, minZ;

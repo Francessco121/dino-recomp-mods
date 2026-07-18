@@ -41,7 +41,7 @@ void draw_effectbox(Object *obj, u32 color) {
     };
 
     MtxF mtx;
-    matrix_from_srt(&mtx, &srt);
+    mathYprXyzMtx(&mtx, &srt);
 
     draw_3d_box(&mtx, width, height, depth, color);
 }

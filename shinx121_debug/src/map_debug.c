@@ -6,7 +6,7 @@
 
 #include "dlls/objects/210_player.h"
 #include "game/objects/object.h"
-#include "sys/fs.h"
+#include "sys/pi.h"
 #include "sys/memory.h"
 #include "sys/map.h"
 #include "sys/objects.h"
@@ -29,7 +29,7 @@ void map_debug_menu_callback(void) {
 RECOMP_CALLBACK(".", my_dbgui_event) void map_debug_dbgui_callback(void) {
     if (map_debug_window_open) {
         if (!loadedMapNames) {
-            void * mapInfo = read_alloc_file(MAPINFO_BIN, 0);
+            void * mapInfo = piRomLoad(MAPINFO_BIN, 0);
             for (s32 i = 0; i < 120; i++) {
                 bcopy((void*)((u32)mapInfo + (0x20 * i)), mapNames[i], 28);
             }
@@ -39,9 +39,9 @@ RECOMP_CALLBACK(".", my_dbgui_event) void map_debug_dbgui_callback(void) {
         }
 
         if (dbgui_begin("Map Debug", &map_debug_window_open)) {
-            Object *player = get_player();
+            Object *player = objGetPlayer();
             if (player != NULL) {
-                s32 inMap = map_world_xz_to_map_id(player->srt.transl.x, player->srt.transl.z);
+                s32 inMap = mapWorldXZToMapID(player->srt.transl.x, player->srt.transl.z);
                 if (inMap >= 0 && inMap < 120) {
                     dbgui_textf("Player is currently in:\n[%d] %s", inMap, mapNames[inMap]);
                 }

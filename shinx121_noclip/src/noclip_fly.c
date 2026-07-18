@@ -12,6 +12,9 @@ extern SRT gCameraSRT;
 extern MtxF gViewMtx;
 extern s8 gMainDoMapChange;
 
+extern OSContPad gContPads[MAXCONTROLLERS];
+extern u8 gVirtualContPortMap[MAXCONTROLLERS];
+
 const s32 FLY_COOLDOWN = 1;
 
 static s32 flying_cooldown = 0;
@@ -37,7 +40,7 @@ typedef enum {
 RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick(void) {
     flying = FALSE;
     
-    Object *player = get_player();
+    Object *player = objGetPlayer();
 
     if (player != NULL) {
         Player_Data *playerdata = (Player_Data*)player->data;
@@ -51,7 +54,7 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick(void)
         
         s32 fly_active = FALSE;
         if (recomp_get_config_u32("mode") == NOCLIP_MODE_TOGGLE) {
-            if ((joy_get_pressed_raw(0) & L_TRIG) && allow_flight) {
+            if ((joyGetPressedRaw(0) & L_TRIG) && allow_flight) {
                 fly_toggle = !fly_toggle;
             }
             fly_active = fly_toggle;
@@ -68,8 +71,8 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick(void)
 
             const float SPEED = 5.0f;
 
-            s8 jx = joy_get_stick_x(0);
-            s8 jy = joy_get_stick_y(0);
+            s8 jx = joyGetStickX(0);
+            s8 jy = joyGetStickY(0);
 
             Vec3f fly_dir;
 
@@ -87,7 +90,7 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick(void)
 
             f32 power = MIN(1.0f, VECTOR_MAGNITUDE(fly_dir) * (127.0f / 65.0f));
 
-            vec3_normalize(&fly_dir);
+            vec3Normalize(&fly_dir);
             
             fly_dir.x *= SPEED * power * gUpdateRateF;
             fly_dir.y *= SPEED * power * gUpdateRateF;
@@ -103,10 +106,10 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick(void)
                 .roll = 0
             };
             MtxF cam_mtx;
-            matrix_from_srt_reversed(&cam_mtx, &cam_srt);
+            mathRpyXyzMtx(&cam_mtx, &cam_srt);
 
             Vec3f fly_dir_transformed;
-            vec3_transform_no_translate(&cam_mtx, &fly_dir, &fly_dir_transformed);
+            mathMtxFastXFMF(&cam_mtx, &fly_dir, &fly_dir_transformed);
 
             fly_position.x += fly_dir_transformed.x;
             fly_position.y += fly_dir_transformed.y;
@@ -119,7 +122,7 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick(void)
             player->prevGlobalPosition = fly_position;
 
             if (recomp_get_config_u32("turn") == NOCLIP_TURN_ON && xz_power > 0.1f) {
-                player->srt.yaw = arctan2_f(-fly_dir_transformed.x, -fly_dir_transformed.z);
+                player->srt.yaw = Arctanf(-fly_dir_transformed.x, -fly_dir_transformed.z);
             }
 
             playerdata->unk0.animState = 28;
@@ -149,7 +152,7 @@ RECOMP_HOOK("__dll210_dll_210_free") void noclip_player_free_hook(void) {
     fly_toggle = FALSE;
 }
 
-RECOMP_HOOK("main_handle_map_change") void noclip_main_handle_map_change_hook(void) {
+RECOMP_HOOK("mainHandleMapChange") void noclip_main_handle_map_change_hook(void) {
     // Disable noclip toggle on map change
     if (gMainDoMapChange) {
         fly_toggle = FALSE;

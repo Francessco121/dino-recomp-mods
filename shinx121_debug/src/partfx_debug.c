@@ -48,7 +48,7 @@ void partfx_debug_menu_callback(void) {
 RECOMP_CALLBACK(".", my_dbgui_event) void partfx_debug_dbgui_callback(void) {
     if (windowOpen) {
         if (dbgui_begin("Particle Debug", &windowOpen)) {
-            Object *player = get_player();
+            Object *player = objGetPlayer();
 
             dbgui_input_int_ext("ID", &id, &hexInput);
            

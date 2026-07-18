@@ -75,7 +75,7 @@ static void debug_draw_curves(void) {
             }
 
             if (filterByDist) {
-                f32 dist = vec3_distance(&camPos, &setup->pos);
+                f32 dist = vec3Distance(&camPos, &setup->pos);
                 if (dist > curveRenderDist) {
                     continue;
                 }
@@ -163,7 +163,7 @@ static void debug_draw_curves(void) {
             continue;
         }
 
-        f32 dist = vec3_distance(&camPos, &setup->pos);
+        f32 dist = vec3Distance(&camPos, &setup->pos);
         if (dist > curveRenderDist) {
             continue;
         }

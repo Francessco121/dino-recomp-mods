@@ -70,7 +70,7 @@ static void add_edit_object(Object *obj) {
 
 static void remove_freed_edit_objects(void) {
     s32 _, count;
-    Object** objects = get_world_objects(&_, &count);
+    Object** objects = objGetObjects(&_, &count);
 
     for (s32 i = 0; i < (s32)(sizeof(edit_objects) / sizeof(Object*)); i++) {
         Object *obj = edit_objects[i];
@@ -185,7 +185,7 @@ static void object_editor(Object *obj, ObjEditorData *editorData, s32 index) {
     dbgui_end();
 
     if (destroy) {
-        obj_destroy_object(obj);
+        objFreeObject(obj);
         open = FALSE;
     }
 
@@ -366,9 +366,9 @@ RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback(void) {
     s32 _, count;
     Object** objects;
     if (filter_types) {
-        objects = obj_get_all_of_type(type_filter, &count);
+        objects = objGetAllOfType(type_filter, &count);
     } else {
-        objects = get_world_objects(&_, &count);
+        objects = objGetObjects(&_, &count);
     }
 
     if (object_debug_window_open) {
@@ -431,16 +431,16 @@ RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback(void) {
             srt.scale = 1.0f;
 
             MtxF mtx;
-            matrix_from_srt(&mtx, &srt);
+            mathYprXyzMtx(&mtx, &srt);
 
             if (obj->parent != NULL) {
                 SRT psrt = obj->parent->srt;
                 psrt.scale = 1.0f;
 
                 MtxF pmtx;
-                matrix_from_srt(&pmtx, &psrt);
+                mathYprXyzMtx(&pmtx, &psrt);
 
-                matrix_concat(&mtx, &pmtx, &mtx);
+                mathMtxCatF(&mtx, &pmtx, &mtx);
             }
 
             const char *label = obj->setup == NULL || obj->setup->uID == -1
@@ -510,7 +510,7 @@ RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback(void) {
 
                         f32 tx, ty, tz;
 
-                        vec3_transform(&mtx, centerX, centerY, centerZ, &tx, &ty, &tz);
+                        mathMtxXFMF(&mtx, centerX, centerY, centerZ, &tx, &ty, &tz);
                         draw_3d_text(tx, ty, tz, 
                             recomp_sprintf_helper("ObjModLine %d/%d", i, k), 
                             0xFF00FFFF);
@@ -518,29 +518,29 @@ RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback(void) {
                         f32 tx1, ty1, tz1;
                         f32 tx2, ty2, tz2;
                         
-                        vec3_transform(&mtx, hitLine->Ax, hitLine->Ay, hitLine->Az, &tx1, &ty1, &tz1);
-                        vec3_transform(&mtx, hitLine->Bx, hitLine->By, hitLine->Bz, &tx2, &ty2, &tz2);
+                        mathMtxXFMF(&mtx, hitLine->Ax, hitLine->Ay, hitLine->Az, &tx1, &ty1, &tz1);
+                        mathMtxXFMF(&mtx, hitLine->Bx, hitLine->By, hitLine->Bz, &tx2, &ty2, &tz2);
                         draw_3d_line(
                             tx1, ty1, tz1, 
                             tx2, ty2, tz2, 
                             0xFFFF00FF);
 
-                        vec3_transform(&mtx, hitLine->Ax, hitLine->Ay, hitLine->Az, &tx1, &ty1, &tz1);
-                        vec3_transform(&mtx, hitLine->Ax, hitLine->Ay + heightA, hitLine->Az, &tx2, &ty2, &tz2);
+                        mathMtxXFMF(&mtx, hitLine->Ax, hitLine->Ay, hitLine->Az, &tx1, &ty1, &tz1);
+                        mathMtxXFMF(&mtx, hitLine->Ax, hitLine->Ay + heightA, hitLine->Az, &tx2, &ty2, &tz2);
                         draw_3d_line(
                             tx1, ty1, tz1, 
                             tx2, ty2, tz2, 
                             0x888800CC);
 
-                        vec3_transform(&mtx, hitLine->Bx, hitLine->By, hitLine->Bz, &tx1, &ty1, &tz1);
-                        vec3_transform(&mtx, hitLine->Bx, hitLine->By + heightB, hitLine->Bz, &tx2, &ty2, &tz2);
+                        mathMtxXFMF(&mtx, hitLine->Bx, hitLine->By, hitLine->Bz, &tx1, &ty1, &tz1);
+                        mathMtxXFMF(&mtx, hitLine->Bx, hitLine->By + heightB, hitLine->Bz, &tx2, &ty2, &tz2);
                         draw_3d_line(
                             tx1, ty1, tz1, 
                             tx2, ty2, tz2, 
                             0x888800CC);
 
-                        vec3_transform(&mtx, hitLine->Ax, hitLine->Ay + heightA, hitLine->Az, &tx1, &ty1, &tz1);
-                        vec3_transform(&mtx, hitLine->Bx, hitLine->By + heightB, hitLine->Bz, &tx2, &ty2, &tz2);
+                        mathMtxXFMF(&mtx, hitLine->Ax, hitLine->Ay + heightA, hitLine->Az, &tx1, &ty1, &tz1);
+                        mathMtxXFMF(&mtx, hitLine->Bx, hitLine->By + heightB, hitLine->Bz, &tx2, &ty2, &tz2);
                         draw_3d_line(
                             tx1, ty1, tz1, 
                             tx2, ty2, tz2, 

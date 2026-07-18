@@ -10,7 +10,7 @@
 #include "dlls/objects/325_trigger.h"
 #include "game/objects/object.h"
 #include "game/objects/object_id.h"
-#include "sys/asset_thread.h"
+#include "sys/asset.h"
 #include "sys/camera.h"
 #include "sys/dll.h"
 #include "sys/gfx/model.h"
@@ -245,7 +245,7 @@ RECOMP_HOOK_DLL(trigger_process_commands) void trigger_process_commands_print_ho
             u16 param = cmd->param2 | (cmd->param1 << 8);
             s32 entry = param & 0x3FFF;
             param >>= 14;
-            u32 value = main_get_bits(entry);
+            u32 value = mainGetBits(entry);
             u32 prevValue = value;
 
             if (param == 0) {
@@ -263,7 +263,7 @@ RECOMP_HOOK_DLL(trigger_process_commands) void trigger_process_commands_print_ho
             u16 param = cmd->param2 | (cmd->param1 << 8);
             s32 entry = param & 0x1FFF;
             param >>= 13;
-            u32 value = main_get_bits(entry);
+            u32 value = mainGetBits(entry);
             u32 prevValue = value;
             value ^= (1 << param);
 
@@ -341,7 +341,7 @@ RECOMP_HOOK_DLL(trigger_process_commands) void trigger_process_commands_print_ho
             }
             break;
         case TRG_CMD_SIDEKICK:
-            sidekick = get_sidekick();
+            sidekick = objGetSidekick();
             if (sidekick != NULL) {
                 switch (cmd->param1) {       /* switch 5; irregular */
                 case 0:                     /* switch 5 */
@@ -351,9 +351,9 @@ RECOMP_HOOK_DLL(trigger_process_commands) void trigger_process_commands_print_ho
                     trigger_printf(self, "Trigger [%d], Unloading Sidekick\n", i);
                     break;
                 case 2: {                    /* switch 5 */
-                        Object* findTarget = obj_get_nearest_type_to(OBJTYPE_DBlevelcontrol, sidekick, NULL);
+                        Object* findTarget = objGetNearestTypeTo(OBJTYPE_DBlevelcontrol, sidekick, NULL);
                         if (findTarget == NULL) {
-                            findTarget = obj_get_nearest_type_to(OBJTYPE_TrickyTarget, sidekick, NULL);
+                            findTarget = objGetNearestTypeTo(OBJTYPE_TrickyTarget, sidekick, NULL);
                         }
                         if (findTarget != NULL) {
                             trigger_printf(self, "Trigger [%d], Sidekick Find On Object %d\n", i, findTarget->id);

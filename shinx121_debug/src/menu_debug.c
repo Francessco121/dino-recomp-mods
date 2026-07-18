@@ -17,10 +17,10 @@ RECOMP_CALLBACK(".", my_dbgui_event) void menu_debug_dbgui_callback(void) {
     if (menu_debug_window_open) {
         if (dbgui_begin("Menu Debug", &menu_debug_window_open)) {
             if (menu == -1) {
-                menu = menu_get_current();
+                menu = menuGetCurrent();
             }
 
-            dbgui_textf("Current menu: %d", menu_get_current());
+            dbgui_textf("Current menu: %d", menuGetCurrent());
             
             if (dbgui_input_int("Menu", &menu)) {
                 if (menu < 0) menu = 0;
@@ -28,7 +28,7 @@ RECOMP_CALLBACK(".", my_dbgui_event) void menu_debug_dbgui_callback(void) {
             }
 
             if (dbgui_button("Set")) {
-                menu_set(menu);
+                menuSet(menu);
             }
             
         }

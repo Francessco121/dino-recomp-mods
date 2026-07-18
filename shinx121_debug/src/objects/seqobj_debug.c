@@ -65,10 +65,10 @@ void seqobj_debug_tab(Object *obj) {
         } else {
             dbgui_textf("Seq ID: 0x%X", obj->def->pSeq[objsetup->seqIndex]);
             if (objsetup->gamebitPlay != -1) {
-                dbgui_textf("Play Bit: %d", main_get_bits(objsetup->gamebitPlay));
+                dbgui_textf("Play Bit: %d", mainGetBits(objsetup->gamebitPlay));
             }
             if (objsetup->gamebitHasPlayed != -1) {
-                dbgui_textf("Has Played Bit: %d", main_get_bits(objsetup->gamebitHasPlayed));
+                dbgui_textf("Has Played Bit: %d", mainGetBits(objsetup->gamebitHasPlayed));
             }
         }
     }

@@ -79,7 +79,7 @@ static void debug_checkpoints(void) {
             RaceCheckpointSetup *setup = node->setup;
 
             if (filterByDist) {
-                f32 dist = vec3_distance(&camPos, &setup->pos);
+                f32 dist = vec3Distance(&camPos, &setup->pos);
                 if (dist > checkpointRenderDist) {
                     continue;
                 }
@@ -149,7 +149,7 @@ static void debug_draw_checkpoints(void) {
         RaceCheckpoint *node = &_bss_60[i];
         RaceCheckpointSetup *setup = node->setup;
 
-        f32 dist = vec3_distance(&camPos, &setup->pos);
+        f32 dist = vec3Distance(&camPos, &setup->pos);
         if (dist > checkpointRenderDist) {
             continue;
         }

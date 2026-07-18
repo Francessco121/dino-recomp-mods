@@ -137,13 +137,13 @@ static void object_show_def(ObjDef *def) {
     dbgui_textf("shadowTexture: %d", def->shadowTexture);
     dbgui_textf("unk4C: %d", def->unk4C);
     dbgui_textf("unk4D: %d", def->unk4D);
-    dbgui_textf("hitbox_flags60: 0x%X", def->hitbox_flags60);
+    dbgui_textf("unk4E: 0x%X", def->unk4E);
     dbgui_textf("unk50: %d", def->unk50);
     dbgui_textf("unk52: %d", def->unk52);
     dbgui_textf("unk53: %d", def->unk53);
     dbgui_textf("unk54: %d", def->unk54);
     dbgui_textf("unk55: %d", def->unk55);
-    dbgui_textf("numPlayerObjs: %d", def->numPlayerObjs);
+    dbgui_textf("unk56: %d", def->unk56);
     dbgui_textf("unk57: %d", def->unk57);
     dbgui_textf("controlNo: %d", def->controlNo);
     dbgui_textf("modLinesSize: %d", def->modLinesSize);
@@ -203,9 +203,9 @@ static void object_show_def(ObjDef *def) {
         }
     }
 
-    dbgui_textf("unk98: %d", def->_unk98[0]);
-    dbgui_textf("unk99: %d", def->_unk98[1]);
-    dbgui_textf("unk9A: %d", def->_unk98[2]);
+    dbgui_textf("unk98: %d", def->unk98);
+    dbgui_textf("unk99: %d", def->unk99);
+    dbgui_textf("unk9A: %d", def->unk9A);
 }
 
 static s32 get_texture_id(Texture *ptr) {
@@ -375,7 +375,7 @@ static void object_draw_skeleton_hits(ModelInstance *modelInst, _Bool drawBoxes,
                 }
             };
             MtxF mtx;
-            matrix_from_srt(&mtx, &srt);
+            mathYprXyzMtx(&mtx, &srt);
 
             draw_3d_box(&mtx, 
                 thing->unk24.x - thing->unk18.x, 
@@ -419,7 +419,7 @@ static void object_draw_skeleton_hits(ModelInstance *modelInst, _Bool drawBoxes,
                 }
             };
             MtxF mtx;
-            matrix_from_srt(&mtx, &srt);
+            mathYprXyzMtx(&mtx, &srt);
 
             draw_3d_box(&mtx, radius*2, radius*2, radius*2, 0xFFFFFFFF);
         }
@@ -445,7 +445,7 @@ static void object_draw_skeleton_hits(ModelInstance *modelInst, _Bool drawBoxes,
 }
 
 static _Bool map_get_world_xz(s32 mapID, f32 *x, f32 *z) {
-    MapHeader **mapsDataTable = map_get_loaded_maps_table();
+    MapHeader **mapsDataTable = mapGetLoadedMapsTable();
     if (mapsDataTable[mapID] == NULL) {
         return FALSE;
     }
@@ -463,7 +463,7 @@ static _Bool map_get_world_xz(s32 mapID, f32 *x, f32 *z) {
 }
 
 static _Bool object_get_map_relative_xz(Object *obj, f32 *x, f32 *z, s32 *mapID) {
-    s32 inMapID = obj->mapID == -1 ? map_world_xz_to_map_id(obj->globalPosition.x, obj->globalPosition.z) : obj->mapID;
+    s32 inMapID = obj->mapID == -1 ? mapWorldXZToMapID(obj->globalPosition.x, obj->globalPosition.z) : obj->mapID;
     if (inMapID == -1) {
         return FALSE;
     }
@@ -496,7 +496,7 @@ void object_edit_contents(Object *obj) {
         if (dbgui_input_float("Z", &obj->srt.transl.z)) positionChanged = TRUE;
         if (positionChanged) {
             if (obj->parent != NULL) {
-                transform_point_by_object(
+                camTransformPointByObject(
                     obj->srt.transl.x, obj->srt.transl.y, obj->srt.transl.z,
                     &obj->globalPosition.x, &obj->globalPosition.y, &obj->globalPosition.z,
                     obj->parent
@@ -1062,7 +1062,7 @@ void object_anim_debug(Object *obj, ObjEditorData *editorData) {
     }
 
     if (play && validAnim) {
-        func_80023D30(obj, index, 0.0f, 0);
+        objAnimSet(obj, index, 0.0f, 0);
     }
 
     dbgui_separator();
@@ -1092,7 +1092,7 @@ void object_anim_debug(Object *obj, ObjEditorData *editorData) {
 
         dbgui_pop_item_width();
 
-        func_80024108(obj, editorData->modAnimDelta, gUpdateRateF, NULL);
+        objAnimAdvance(obj, editorData->modAnimDelta, gUpdateRateF, NULL);
     }
 
     dbgui_end_disabled();
