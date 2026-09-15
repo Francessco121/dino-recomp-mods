@@ -49,7 +49,7 @@ RECOMP_CALLBACK(".", my_dbgui_event) void time_debug_dbgui_callback(void) {
 
 #include "recomp/dlls/engine/7_newday_recomp.h"
 
-extern f32 _data_5C;
+extern f32 data_5C;
 
 static s32 inputMinute;
 static s32 inputHour;
@@ -105,7 +105,7 @@ static void recomp_time_debug(void) {
     }
 
     if (dbgui_tree_node("Advanced")) {
-        dbgui_textf("_data_5C: %f", _data_5C);
+        dbgui_textf("data_5C: %f", data_5C);
         dbgui_textf("func8_time: %f", func8Time);
 
         dbgui_set_next_item_width(60);

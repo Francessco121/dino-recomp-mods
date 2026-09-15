@@ -10,9 +10,6 @@
 #include "sys/segment_13D0.h"
 #include "dll.h"
 
-// TODO: pull from decomp header
-extern void joyDisableStick(int _);
-
 extern s8 gPauseState; // so we can pause the game ourselves
 // so we can manually run trackDraw
 extern Gfx *gCurGfx;

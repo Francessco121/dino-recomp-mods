@@ -162,7 +162,7 @@ static void block_debug(Block *block, s16 id, s32 idx) {
 
                     dbgui_new_line();
                     if (dbgui_button("Apply Edits")) {
-                        func_80058F3C();
+                        trackIntersectMarkBlocksDirty();
                     }
     
                     dbgui_tree_pop();

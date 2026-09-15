@@ -19,7 +19,7 @@ extern u8 __dll30_sRecentlyCompleted[5];
 extern u8 __dll30_sCompletionIdx;
 extern s8 __dll30_sRecentlyCompletedNextIdx;
 
-extern s16 __dll30_task_get_completion_percentage(void);
+extern s16 __dll30_task_GetCompletionPercentage(void);
 
 static s32 windowOpen = FALSE;
 static s32 loaded = FALSE;
@@ -68,7 +68,7 @@ static void load_tasks(void) {
 
     s32 prevNextTask = __dll30_sCompletionIdx;
     for (__dll30_sCompletionIdx = 0; __dll30_sCompletionIdx < 255; __dll30_sCompletionIdx++) {
-        if (__dll30_task_get_completion_percentage() == 100) {
+        if (__dll30_task_GetCompletionPercentage() == 100) {
             break;
         }
     }
@@ -135,7 +135,7 @@ RECOMP_CALLBACK(".", my_dbgui_event) void task_debug_dbgui_callback(void) {
         }
 
         if (dbgui_begin("Task Debug", &windowOpen)) {
-            dbgui_textf("Next task: %d/%d | Completion: %d%%", __dll30_sCompletionIdx, numTasks, gDLL_30_Task->vtbl->get_completion_percentage());
+            dbgui_textf("Next task: %d/%d | Completion: %d%%", __dll30_sCompletionIdx, numTasks, gDLL_30_Task->vtbl->GetCompletionPercentage());
 
             if (dbgui_begin_tab_bar("tabs")) {
                 if (dbgui_begin_tab_item("Task List", NULL)) {

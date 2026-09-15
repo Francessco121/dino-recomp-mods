@@ -7,7 +7,7 @@
 #include "PR/ultratypes.h"
 #include "PR/gbi.h"
 #include "dll.h"
-#include "sys/segment_1D900.h"
+#include "sys/lighting.h"
 
 extern f32 D_80090C60;
 extern f32 D_80090C64;
@@ -26,20 +26,20 @@ extern u8 D_80090C94;
 extern u8 D_80090C98;
 extern s8 D_80090C9C;
 extern u8 D_80090CA0;
-extern u8 D_80090CA4;
+extern u8 gAmbientAdditiveSet;
 extern s32 D_80090CA8;
 extern f32 D_80090CAC;
-extern u8 BYTE_80090cb0;
-extern f32 D_80090CB4;
+extern u8 gInsideLighting;
+extern f32 gInsideLightT;
 
 extern u8 D_80090D18;
 extern u8 D_80090D1C;
 extern u8 D_80090D20;
 extern Vec3s32 D_80090D24;
 
-extern u8 D_800B1830;
-extern u8 D_800B1831;
-extern u8 D_800B1832;
+extern u8 gAmbientR;
+extern u8 gAmbientG;
+extern u8 gAmbientB;
 extern f32 D_800B1834;
 extern f32 D_800B1838;
 extern f32 D_800B183C;
@@ -52,9 +52,9 @@ extern u8 D_800B1845;
 extern s8 D_800B1846;
 extern u8 D_800B1847;
 
-extern s16 D_800B1850;
-extern s16 D_800B1852;
-extern s16 D_800B1854;
+extern s16 gAmbientAdditiveR;
+extern s16 gAmbientAdditiveG;
+extern s16 gAmbientAdditiveB;
 
 static s32 windowOpen = FALSE;
 
@@ -65,9 +65,9 @@ void lighting_debug_menu_callback(void) {
 RECOMP_CALLBACK(".", my_dbgui_event) void lighting_debug_dbgui_callback() {
     if (windowOpen) {
         if (dbgui_begin("Lighting Debug", &windowOpen)) {
-            dbgui_textf("D_800B1830: %d", D_800B1830);
-            dbgui_textf("D_800B1831: %d", D_800B1831);
-            dbgui_textf("D_800B1832: %d", D_800B1832);
+            dbgui_textf("gAmbientR: %d", gAmbientR);
+            dbgui_textf("gAmbientG: %d", gAmbientG);
+            dbgui_textf("gAmbientB: %d", gAmbientB);
 
             dbgui_textf("D_800B1834: %f", D_800B1834);
             dbgui_textf("D_800B1838: %f", D_800B1838);
@@ -82,9 +82,9 @@ RECOMP_CALLBACK(".", my_dbgui_event) void lighting_debug_dbgui_callback() {
             dbgui_textf("D_800B1846: %d", D_800B1846);
             dbgui_textf("D_800B1847: %d", D_800B1847);
 
-            dbgui_textf("D_800B1850: %d", D_800B1850);
-            dbgui_textf("D_800B1852: %d", D_800B1852);
-            dbgui_textf("D_800B1854: %d", D_800B1854);
+            dbgui_textf("gAmbientAdditiveR: %d", gAmbientAdditiveR);
+            dbgui_textf("gAmbientAdditiveG: %d", gAmbientAdditiveG);
+            dbgui_textf("gAmbientAdditiveB: %d", gAmbientAdditiveB);
 
             dbgui_separator();
 
@@ -106,12 +106,12 @@ RECOMP_CALLBACK(".", my_dbgui_event) void lighting_debug_dbgui_callback() {
             dbgui_textf("D_80090C98: %d", D_80090C98);
             dbgui_textf("D_80090C9C: %d", D_80090C9C);
             dbgui_textf("D_80090CA0: %d", D_80090CA0);
-            dbgui_textf("D_80090CA4: %d", D_80090CA4);
+            dbgui_textf("gAmbientAdditiveSet: %d", gAmbientAdditiveSet);
 
             dbgui_textf("D_80090CA8: %d", D_80090CA8);
             dbgui_textf("D_80090CAC: %f", D_80090CAC);
-            dbgui_input_byte("BYTE_80090cb0", &BYTE_80090cb0);
-            dbgui_textf("D_80090CB4: %f", D_80090CB4);
+            dbgui_input_byte("gInsideLighting", &gInsideLighting);
+            dbgui_textf("gInsideLightT: %f", gInsideLightT);
 
             dbgui_textf("D_80090D18: %d", D_80090D18);
             dbgui_textf("D_80090D1C: %d", D_80090D1C);

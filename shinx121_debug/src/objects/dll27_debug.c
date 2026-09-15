@@ -92,7 +92,7 @@ void dll27_debug_tab(Object *obj, DLL27_Data *data) {
         dbgui_tree_pop();
     }
     if (dbgui_tree_node("unk68")) {
-        Unk80027934 *unk68 = &data->unk68;
+        TrackIntersectResult *unk68 = &data->unk68;
 
         if (dbgui_tree_node("unk40")) {
             for (s32 i = 0; i < count1; i++) {
@@ -167,7 +167,7 @@ void dll27_debug_tab(Object *obj, DLL27_Data *data) {
         dbgui_tree_pop();
     }
     if (dbgui_tree_node("unk140")) {
-        Func_80059C40_Struct *unk140 = &data->unk140;
+        TrackLineIntersectResult *unk140 = &data->unk140;
 
         if (unk140->unk0 != NULL) {
             if (dbgui_tree_node("unk0")) {
