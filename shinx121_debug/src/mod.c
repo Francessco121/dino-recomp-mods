@@ -10,6 +10,7 @@ static void debug_menus(void) {
     bittable_debug_menu_callback();
     blocks_debug_menu_callback();
     curve_debug_menu_callback();
+    env_debug_menu_callback();
     gplay_debug_menu_callback();
     lighting_debug_menu_callback();
     map_debug_menu_callback();
@@ -23,6 +24,7 @@ static void debug_menus(void) {
     subtitle_debug_menu_callback();
     task_debug_menu_callback();
     time_debug_menu_callback();
+    voxmap_debug_menu_callback();
 }
 
 RECOMP_CALLBACK("*", recomp_on_dbgui) void my_dbgui_callback(void) {

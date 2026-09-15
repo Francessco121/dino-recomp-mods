@@ -227,7 +227,7 @@ void draw_3d_box(MtxF *mtx, f32 width, f32 height, f32 depth, u32 color) {
     draw_line(cube_points[3].x, cube_points[3].y, cube_points[7].x, cube_points[7].y, color);
 }
 
-void draw_3d_sphere(f32 x, f32 y, f32 z, f32 radius, u32 color) {
+void draw_3d_sphere_ext(f32 x, f32 y, f32 z, f32 radius, u32 color, s32 numSegments, f32 thickness, _Bool filled) {
     Vec3f offset = { .x = radius, .y = 0, .z = 0 };
 
     // TODO: not sure this math is perfect... looks pretty close tho
@@ -260,15 +260,32 @@ void draw_3d_sphere(f32 x, f32 y, f32 z, f32 radius, u32 color) {
         edge_y - center_y
     );
 
-    DbgUiCircle circle = {
-        .center = {
-            .x = center_x,
-            .y = center_y
-        },
-        .radius = transformed_radius,
-        .color = color,
-        .numSegments = 0,
-        .thickness = 1.0f
-    };
-    dbgui_foreground_circle(&circle);
+    if (filled) {
+        DbgUiCircleFilled circle = {
+            .center = {
+                .x = center_x,
+                .y = center_y
+            },
+            .radius = transformed_radius,
+            .color = color,
+            .numSegments = numSegments
+        };
+        dbgui_foreground_circle_filled(&circle);
+    } else {
+        DbgUiCircle circle = {
+            .center = {
+                .x = center_x,
+                .y = center_y
+            },
+            .radius = transformed_radius,
+            .color = color,
+            .numSegments = numSegments,
+            .thickness = thickness
+        };
+        dbgui_foreground_circle(&circle);
+    }
+}
+
+void draw_3d_sphere(f32 x, f32 y, f32 z, f32 radius, u32 color) {
+    draw_3d_sphere_ext(x, y, z, radius, color, 0, 1.0f, FALSE);
 }

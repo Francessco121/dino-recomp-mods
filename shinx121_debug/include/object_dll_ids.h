@@ -2,6 +2,7 @@
 
 enum ObjectDLLID {
     DLL_ID_Player = 0x8001,
+    DLL_ID_SharpClaw = 0x8006,
     DLL_ID_tumbleweed = 0x8012,
     DLL_ID_BassaltWeavel = 0x8014,
     DLL_ID_BigScorpionRobot = 0x8018,

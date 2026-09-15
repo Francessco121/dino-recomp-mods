@@ -11,6 +11,7 @@
 #include "game/objects/object_def.h"
 #include "sys/dll.h"
 #include "sys/gfx/model.h"
+#include "sys/gfx/model_asm.h"
 #include "sys/map.h"
 #include "sys/objanim.h"
 #include "sys/main.h"
@@ -441,6 +442,47 @@ static void object_draw_skeleton_hits(ModelInstance *modelInst, _Bool drawBoxes,
                 draw_3d_line(pos.x, pos.y, pos.z, parent.x, parent.y, parent.z, 0xFFFFFFFF);
             }
         }
+    }
+}
+
+extern s16 SHORT_ARRAY_800b17d0[];
+extern u32 gMatrixCount;
+
+void object_draw_attach_points(Object *obj) {
+    ModelInstance *modelInst = obj->modelInsts[obj->modelInstIdx];
+    if (modelInst == NULL) {
+        return;
+    }
+    Model *model = modelInst->model;
+
+    // Calculate joint matrices (they are not currently valid at this point)
+    MtxF mtx;
+    mod_func_8001943C(obj, &mtx, 1.0f, 0.0f);
+    mod_func_80019730(modelInst, model, obj, &mtx);
+    // Unfuck state fucked by calculating matrices the above way (hacky!)
+    gMatrixCount--;
+    modelInst->unk34 ^= 1;
+
+    for (s32 i = 0; i < obj->def->numAttachPoints; i++) {
+        s32 bone = obj->def->pAttachPoints[i].bones[obj->modelInstIdx];
+        MtxF *attachPointMtx = (MtxF*) &((f32*)modelInst->matrices[(modelInst->unk34 & 1) ^ 1])[bone << 4];
+
+        Vec3f pos = {
+            attachPointMtx->m[3][0] + gWorldX,
+            attachPointMtx->m[3][1],
+            attachPointMtx->m[3][2] + gWorldZ
+        };
+
+        draw_3d_text(pos.x, pos.y, pos.z, recomp_sprintf_helper("ap[%d]", i), 0xFF00FFFF);
+        draw_3d_sphere(pos.x, pos.y, pos.z, 0.5f, 0xFFFF00FF);
+    }
+}
+
+void object_attach_point_debug(Object *obj) {
+    static s32 drawAttachPoints = FALSE;
+    dbgui_checkbox("Draw attach points", &drawAttachPoints);
+    if (drawAttachPoints && obj->modelInsts != NULL) {
+        object_draw_attach_points(obj);
     }
 }
 
@@ -880,6 +922,12 @@ void object_edit_contents(Object *obj) {
         }
     } else {
         dbgui_textf("modelInsts: null");
+    }
+    if (obj->def->pAttachPoints != NULL && obj->def->numAttachPoints > 0) {
+        if (dbgui_tree_node("Attach Points")) {
+            object_attach_point_debug(obj);
+            dbgui_tree_pop();
+        }
     }
     dbgui_textf("prevLocalPosition: %f,%f,%f",
         obj->prevLocalPosition.x, obj->prevLocalPosition.y, obj->prevLocalPosition.z);
