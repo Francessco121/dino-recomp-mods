@@ -12,11 +12,10 @@ extern SRT gCameraSRT;
 extern MtxF gViewMtx;
 extern s8 gMainDoMapChange;
 
-extern OSContPad gContPads[MAXCONTROLLERS];
-extern u8 gVirtualContPortMap[MAXCONTROLLERS];
-
 const s32 FLY_COOLDOWN = 1;
 
+static u16 joypad_buttons = 0;
+static u16 joypad_pressed = 0;
 static s32 flying_cooldown = 0;
 static Vec3f fly_position;
 static _Bool fly_toggle = FALSE;
@@ -46,20 +45,18 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick(void)
         Player_Data *playerdata = (Player_Data*)player->data;
 
         // Noclip fly
-        u16 buttons = gContPads[gVirtualContPortMap[0]].button;
-        
         s32 allow_flight = 
             playerdata->vehicle == NULL && // Don't allow while on vehicle
             !(player->stateFlags & OBJSTATE_IN_SEQ); // Don't allow while a sequence has control over the player
         
         s32 fly_active = FALSE;
         if (recomp_get_config_u32("mode") == NOCLIP_MODE_TOGGLE) {
-            if ((joyGetPressedRaw(0) & L_TRIG) && allow_flight) {
+            if ((joypad_pressed & L_TRIG) && allow_flight) {
                 fly_toggle = !fly_toggle;
             }
             fly_active = fly_toggle;
         } else {
-            fly_active = (buttons & L_TRIG) ? 1 : 0;
+            fly_active = (joypad_buttons & L_TRIG) ? 1 : 0;
         }
         
         if (fly_active && recomp_get_config_u32("noclip") == ALLOW_NOCLIP_ON && allow_flight) {
@@ -82,9 +79,9 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick(void)
 
             f32 xz_power = MIN(1.0f, VECTOR_MAGNITUDE(fly_dir) * (127.0f / 65.0f));
 
-            if (buttons & U_JPAD) {
+            if (joypad_buttons & U_JPAD) {
                 fly_dir.y = 1;
-            } else if (buttons & D_JPAD) {
+            } else if (joypad_buttons & D_JPAD) {
                 fly_dir.y = -1;
             }
 
@@ -137,6 +134,12 @@ RECOMP_CALLBACK("*", recomp_on_game_tick) void noclip_fly_cheats_game_tick(void)
             player->opacity = 0xFF;
         }
     }
+}
+
+RECOMP_HOOK("main_func_80013D80") void noclip_main_func_80013D80_hook(void) {
+    // Read buttons before this func disables dpad up/down
+    joypad_buttons = joyGetButtons(0);
+    joypad_pressed = joyGetPressed(0);
 }
 
 RECOMP_HOOK("__dll1_cmdmenu_update1") void noclip_cmdmenu_hook(void) {
