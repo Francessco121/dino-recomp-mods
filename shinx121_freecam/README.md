@@ -5,7 +5,7 @@ Lets the camera be moved independently of the player, making it easier to take s
 ## Features
 - Detach the camera at any time and explore the world from new angles. This even works during cutscenes!
 - Full control over the camera: move, rotate (including roll), and zoom (FOV) as needed.
-- Resume gameplay with a static fixed-camera.
+- Optionally resume gameplay with a static fixed-camera.
 - **(experimental)** Pause the game while retaining full camera control to view otherwise impossible angles.
 
 ## Controls

@@ -56,7 +56,7 @@ additional_files = [
 [[manifest.config_options]]
 id = "allow_freecam"
 name = "Allow Freecam"
-description = "Whether freecam can be toggled with its respective button combo. This options lets you enable or disable the freecam mod while the game is running."
+description = "Whether freecam can be toggled with its respective button combo. This option lets you enable or disable the freecam mod while the game is running."
 type = "Enum"
 options = [ "On", "Off" ]
 default = "On"
