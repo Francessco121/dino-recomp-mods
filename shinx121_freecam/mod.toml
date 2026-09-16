@@ -3,6 +3,25 @@ id = "shinx121_freecam"
 display_name = "Freecam"
 description =  """
 Lets the camera be moved independently of the player, making it easier to take screenshots, observe normally inaccessible viewpoints, etc.
+
+Toggle freecam:
+- R-Trigger + D-Pad Up: Enter/exit freecam
+- R-Trigger + Start: Enter freecam and pause
+
+Main controls:
+- Control Stick: Move*
+- C-Buttons: Yaw/pitch*
+- L-Trigger/R-Trigger: Move up/down*
+- Start: Pause/unpause (experimental)
+- Z-Trigger: Toggle freecam menu
+
+Control stick mode quick-swap:
+- D-Pad Up: XZ Translation 
+- D-Pad Right: XY Translation 
+- D-Pad Down: Yaw/Pitch
+- D-Pad Left: FOV
+
+* The control stick can also edit rotation and FOV depending on the selected mode in the freecam menu. The control scheme will change slightly to compensate when changing modes.
 """
 short_description = "Lets the camera be moved independently of the player."
 
@@ -31,13 +50,61 @@ data_reference_syms_files = [
     "../dino.datasyms_extra.toml"
 ]
 additional_files = [
-    #"thumb.png"
+    "thumb.png"
 ]
 
-# [[manifest.config_options]]
-# id = "noclip"
-# name = "Allow Noclip"
-# description = "Allow the use of noclip while holding the L Button. Turn off if you need the L Button for something else."
-# type = "Enum"
-# options = [ "On", "Off" ]
-# default = "On"
+[[manifest.config_options]]
+id = "allow_freecam"
+name = "Allow Freecam"
+description = "Whether freecam can be toggled with its respective button combo. This options lets you enable or disable the freecam mod while the game is running."
+type = "Enum"
+options = [ "On", "Off" ]
+default = "On"
+
+[[manifest.config_options]]
+id = "move_speed"
+name = "Move Speed"
+description = '''
+The movement (translation) speed of the camera during freecam (units per second).
+
+Default: 300
+'''
+type = "Number"
+min = 10
+max = 800
+step = 1
+precision = 0
+percent = false
+default = 300
+
+[[manifest.config_options]]
+id = "rotate_speed"
+name = "Rotation Speed"
+description = '''
+The rotation (yaw, pitch, roll) speed of the camera during freecam (degrees per second).
+
+Default: 80
+'''
+type = "Number"
+min = 5
+max = 180
+step = 1
+precision = 0
+percent = false
+default = 80
+
+[[manifest.config_options]]
+id = "fov_speed"
+name = "FOV Speed"
+description = '''
+The speed of changing the field-of-view of the camera during freecam (degrees per second).
+
+Default: 90
+'''
+type = "Number"
+min = 5
+max = 180
+step = 1
+precision = 0
+percent = false
+default = 90
