@@ -12,7 +12,7 @@ WARNING: Misuse of noclip can result in sequence breaking which will mess up you
 """
 short_description = "Allows the player to noclip!"
 
-version = "1.1.0"
+version = "1.1.1"
 authors = [ "Shinx121" ]
 
 game_id = "dino-planet"

@@ -1,3 +1,6 @@
+## v1.1.1
+- Changed how controller inputs are processed to avoid conflicts with other mods that also wish to use the L Button.
+
 ## v1.1.0
 - New mod option to allow the L Button to toggle noclip rather than requiring the button to be held the whole time.
 - Noclip speed is now determined by how far the analog stick is pushed.
