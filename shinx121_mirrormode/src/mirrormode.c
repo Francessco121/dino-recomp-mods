@@ -4,6 +4,7 @@
 #include "PR/R4300.h"
 #include "PR/gu.h"
 #include "PR/os.h"
+#include "dlls/engine/6_amsfx.h"
 #include "dlls/objects/210_player.h"
 #include "sys/gfx/model.h"
 #include "sys/math.h"
@@ -163,4 +164,30 @@ RECOMP_PATCH s32 __dll210_dll_210_func_1D880(Object* player, s32* arg1, s32* arg
         return 1;
     }
     return 0;
+}
+
+RECOMP_PATCH void __dll6_amSfx_func_2438(f32 x, f32 z, s32 arg2, s8* outPan, s8* outFx) {
+    f32 magnitude;
+    s32 theta;
+    s32 pad;
+    s8 panOffset;
+    s8 sp2A;
+
+    magnitude = sqrtf(SQ(x) + SQ(z));
+    theta = -mathAtan2f(x, z);
+    theta = (arg2 - theta) - M_180_DEGREES;
+    CIRCLE_WRAP(theta)
+    if (magnitude <= 100.0f) {
+        panOffset = -((mathSinInterp(theta) / 1024) * (magnitude * 0.01f));
+        sp2A = (s8) -((mathCosInterp(theta) / 1024) * (magnitude * 0.01f));
+    } else {
+        panOffset = -mathSin(theta) / 1024;
+        sp2A = (s8)  (-mathCos(theta) / 1024) ;
+    }
+    sp2A = -sp2A;
+    *outPan = PAN_CENTRE + panOffset;
+    *outFx = sp2A;
+
+    // @recomp: Flip sfx pan to compensate
+    *outPan = (-(*outPan - PAN_CENTRE)) + PAN_CENTRE;
 }
