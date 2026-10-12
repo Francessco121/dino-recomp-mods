@@ -6,7 +6,7 @@ Dinosaur Planet but the entire game world is mirrored horizontally... because wh
 """
 short_description = "Mirrors the game world horizontally."
 
-version = "1.0.1"
+version = "1.0.2"
 authors = [ "Shinx121" ]
 
 game_id = "dino-planet"

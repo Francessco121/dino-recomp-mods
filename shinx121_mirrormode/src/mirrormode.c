@@ -60,22 +60,35 @@ RECOMP_PATCH void camSetNearPlane(f32 near) {
     gProjectionMtx.m[0][3] *= 0.5f;
 }
 
+RECOMP_HOOK_RETURN("camInit") void camInit_ret_hook(void) {
+    guPerspectiveF(gProjectionMtx.m, &gPerspNorm, gFovY, gAspect, gNearPlane, gFarPlane, 1.0f);
+    mathMtxF2L(&gProjectionMtx, &gRSPProjectionMtx);
+
+    // @recomp: Flip projection matrix X-axis
+    gProjectionMtx.m[0][0] *= -1.0f;
+
+    gProjectionScaleX = gProjectionMtx.m[0][0];
+}
+
 extern Gfx *gMainGfx[2];
 extern Gfx *gCurGfx;
 extern u8 gFrameBufIdx;
 
-static void hack_gfx(Gfx* start, Gfx* end, _Bool recurse) {
+static void hack_gfx(Gfx* start, Gfx* end, s32 depth) {
     // dirty evil diabolical hack...
     // don't try this one at home kids!
+    if (depth > 5) {
+        // shouldn't happen unless the dl is corrupt, but bailing is better than a stack overflow
+        recomp_eprintf("[mirrormode] Gfx hack depth too high: %d\n", depth);
+        return;
+    }
     Gfx* gfx = start;
     while (end == NULL || gfx < end) {
         u32 cmd = (gfx->words.w0 & 0xFF000000) >> 24;
         if (cmd == G_ENDDL) {
             break;
         } else if (cmd == G_DL) {
-            if (gfx->dma.par == G_DL_NOPUSH || recurse) {
-                hack_gfx((Gfx*)PHYS_TO_K0(gfx->words.w1), NULL, recurse);
-            }
+            hack_gfx((Gfx*)PHYS_TO_K0(gfx->words.w1), NULL, depth + 1);
             if (gfx->dma.par == G_DL_NOPUSH) {
                 break;
             }
@@ -90,8 +103,8 @@ static void hack_gfx(Gfx* start, Gfx* end, _Bool recurse) {
     }
 }
 
-RECOMP_HOOK_RETURN("trackDraw") void culling_hack(void) {
-    hack_gfx(gMainGfx[gFrameBufIdx], gCurGfx, TRUE);
+RECOMP_HOOK("viFrameSync") void culling_hack(void) {
+    hack_gfx(gMainGfx[gFrameBufIdx], gCurGfx, 0);
 }
 
 typedef struct _ControllersSnapshot {
