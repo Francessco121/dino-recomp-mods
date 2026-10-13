@@ -1026,6 +1026,16 @@ void object_seq_debug(Object *obj, ObjEditorData *editorData) {
     if (dbgui_button("Play")) {
         editorData->seqPlayLastRet = gDLL_3_Animation->vtbl->start_obj_sequence(editorData->seqIdx, obj, editorData->seqActorBits);
     }
+    dbgui_same_line();
+    if (obj->seqSlot == SEQSLOT_NONE) {
+        dbgui_begin_disabled(TRUE);
+    }
+    if (dbgui_button("Stop")) {
+        gDLL_3_Animation->vtbl->end_obj_sequence(obj->seqSlot);
+    }
+    if (obj->seqSlot == SEQSLOT_NONE) {
+        dbgui_end_disabled();
+    }
     
     dbgui_textf("Last play return value: %d", editorData->seqPlayLastRet);
 }

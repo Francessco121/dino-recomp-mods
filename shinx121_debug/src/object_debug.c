@@ -8,6 +8,8 @@
 #include "object_editor.h"
 #include "object_dll_ids.h"
 #include "objects/bwlog_debug.h"
+#include "objects/cfcloudbaby_debug.h"
+#include "objects/cfguardian_debug.h"
 #include "objects/dll27_debug.h"
 #include "objects/effectbox_debug.h"
 #include "objects/kd_debug.h"
@@ -177,6 +179,18 @@ static void object_editor(Object *obj, ObjEditorData *editorData, s32 index) {
                         dbgui_end_tab_item();
                     }
                     break;
+                case DLL_ID_CFGuardian:
+                    if (dbgui_begin_tab_item("CFGuardian", NULL)) {
+                        cfguardian_debug_tab(obj);
+                        dbgui_end_tab_item();
+                    }
+                    break;
+                case DLL_ID_CFCloudBaby:
+                    if (dbgui_begin_tab_item("CFCloudBaby", NULL)) {
+                        cfcloudbaby_debug_tab(obj);
+                        dbgui_end_tab_item();
+                    }
+                    break;
             }
 
             dbgui_end_tab_bar();
@@ -223,7 +237,7 @@ static _Bool object_matches_search_filter(Object* obj) {
     return TRUE;
 }
 
-static void objects_list_tab(Object** objects, s32 count, s32 *hovered_object_idx) {
+static void objects_list_tab(Object** objects, s32 count) {
     dbgui_checkbox("Show in world", &show_in_world);
 
     if (show_in_world) {
@@ -266,7 +280,7 @@ static void objects_list_tab(Object** objects, s32 count, s32 *hovered_object_id
             }
 
             if (dbgui_is_item_hovered()) {
-                *hovered_object_idx = i;
+                hovered_object_idx = i;
             }
 
             dbgui_pop_id();
@@ -360,22 +374,26 @@ void object_debug_menu_callback(void) {
     dbgui_menu_item("Objects", &object_debug_window_open);
 }
 
-RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback(void) {
-    s32 hovered_object_idx = -1;
-
-    s32 _, count;
-    Object** objects;
+static Object** object_debug_get_objects(s32* count) {
     if (filter_types) {
-        objects = objGetAllOfType(type_filter, &count);
+        return objGetAllOfType(type_filter, count);
     } else {
-        objects = objGetObjects(&_, &count);
+        s32 _;
+        return objGetObjects(&_, count);
     }
+}
+
+RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback(void) {
+    hovered_object_idx = -1;
+
+    s32 count;
+    Object** objects = object_debug_get_objects(&count);
 
     if (object_debug_window_open) {
         if (dbgui_begin("Object Debug", &object_debug_window_open)) {
             if (dbgui_begin_tab_bar("##objects")) {
                 if (dbgui_begin_tab_item("Objects", NULL)) {
-                    objects_list_tab(objects, count, &hovered_object_idx);
+                    objects_list_tab(objects, count);
                     dbgui_end_tab_item();
                 }
 
@@ -458,10 +476,7 @@ RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback(void) {
             if (show_hitboxes) {
                 switch (obj->def->dllID) {
                 case DLL_ID_trigger:
-                    draw_trigger(obj, hovered ? 0xFFFFFFFF : 0xFFFF00FF);
-                    break;
                 case DLL_ID_EffectBox:
-                    draw_effectbox(obj, hovered ? 0xFFFFFFFF : 0xFFFF00FF);
                     break;
                 default:
                     if (obj->objhitInfo != NULL) {
@@ -552,4 +567,32 @@ RECOMP_CALLBACK(".", my_dbgui_event) void object_debug_dbgui_callback(void) {
     }
 
     remove_freed_edit_objects();
+}
+
+RECOMP_CALLBACK(".", real3d_event) void object_debug_real3d_callback(void) {
+    if (!show_in_world || !show_hitboxes) {
+        return;
+    }
+
+    s32 count;
+    Object** objects = object_debug_get_objects(&count);
+
+    for (s32 i = 0; i < count; i++) {
+        s32 hovered = hovered_object_idx == i;
+
+        Object *obj = objects[i];
+
+        if (!object_matches_search_filter(obj)) {
+            continue;
+        }
+
+        switch (obj->def->dllID) {
+        case DLL_ID_trigger:
+            draw_trigger_real3d(obj, hovered ? 0x50FFFFFF : 0x40FF00FF);
+            break;
+        case DLL_ID_EffectBox:
+            draw_effectbox_real3d(obj, hovered ? 0x50FFFFFF : 0x40FF0000);
+            break;
+        }
+    }
 }

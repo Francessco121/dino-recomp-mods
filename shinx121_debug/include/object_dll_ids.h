@@ -10,6 +10,8 @@ enum ObjectDLLID {
     DLL_ID_EffectBox = 0x8040,
     DLL_ID_SEQOBJ = 0x8064,
     DLL_ID_trigger = 0x8074,
+    DLL_ID_CFGuardian = 0x80a0,
+    DLL_ID_CFCloudBaby = 0x80a4,
     DLL_ID_DFmole = 0x80db,
     DLL_ID_snowhorn = 0x811f,
     DLL_ID_SHspore = 0x8128,

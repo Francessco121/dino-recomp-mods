@@ -2,7 +2,7 @@
 
 #include "modding.h"
 #include "dbgui.h"
-#include "../3d.h"
+#include "../real3d.h"
 
 #include "game/objects/object.h"
 #include "game/objects/object_id.h"
@@ -23,7 +23,7 @@ typedef struct {
     u8 unk22;
 } EffectBox_Setup;
 
-void draw_effectbox(Object *obj, u32 color) {
+void draw_effectbox_real3d(Object *obj, u32 color) {
     Vec3f position = obj->prevGlobalPosition;
     EffectBox_Setup *setup = (EffectBox_Setup*)obj->setup;
 
@@ -37,11 +37,12 @@ void draw_effectbox(Object *obj, u32 color) {
         .roll = 0,
         .flags = 0,
         .scale = 1.0f,
-        .transl = position
+        .transl = {
+            .x = position.x,
+            .y = position.y + (height / 2.0f),
+            .z = position.z
+        }
     };
 
-    MtxF mtx;
-    mathYprXyzMtx(&mtx, &srt);
-
-    draw_3d_box(&mtx, width, height, depth, color);
+    real3d_draw_box(&srt, width, height, depth, color);
 }

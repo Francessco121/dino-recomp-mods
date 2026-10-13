@@ -4,6 +4,7 @@
 #include "dbgui.h"
 #include "recomputils.h"
 #include "../3d.h"
+#include "../real3d.h"
 #include "../debug_common.h"
 
 #include "game/objects/object.h"
@@ -237,7 +238,7 @@ void trigger_debug_tab(Object *obj) {
                             i);
                     if (dbgui_tree_node(label)) {
                         dbgui_input_byte_ext("Condition", &cmd->condition, &hexInput);
-                        dbgui_input_byte_ext("ID", &cmd->condition, &hexInput);
+                        dbgui_input_byte_ext("ID", &cmd->id, &hexInput);
                         dbgui_input_byte_ext("Param 1", &cmd->param1, &hexInput);
                         dbgui_input_byte_ext("Param 2", &cmd->param2, &hexInput);
                         dbgui_tree_pop();
@@ -294,88 +295,62 @@ void trigger_debug_tab(Object *obj) {
     }
 }
 
-static void draw_plane_line(MtxF *mtx, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2, u32 color) {
-    mathMtxXFMF(mtx, x1, y1, z1, &x1, &y1, &z1);
-    mathMtxXFMF(mtx, x2, y2, z2, &x2, &y2, &z2);
-
-    draw_3d_line(x1, y1, z1, x2, y2, z2, color);
-}
-
-static void draw_trigger_plane(Object *obj, u32 color) {
-    MtxF mtx;
-    mathYprXyzMtx(&mtx, &obj->srt);
-
-    Vtx *vertex = &sPlaneModel->model->vertices[1];
-    f32 minX, minY, minZ;
-    f32 maxX, maxY, maxZ;
-    minX = maxX = (f32)vertex->v.ob[0];
-    minY = maxY = (f32)vertex->v.ob[1];
-    minZ = maxZ = (f32)vertex->v.ob[2];
-
-    for (s32 i = 1; i < sPlaneModel->model->vertexCount; i++, vertex++) {
-        if (vertex->v.ob[0] < minX) {
-            minX = vertex->v.ob[0];
-        }
-        if (vertex->v.ob[0] > maxX) {
-            maxX = vertex->v.ob[0];
-        }
-
-        if (vertex->v.ob[1] < minY) {
-            minY = vertex->v.ob[1];
-        }
-        if (vertex->v.ob[1] > maxY) {
-            maxY = vertex->v.ob[1];
-        }
-
-        if (vertex->v.ob[2] < minZ) {
-            minZ = vertex->v.ob[2];
-        }
-        if (vertex->v.ob[2] > maxZ) {
-            maxZ = vertex->v.ob[2];
-        }
-    }
-
-    draw_plane_line(&mtx, minX, minY, minZ, maxX, minY, minZ, color);
-    draw_plane_line(&mtx, minX, maxY, minZ, maxX, maxY, minZ, color);
-
-    draw_plane_line(&mtx, minX, minY, minZ, minX, maxY, minZ, color);
-    draw_plane_line(&mtx, maxX, minY, minZ, maxX, maxY, minZ, color);
-
-    draw_plane_line(&mtx, minX, minY, maxZ, maxX, minY, maxZ, color);
-    draw_plane_line(&mtx, minX, maxY, maxZ, maxX, maxY, maxZ, color);
-
-    draw_plane_line(&mtx, minX, minY, maxZ, minX, maxY, maxZ, color);
-    draw_plane_line(&mtx, maxX, minY, maxZ, maxX, maxY, maxZ, color);
-}
-
-void draw_trigger(Object *obj, u32 color) {
+void draw_trigger_real3d(Object* obj, u32 color) {
     Vec3f position = obj->prevGlobalPosition;
+    Trigger_Setup* setup = (Trigger_Setup*)obj->setup;
+    if (setup == NULL) {
+        return;
+    }
+    Trigger_Data* objdata = obj->data;
 
     switch (obj->id) {
     case OBJ_TriggerPoint: {
-        Trigger_Setup *setup = (Trigger_Setup*)obj->setup;
-        if (setup != NULL) {
-            draw_3d_sphere(
-                position.x,
-                position.y,
-                position.z,
-                (f32)(setup->sizeX << 1),
-                color
-            );
-        }
-        break;
-    }
-    case OBJ_TriggerPlane:
-        draw_trigger_plane(obj, color);
-        break;
-    default:
-        draw_3d_sphere(
+        real3d_draw_sphere(
             position.x,
             position.y,
             position.z,
-            2 * obj->srt.scale,
+            (f32)(setup->sizeX << 1) * 2.0f,
             color
         );
+        break;
+    }
+    case OBJ_TriggerPlane: {
+        SRT srt = obj->srt;
+        srt.scale *= 127.0f * 2.0f;
+        real3d_draw_rect(&srt, 1.0f, 1.0f, color);
+        break;
+    }
+    case OBJ_TriggerCylinder: {
+        f32 width = (setup->sizeX << 1) * 2.0f;
+        f32 height = (setup->sizeY << 1) * 2.0f;
+        SRT srt = {
+            .yaw = 0,
+            .pitch = 0,
+            .roll = 0,
+            .flags = 0,
+            .scale = 1.0f,
+            .transl = obj->srt.transl
+        };
+        real3d_draw_cylinder(&srt, width, height, color);
+        break;
+    }
+    case OBJ_TriggerArea: {
+        SRT srt = {
+            .yaw = setup->rotationY << 8,
+            .pitch = setup->rotationX << 8,
+            .roll = 0,
+            .flags = 0,
+            .scale = 1.0f,
+            .transl = obj->srt.transl
+        };
+        real3d_draw_box(&srt, setup->sizeX * 4, setup->sizeY * 4, setup->sizeZ * 4, color);
+        break;
+    }
+    default:
+        real3d_draw_sphere(
+            position.x, position.y, position.z,
+            2 * obj->srt.scale,
+            color);
         break;
     }
 }
