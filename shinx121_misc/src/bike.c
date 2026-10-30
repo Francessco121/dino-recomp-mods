@@ -138,7 +138,7 @@ static void spawn_dflog(void) {
         spawn_dockpoint();
 }
 
-RECOMP_HOOK("__dll417_dll_417_func_86C") void dll_417_func_86C_hook(Object *self, s32 a1) {
+RECOMP_HOOK("__dll417_DFlog_vehicle_SetMountState") void dll_417_func_86C_hook(Object *self, s32 a1) {
     if (a1 != 0) {
         objClearMapID(self);
     } else {
