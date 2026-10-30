@@ -24,6 +24,7 @@ static void debug_menus(void) {
     subtitle_debug_menu_callback();
     task_debug_menu_callback();
     time_debug_menu_callback();
+    track_debug_menu_callback();
     voxmap_debug_menu_callback();
 }
 

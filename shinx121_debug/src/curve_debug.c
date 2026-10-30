@@ -275,11 +275,11 @@ static void debug_draw_curves(void) {
                     dbgui_input_short_ext("unk34[2]", &((s16*)&setup->type1D.unk34)[2], &hexInput);
                     dbgui_input_short_ext("unk34[3]", &((s16*)&setup->type1D.unk34)[3], &hexInput);
                 } else if (setup->curveType == 0x22) {
-                    dbgui_input_short_ext("activeBit", &setup->type22.unk30, &hexInput);
+                    dbgui_input_short_ext("activeBit", &setup->type22.activeBit, &hexInput);
                     dbgui_input_short_ext("usedBit", &setup->type22.usedBit, &hexInput);
                 } else if (setup->curveType == 0x24) {
-                    dbgui_input_short_ext("activeBit", &setup->type24.unk30, &hexInput);
-                    dbgui_input_short_ext("usedBit", &setup->type24.unk32, &hexInput);
+                    dbgui_input_short_ext("activeBit", &setup->type24.activeBit, &hexInput);
+                    dbgui_input_short_ext("usedBit", &setup->type24.usedBit, &hexInput);
                 } else if (setup->curveType == 0x26) {
                     dbgui_input_sbyte_ext("unk30", &setup->type26.unk30, &hexInput);
                     dbgui_input_sbyte_ext("unk31", &setup->type26.unk31, &hexInput);

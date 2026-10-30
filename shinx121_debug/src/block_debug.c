@@ -191,7 +191,7 @@ static void block_debug(Block *block, s16 id, s32 idx) {
                         hoveredShape = i;
                     }
 
-                    dbgui_textf("flags: 0x%X", shape->flags);
+                    dbgui_input_uint_ext("flags", &shape->flags, &hexInput);
                     dbgui_textf("vtxBase: %d", shape->vtxBase);
                     dbgui_textf("triBase: %d", shape->triBase);
                     dbgui_textf("Ymin: %d", shape->Ymin);

@@ -204,6 +204,25 @@ static void object_show_def(ObjDef *def) {
         }
     }
 
+    dbgui_textf("unk7C: 0x%X", def->unk7C);
+    dbgui_separator();
+    dbgui_textf("unk7E: %d", def->unk7E);
+    dbgui_textf("unk7F: %d", def->unk7F);
+    dbgui_textf("unk80: %d", def->unk80);
+    dbgui_textf("pad81: %d", def->pad81);
+    dbgui_textf("unk82: %d", def->unk82);
+    dbgui_separator();
+    dbgui_push_item_width(120);
+    dbgui_input_sbyte("unk83", &def->unk83);
+    dbgui_input_sbyte("unk84", &def->unk84);
+    dbgui_input_byte("unk85", &def->unk85);
+    dbgui_input_byte("unk86", &def->unk86);
+    dbgui_pop_item_width();
+    dbgui_textf("unk87: 0x%X", def->unk87);
+    dbgui_textf("unk8C: %d", def->nLights);
+    dbgui_textf("unk8D: %d", def->lightIdx);
+    dbgui_separator();
+
     dbgui_textf("unk98: %d", def->unk98);
     dbgui_textf("unk99: %d", def->unk99);
     dbgui_textf("unk9A: %d", def->unk9A);

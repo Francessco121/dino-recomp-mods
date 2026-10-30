@@ -18,4 +18,5 @@ void sound_test_menu_callback(void);
 void subtitle_debug_menu_callback(void);
 void task_debug_menu_callback(void);
 void time_debug_menu_callback(void);
+void track_debug_menu_callback(void);
 void voxmap_debug_menu_callback(void);

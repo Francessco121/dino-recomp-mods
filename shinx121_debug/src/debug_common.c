@@ -54,6 +54,15 @@ s32 dbgui_input_short(const char *label, s16 *value) {
     return FALSE;
 }
 
+s32 dbgui_input_ushort(const char *label, u16 *value) {
+    s32 value_ = *value;
+    if (dbgui_input_int(label, &value_)) {
+        *value = (u16)value_;
+        return TRUE;
+    }
+    return FALSE;
+}
+
 s32 dbgui_input_short_ext(const char *label, s16 *value, const DbgUiInputIntOptions *options) {
     s32 value_ = *value;
     if (dbgui_input_int_ext(label, &value_, options)) {

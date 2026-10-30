@@ -14,6 +14,10 @@ RECOMP_HOOK("objRecvMesg") void objRecvMesg_logging_hook(Object *obj, u32 *outMe
         Object* sender = mesgQueue->queue[0].sender;
         void* mesgArg = mesgQueue->queue[0].arg;
 
+        if (sender != NULL && !(sender->srt.flags & OBJFLAG_UNK_2)) {
+            sender = NULL;
+        }
+
         const char *senderName = (sender == NULL || sender->def == NULL) 
             ? "<unknown>" 
             : sender->def->name;

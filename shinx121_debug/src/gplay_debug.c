@@ -6,6 +6,7 @@
 
 #include "PR/ultratypes.h"
 #include "PR/gbi.h"
+#include "dlls/engine/29_gplay.h"
 #include "sys/map.h"
 #include "sys/objects.h"
 #include "dll.h"
@@ -80,6 +81,72 @@ static void general_tab(void) {
     }
 }
 
+static void state_tab_player_location(PlayerLocation* loc) {
+    dbgui_textf("pos: %f, %f, %f\n", loc->vec.x, loc->vec.y, loc->vec.z);
+    dbgui_textf("rotationY: %d\n", loc->rotationY);
+    dbgui_textf("mapLayer: %d\n", loc->mapLayer);
+}
+
+static void state_tab_lactions(PlayerLightActions* acts) {
+    dbgui_textf("unk0: %d, %d, %d, %d\n", acts->unk0[0], acts->unk0[1], acts->unk4, acts->unk6);
+    dbgui_textf("unk8: %d, %d\n", acts->unk8[0], acts->unk8[1]);
+    dbgui_textf("unkC: %d, %d\n", acts->unkC[0], acts->unkC[1]);
+    dbgui_textf("isInside: %d\n", acts->isInside);
+    dbgui_textf("unk12: %d\n", acts->unk12);
+}
+
+static void state_tab_env_actions(PlayerEnvActions* acts) {
+    dbgui_textf("unk0: %f\n", acts->unk0);
+    dbgui_textf("unk4: %d\n", acts->unk4);
+    dbgui_textf("unk6: %d\n", acts->unk6);
+    dbgui_textf("unk8: %d\n", acts->unk8);
+    dbgui_textf("unkA: %d\n", acts->unkA);
+    dbgui_textf("unkC: %d\n", acts->unkC);
+    dbgui_textf("unkE: %d\n", acts->unkE);
+
+    dbgui_textf("unk10: %d, %d, %d\n", acts->unk10, acts->unk14, acts->unk18);
+    dbgui_textf("unk1C: %d, %d, %d\n", acts->unk1C, acts->unk20, acts->unk24);
+    dbgui_textf("unk28: %d, %d, %d\n", acts->unk28, acts->unk2C, acts->unk30);
+
+    dbgui_textf("unk3C: 0x%X\n", acts->unk3C);
+    dbgui_textf("unk3D: %d\n", acts->unk3D);
+    dbgui_textf("unk3E: %d\n", acts->unk3E);
+    dbgui_textf("unk3F: %d\n", acts->unk3F);
+}
+
+static void state_tab_music_actions(PlayerMusicActions* acts) {
+    dbgui_textf("actionNums (ambience): %d, %d\n", acts->actionNums[0], acts->actionNums[1]);
+    dbgui_textf("actionNums (music): %d, %d\n", acts->actionNums[2], acts->actionNums[3]);
+}
+
+static void state_tab(GameState *state) {
+    if (dbgui_begin_tab_bar("player_tabs")) {
+        for (s32 playerno = 0; playerno < 2; playerno++) {
+            const char* tabName = playerno == PLAYER_SABRE ? "Sabre": "Krystal";
+            if (dbgui_begin_tab_item(tabName, NULL)) {
+                if (dbgui_tree_node("Player Location")) {
+                    state_tab_player_location(&state->save.map.playerLocations[playerno]);
+                    dbgui_tree_pop();
+                }
+                if (dbgui_tree_node("Light Actions")) {
+                    state_tab_lactions(&state->save.map.lightActions[playerno]);
+                    dbgui_tree_pop();
+                }
+                if (dbgui_tree_node("Env Actions")) {
+                    state_tab_env_actions(&state->save.map.envActions[playerno]);
+                    dbgui_tree_pop();
+                }
+                if (dbgui_tree_node("Music Actions")) {
+                    state_tab_music_actions(&state->save.map.musicActions[playerno]);
+                    dbgui_tree_pop();
+                }
+                dbgui_end_tab_item();
+            }
+        }
+        dbgui_end_tab_bar();
+    }
+}
+
 static void removed_saved_obj(Savefile *savefile, s32 idx) {
     for (s32 i = idx; i < (100 - 1); i++) {
         SavedObject *curr = &savefile->savedObjects[i];
@@ -148,6 +215,10 @@ RECOMP_CALLBACK(".", my_dbgui_event) void gplay_debug_dbgui_callback(void) {
             if (dbgui_begin_tab_bar("tabs")) {
                 if (dbgui_begin_tab_item("General", NULL)) {
                     general_tab();
+                    dbgui_end_tab_item();
+                }
+                if (dbgui_begin_tab_item("State", NULL)) {
+                    state_tab(state);
                     dbgui_end_tab_item();
                 }
                 if (dbgui_begin_tab_item("Saved Objects", NULL)) {
