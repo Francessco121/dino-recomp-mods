@@ -88,11 +88,12 @@ static void state_tab_player_location(PlayerLocation* loc) {
 }
 
 static void state_tab_lactions(PlayerLightActions* acts) {
-    dbgui_textf("unk0: %d, %d, %d, %d\n", acts->unk0[0], acts->unk0[1], acts->unk4, acts->unk6);
-    dbgui_textf("unk8: %d, %d\n", acts->unk8[0], acts->unk8[1]);
-    dbgui_textf("unkC: %d, %d\n", acts->unkC[0], acts->unkC[1]);
-    dbgui_textf("isInside: %d\n", acts->isInside);
-    dbgui_textf("unk12: %d\n", acts->unk12);
+    dbgui_textf("skylights: %d, %d, %d, %d\n", acts->skylights[0], acts->skylights[1], acts->skylights[2], acts->skylights[3]);
+    dbgui_textf("trklights: %d, %d\n", acts->trklights[0], acts->trklights[1]);
+    dbgui_textf("unkC: %d\n", acts->unkC);
+    dbgui_textf("newlfx: %d\n", acts->newlfx);
+    dbgui_textf("flags: 0x%X\n", acts->flags);
+    dbgui_textf("cam: %d\n", acts->cam);
 }
 
 static void state_tab_env_actions(PlayerEnvActions* acts) {
