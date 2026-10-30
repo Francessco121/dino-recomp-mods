@@ -1,13 +1,14 @@
-#include "PR/ultratypes.h"
-#include "dlls/objects/793_BWLog.h"
-#include "game/objects/object_id.h"
 #include "modding.h"
 #include "recomputils.h"
 #include "dbgui.h"
 
 #include "PR/os.h"
-#include "dlls/objects/210_player.h"
+#include "PR/ultratypes.h"
+#include "game/objects/object_id.h"
 #include "game/objects/object.h"
+#include "game/objects/setups/49_SnowBike.h"
+#include "game/objects/setups/51_Generic.h"
+#include "dlls/objects/210_player.h"
 #include "sys/pi.h"
 #include "sys/joypad.h"
 #include "sys/memory.h"
@@ -17,19 +18,12 @@
 #include "common.h"
 #include "dll.h"
 
-typedef struct {
-/*00*/ ObjSetup base;
-/*18*/ s8 yaw;
-/*19*/ s8 spawnLogDisabled;
-/*1A*/ s16 range;
-} DFdockpoint_Setup;
-
 static s32 windowOpen = 0;
 static Object *bike;
 
 static Object *validate_bike(void) {
     s32 objListCount;
-    Object **objList = objGetAllOfType(0xB, &objListCount);
+    Object **objList = objGetAllOfType(OBJTYPE_Vehicle, &objListCount);
     for (s32 i = 0; i < objListCount; i++) {
         if (objList[i] == bike) {
             return objList[i];
@@ -66,25 +60,26 @@ static void spawn_bike(void) {
 
     Object *player = objGetPlayer();
     
-    ObjSetup *setup = objAllocSetup(0x24, OBJ_CRSnowBike);
-    setup->loadFlags = 0x10;
-    setup->fadeFlags = 4;
-    setup->loadDistance = 1;
-    setup->fadeDistance = 99;
-    setup->x = player->globalPosition.x;
-    setup->y = player->globalPosition.y;
-    setup->z = player->globalPosition.z;
-    *((u32*)((u32)setup + 0x18)) = 0xB800FFFF;
-    *((u32*)((u32)setup + 0x1C)) = 0x0001FFFF;
-    *((u32*)((u32)setup + 0x20)) = 0x1C000000;
+    SnowBike_Setup *setup = objAllocSetup(sizeof(SnowBike_Setup), OBJ_CRSnowBike);
+    setup->base.loadFlags = OBJSETUP_LOAD_MANUAL;
+    setup->base.fadeFlags = OBJSETUP_FADE_CAMERA;
+    setup->base.loadDistance = 1;
+    setup->base.fadeDistance = 99;
+    setup->base.x = player->globalPosition.x;
+    setup->base.y = player->globalPosition.y;
+    setup->base.z = player->globalPosition.z;
+    setup->yaw = 0xB8;
+    setup->isSharpClawBike = FALSE;
+    setup->gamebitUnlocked = -1;
+    setup->gamebitFinished = -1;
 
-    bike = objSetupObject(setup, OBJINIT_STANDALONE | OBJINIT_FLAG4, -1, 0, NULL);
+    bike = objSetupObject(&setup->base, OBJINIT_STANDALONE | OBJINIT_FLAG4, -1, 0, NULL);
 }
 
 static void spawn_dockpoint(void) {
     Object *player = objGetPlayer();
 
-    DFdockpoint_Setup* dock = objAllocSetup(0x2C, OBJ_DFdockpoint);
+    DFDockpoint_Setup* dock = objAllocSetup(sizeof(DFDockpoint_Setup), OBJ_DFdockpoint);
     dock->base.quarterSize = 9;
     dock->base.loadFlags = OBJSETUP_LOAD_MAIN;
     dock->base.loadDistance = 50;
@@ -94,16 +89,16 @@ static void spawn_dockpoint(void) {
     dock->base.y = player->globalPosition.y;
     dock->base.z = player->globalPosition.z;
     dock->yaw = player->srt.yaw;
-    dock->spawnLogDisabled = 1;
+    dock->type = 1;
     dock->range = 500;
-    objSetupObject((ObjSetup*)dock, OBJINIT_STANDALONE | OBJINIT_FLAG4, 
+    objSetupObject(&dock->base, OBJINIT_STANDALONE | OBJINIT_FLAG4, 
         mapWorldXZToMapID(player->globalPosition.x, player->globalPosition.z), -1, NULL);
 }
 
 static void spawn_bwlog(void) {
     Object *player = objGetPlayer();
 
-    BWLog_Setup* logsetup = objAllocSetup(sizeof(BWLog_Setup), OBJ_BWLog);
+    Generic_Setup* logsetup = objAllocSetup(sizeof(Generic_Setup), OBJ_BWLog);
     logsetup->base.quarterSize = 9;
     logsetup->base.loadFlags = OBJSETUP_LOAD_MAIN;
     logsetup->base.loadDistance = 50;
@@ -113,7 +108,7 @@ static void spawn_bwlog(void) {
     logsetup->base.y = player->globalPosition.y;
     logsetup->base.z = player->globalPosition.z;
     logsetup->yaw = player->srt.yaw;
-    objSetupObject((ObjSetup*)logsetup, OBJINIT_STANDALONE | OBJINIT_FLAG4, 
+    objSetupObject(&logsetup->base, OBJINIT_STANDALONE | OBJINIT_FLAG4, 
         mapWorldXZToMapID(player->globalPosition.x, player->globalPosition.z), -1, NULL);
 
     spawn_dockpoint();
@@ -122,7 +117,7 @@ static void spawn_bwlog(void) {
 static void spawn_dflog(void) {
     Object *player = objGetPlayer();
 
-    BWLog_Setup* logsetup = objAllocSetup(sizeof(BWLog_Setup), OBJ_DFlog);
+    Generic_Setup* logsetup = objAllocSetup(sizeof(Generic_Setup), OBJ_DFlog);
     logsetup->base.quarterSize = 9;
     logsetup->base.loadFlags = OBJSETUP_LOAD_MAIN;
     logsetup->base.loadDistance = 50;
@@ -132,7 +127,7 @@ static void spawn_dflog(void) {
     logsetup->base.y = player->globalPosition.y;
     logsetup->base.z = player->globalPosition.z;
     logsetup->yaw = player->srt.yaw;
-    objSetupObject((ObjSetup*)logsetup, OBJINIT_STANDALONE | OBJINIT_FLAG4, 
+    objSetupObject(&logsetup->base, OBJINIT_STANDALONE | OBJINIT_FLAG4, 
         mapWorldXZToMapID(player->globalPosition.x, player->globalPosition.z), -1, NULL);
     
         spawn_dockpoint();

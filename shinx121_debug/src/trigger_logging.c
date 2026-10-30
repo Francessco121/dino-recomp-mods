@@ -10,6 +10,7 @@
 #include "dlls/objects/325_trigger.h"
 #include "game/objects/object.h"
 #include "game/objects/object_id.h"
+#include "game/objects/setups/Trigger.h"
 #include "sys/asset.h"
 #include "sys/camera.h"
 #include "sys/dll.h"
