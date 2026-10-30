@@ -215,6 +215,7 @@ static void watch_tab(void) {
             }
         }
     }
+    dbgui_end_child();
 }
 
 void bittable_debug_menu_callback(void) {

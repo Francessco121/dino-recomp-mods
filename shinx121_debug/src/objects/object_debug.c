@@ -1172,5 +1172,7 @@ void object_anim_debug(Object *obj, ObjEditorData *editorData) {
         objAnimAdvance(obj, editorData->modAnimDelta, gUpdateRateF, NULL);
     }
 
-    dbgui_end_disabled();
+    if (!validAnim) {
+        dbgui_end_disabled();
+    }
 }
